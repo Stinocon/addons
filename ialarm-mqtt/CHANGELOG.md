@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.14.6
+- **DISCOVERY DEBUGGING**: Add detailed logging for discovery process
+- debug: add detailed logging for discovery process
+- debug: log discovery process start and reset message creation
+- debug: log discovery message creation with config details
+- debug: log branding prefix and zones count
+- debug: add logging to identify where discovery gets stuck
+
 ## 0.14.5
 - **MQTT TOPIC PREFIX FIX**: Correct MQTT topic prefix and add discovery debugging
 - fix: correct topicPrefix fallback from 'ialarm' to 'ialarm-v2'
