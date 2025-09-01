@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.15.1 - 🎯 PERFECT ENTITY NAMING
+- **🎯 PERFECT ENTITY NAMING**: Two separate functions for device names vs entity IDs
+- **✅ CLEANZONAMEFORDISPLAY**: Readable device names with spaces and proper capitalization
+- **✅ CLEANZONAMEFORENTITY**: Clean entity IDs with underscores and lowercase
+- **✅ UPDATED SENSOR FUNCTIONS**: All sensors now use clean entity names
+- **✅ UNIQUE_ID V7**: Updated to _v7 for force refresh of all entities
+
+### Perfect Naming Examples:
+- **Device Names**: "PIR Sala", "Finestra Studio", "Camera"
+- **Entity IDs**: `pir_sala`, `pir_sala_stato`, `pir_sala_batteria`, `pir_sala_connessione`, `pir_sala_bypass`
+
+### Test Cases:
+- Input: `"zona_15_pir_corridoio_pir_corridoio"` → Display: "PIR Corridoio" 📱, Entity: `pir_corridoio` 🏷️
+- Input: `"zona_8_porta_studio_porta_studio"` → Display: "Porta Studio" 📱, Entity: `porta_studio` 🏷️
+
 ## 0.15.0 - 🎉 STABLE RELEASE
 - **🎉 STABLE RELEASE**: Clean Entity Naming + Repository Cleanup
 - **✅ ENTITY NAMING FIXES**: Entity IDs now clean (pir_sala vs zone_18_pir_sala_pir_sala)
