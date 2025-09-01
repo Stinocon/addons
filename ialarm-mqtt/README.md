@@ -10,10 +10,11 @@ This enhanced version includes **critical fixes and improvements** over the orig
 
 - ✅ **Fixed bugs #45 and #51** - Entity name flip-flop and HA 2024.2+ compliance
 - ✅ **Clean entity naming** - No more ugly _2, _3, _4 suffixes (e.g., "Cantina", "Cantina Stato", "Cantina Batteria")
-- ✅ **MQTT prefix `ialarm-v2`** (vs `ialarm` in original)
+- ✅ **MQTT prefix `ialarm`** (same as original for compatibility)
 - ✅ **Unique device identifiers** - No Home Assistant entity conflicts
 - ✅ **Enhanced logging** and discovery management
-- ✅ **Professional branding** - Antifurto365 manufacturer with customizable naming
+- ✅ **Professional branding** - Meian manufacturer with customizable naming
+- ✅ **Web Interface** (NEW) - Real-time dashboard and control panel
 
 ## 🏷️ Clean Entity Naming
 
@@ -41,6 +42,38 @@ switch.zona_5_lavanderia_bypass                         # Clear bypass function
 - **Bypass switch**: `{zone_name} Bypass` (bypass control)
 
 All entities have stable `unique_id` values to prevent Home Assistant from creating duplicates.
+
+## 🌐 Web Interface (NEW)
+
+This enhanced version includes an **optional built-in web interface** for comprehensive alarm control and monitoring:
+
+### Features
+- **Real-time dashboard** - Live zone status, alarm state, battery levels
+- **Direct control** - Arm/disarm system with confirmation dialogs
+- **Live event log** - Real-time view of alarm events and activities  
+- **Zone management** - Visual configuration of zones (name, type, enable/disable)
+- **Statistics** - Historical data, arm/disarm frequency, triggered events
+- **Mobile responsive** - Works on phones, tablets, desktop
+
+### Access
+1. **Enable** web interface in addon configuration
+2. **Access** via Home Assistant sidebar → "iAlarm Control"
+3. **No login required** - Uses Home Assistant authentication
+
+### Configuration
+```yaml
+web_interface:
+  enabled: true           # Enable/disable web interface
+  port: 8099             # Internal port (not exposed externally)
+  theme: "dark"          # Theme: dark, light, auto  
+  refresh_interval: 2000 # Update frequency (milliseconds)
+  show_advanced: false   # Show advanced debugging controls
+```
+
+### Security
+- **Ingress protected** - Only accessible through Home Assistant
+- **No external exposure** - Web server bound to internal network only
+- **HA authentication** - Inherits Home Assistant user permissions
 
 ## ⚠️ Important Connection Limitation
 

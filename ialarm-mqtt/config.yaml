@@ -1,8 +1,8 @@
 name: "iAlarm MQTT bridge"
 url: https://github.com/Stinocon/addons/tree/master/ialarm-mqtt
-version: "0.12.12"
+version: "0.13.0"
 slug: ialarm-mqtt
-description: "Enhanced iAlarm MQTT bridge with clean entity naming and bug fixes"
+description: "Enhanced iAlarm MQTT bridge with clean entity naming and web interface"
 arch:
   - armhf
   - armv7
@@ -12,6 +12,10 @@ arch:
 init: false
 startup: application
 boot: auto
+ingress: true
+panel_icon: mdi:shield-home
+panel_title: iAlarm Control
+panel_admin: false
 options:
   verbose: false
   branding:
@@ -19,6 +23,12 @@ options:
     uniqueIdSuffix: ""
     deviceNameSuffix: ""
     manufacturer: "Meian"
+  web_interface:
+    enabled: true
+    port: 8099
+    theme: "dark"
+    refresh_interval: 2000
+    show_advanced: false
   server:
     host: 192.168.1.81
     port: 18034
@@ -102,6 +112,12 @@ schema:
     uniqueIdSuffix: str?
     deviceNameSuffix: str?
     manufacturer: str?
+  web_interface:
+    enabled: bool?
+    port: int?
+    theme: list(dark|light|auto)?
+    refresh_interval: int?
+    show_advanced: bool?
   server:
     host: str
     port: int

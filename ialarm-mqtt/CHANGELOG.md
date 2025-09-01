@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.13.0
+- **MAJOR**: Added complete web interface for alarm control and monitoring
+- feat: optional built-in web server with Express.js and WebSocket support
+- feat: real-time dashboard with live zone status and alarm state
+- feat: direct arm/disarm controls with confirmation dialogs
+- feat: individual zone bypass control via web interface
+- feat: live event log with real-time updates via WebSocket
+- feat: responsive design optimized for mobile and desktop
+- feat: dark/light theme support with auto-detection
+- feat: Home Assistant ingress integration (sidebar access)
+- feat: configurable web interface enable/disable switch
+- feat: comprehensive security with HA authentication integration
+- feat: WebSocket-based real-time updates for status changes
+- feat: modern UI with Material Design icons and animations
+- add: new dependencies: express ^4.18.2, ws ^8.14.0
+- add: comprehensive web interface documentation
+- add: Home Assistant addon configuration for ingress panel
+
 ## 0.12.12
 - **BREAKING**: Major entity naming cleanup and fix
 - fix: eliminate all zone name duplication patterns (e.g., "pir_corridoio_pir_corridoio" -> "pir_corridoio")
