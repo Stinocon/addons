@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.14.5
+- **MQTT TOPIC PREFIX FIX**: Correct MQTT topic prefix and add discovery debugging
+- fix: correct topicPrefix fallback from 'ialarm' to 'ialarm-v2'
+- fix: ensure MQTT topics use correct prefix for coexistence
+- debug: add detailed logging for discovery process
+- debug: log discovery calls and parameters
+- debug: log discovery blocking status and timing
+
 ## 0.14.4
 - **ENHANCED DISCOVERY FIX**: Implement enhanced discovery blocking resolution
 - fix: add aggressive discovery reset if stuck for more than 60 seconds

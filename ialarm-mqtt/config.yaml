@@ -1,6 +1,6 @@
 name: "iAlarm MQTT bridge"
 url: https://github.com/Stinocon/addons/tree/master/ialarm-mqtt
-version: "0.14.4"
+version: "0.14.5"
 slug: ialarm-mqtt
 description: "Enhanced iAlarm MQTT bridge with clean entity naming and bug fixes"
 arch:
