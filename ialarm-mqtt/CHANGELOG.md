@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.14.12
+- **COMPREHENSIVE DISCOVERY ROBUSTNESS FIXES**: Make discovery system much more robust
+- fix: make publishHomeAssistantMqttDiscovery more robust with better error handling
+- fix: enhance cleanZoneName with comprehensive null/undefined handling
+- fix: make createMessages zone loop more resilient to individual zone errors
+- fix: add message validation to filter out invalid messages
+- fix: improve error recovery and continue processing on individual failures
+
 ## 0.14.11
 - **CLEANZONENAME NULL CHECK FIX**: Add null check in cleanZoneName to handle undefined zone names
 - fix: add null check in cleanZoneName to handle undefined zone names
