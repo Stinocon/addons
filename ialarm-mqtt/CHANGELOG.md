@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.14.11
+- **CLEANZONENAME NULL CHECK FIX**: Add null check in cleanZoneName to handle undefined zone names
+- fix: add null check in cleanZoneName to handle undefined zone names
+- fix: resolve TypeError: Cannot read properties of undefined (reading 'replace')
+- fix: ensure cleanZoneName handles undefined/null zoneName gracefully
+
 ## 0.14.10
 - **CRITICAL DISCOVERY FIX**: Fix zones variable not defined in createMessages
 - fix: assign zonesToConfig to zones variable in createMessages
