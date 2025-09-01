@@ -15,6 +15,33 @@ This enhanced version includes **critical fixes and improvements** over the orig
 - ✅ **Enhanced logging** and discovery management
 - ✅ **Professional branding** - Antifurto365 manufacturer with customizable naming
 
+## 🏷️ Clean Entity Naming
+
+This enhanced version eliminates ugly entity naming patterns:
+
+**Before (Original/Problematic):**
+```
+binary_sensor.zona_15_pir_corridoio_pir_corridoio        # Duplicated zone name
+binary_sensor.zona_8_porta_studio_porta_studio_stato    # Redundant naming  
+switch.zona_5_lavanderia_lavanderia_bypass              # Repeated zone name
+```
+
+**After (Enhanced/Clean):**
+```
+binary_sensor.zona_15_pir_corridoio                     # Clean zone name
+binary_sensor.zona_8_porta_studio_stato                 # Descriptive suffix
+switch.zona_5_lavanderia_bypass                         # Clear bypass function
+```
+
+**Entity Types Generated:**
+- **Main sensor**: `{zone_name}` (alarm status)
+- **Fault sensor**: `{zone_name} Stato` (fault status)  
+- **Battery sensor**: `{zone_name} Batteria` (low battery)
+- **Connectivity sensor**: `{zone_name} Connessione` (wireless loss)
+- **Bypass switch**: `{zone_name} Bypass` (bypass control)
+
+All entities have stable `unique_id` values to prevent Home Assistant from creating duplicates.
+
 ## ⚠️ Important Connection Limitation
 
 **IMPORTANT:** The iAlarm central unit allows only **one connection at a time**. You cannot run both the original and this enhanced version simultaneously.

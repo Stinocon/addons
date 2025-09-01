@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.12.12
+- **BREAKING**: Major entity naming cleanup and fix
+- fix: eliminate all zone name duplication patterns (e.g., "pir_corridoio_pir_corridoio" -> "pir_corridoio")
+- fix: improved `cleanZoneName()` function handles all duplication patterns
+- fix: force entity regeneration with unique_id version bump to v5
+- feat: clean, professional entity names without redundancy
+- feat: consistent entity suffixes: "Stato", "Batteria", "Connessione", "Bypass"
+- feat: enhanced logging for debugging entity name generation
+- docs: updated README with entity naming examples and patterns
+
 ## 0.12.11
 - feat: revert to original branding defaults for cleaner configuration
 - feat: use original "ialarm" prefix instead of "ialarm-v2"
