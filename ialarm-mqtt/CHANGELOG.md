@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.15.2 - 🎯 MINIMAL FIX - PERFECT NAMING WITHOUT BREAKING FUNCTIONALITY
+- **🎯 MINIMAL FIX**: Perfect naming without breaking existing functionality
+- **✅ ENHANCED CLEANZONENAME**: Better duplication handling for entity IDs
+- **✅ CLEANZONAMEFORDISPLAY**: Readable device names with spaces and proper capitalization
+- **✅ UPDATED GETZONEDEVICE**: Uses display names for beautiful device names
+- **✅ UPDATED SENSOR CALLS**: All sensors use clean entity names
+- **✅ UNIQUE_ID V8**: Updated to _v8 for force refresh of all entities
+
+### Perfect Naming Examples:
+- **Device Names**: "PIR Sala", "Finestra Studio", "Camera"
+- **Entity IDs**: `pir_sala`, `pir_sala_stato`, `pir_sala_batteria`, `pir_sala_connessione`, `pir_sala_bypass`
+
+### Test Cases:
+- Input: `"zona_15_pir_corridoio_pir_corridoio"` → Display: "PIR Corridoio" 📱, Entity: `pir_corridoio` 🏷️
+- Input: `"zona_8_porta_studio_porta_studio"` → Display: "Porta Studio" 📱, Entity: `porta_studio` 🏷️
+- Input: `"bagno_bagno"` → Display: "Bagno" 📱, Entity: `bagno` 🏷️
+
+### What's NOT Changed:
+- ✅ Keeps all existing functionality intact
+- ✅ configBinarySensors remains unchanged (except unique_id bump)
+- ✅ All valueTemplate and core logic preserved
+- ✅ Discovery system unchanged
+
 ## 0.15.1 - 🎯 PERFECT ENTITY NAMING
 - **🎯 PERFECT ENTITY NAMING**: Two separate functions for device names vs entity IDs
 - **✅ CLEANZONAMEFORDISPLAY**: Readable device names with spaces and proper capitalization
