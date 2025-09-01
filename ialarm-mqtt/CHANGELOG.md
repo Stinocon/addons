@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.15.5 - 🔍 DEBUG LOGGING FOR ZONE PREFIX ANALYSIS
+- **🔍 DEBUG LOGGING**: Added comprehensive debug logging to cleanZoneName function
+- **📊 INPUT LOGGING**: Log original zone name input
+- **📊 PREFIX LOGGING**: Log extracted zone prefix
+- **📊 NAME PART LOGGING**: Log name part after prefix removal
+- **📊 RESULT LOGGING**: Log final result of cleaning function
+- **🎯 TROUBLESHOOTING**: This version helps identify why zone prefix is not preserved
+
+### Debug Log Examples:
+- `cleanZoneName INPUT: "zona_15_pir_studio_pir_studio"`
+- `cleanZoneName EXTRACTED PREFIX: "zona_15_"`
+- `cleanZoneName NAME PART: "pir_studio_pir_studio"`
+- `cleanZoneName RESULT (4-part dup): "zona_15_pir_studio"`
+
+### Current Issue Being Debugged:
+- **Expected**: `binary_sensor.zone_15_pir_studio_batteria`
+- **Actual**: `binary_sensor.pir_studio_pir_studio_batteria`
+
 ## 0.15.4 - 🎯 INCREMENTAL NAMING FIX - KEEP ZONE PREFIX, REMOVE DUPLICATIONS
 - **🎯 INCREMENTAL FIX**: Keep zone prefix but remove duplications
 - **✅ ENHANCED CLEANZONENAME**: Now preserves zone_X_ prefix while removing duplications
