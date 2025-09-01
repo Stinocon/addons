@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.14.1
+- **DEFINITIVE ENTITY NAMING FIX**: Implement robust cleanZoneName() function to eliminate all duplication patterns
+- fix: handle patterns like 'pir_corridoio_pir_corridoio' -> 'pir_corridoio'
+- fix: handle patterns like 'word1_word2_word1_word2' -> 'word1_word2'
+- fix: handle complex duplication patterns with dynamic detection
+- fix: force entity regeneration with unique_id version bump to v5
+- feat: clean, professional entity names without redundancy
+- feat: consistent entity suffixes: 'Stato', 'Batteria', 'Connessione', 'Bypass'
+- feat: enhanced logging for debugging entity name generation
+- improve: all entity names now use cleanZoneName() for consistent naming
+
 ## 0.14.0
 - **RESET TO WORKING VERSION**: Reset to commit 2999761 which was working correctly
 - Update version to 0.14.0 to avoid conflicts with existing builds
