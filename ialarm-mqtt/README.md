@@ -9,24 +9,27 @@ This add-on allows you to control iAlarm systems (antifurtocasa365, Emooluxr, Ca
 This Stinocon version includes **critical fixes and improvements** over the original:
 
 - ✅ **Fixed bugs #45 and #51** - Entity name flip-flop and HA 2024.2+ compliance
-- ✅ **Coexistence support** - Run alongside original addon without conflicts  
+- ✅ **Clean entity naming** - No more ugly _2, _3, _4 suffixes (e.g., "Cantina", "Cantina Stato", "Cantina Batteria")
 - ✅ **MQTT prefix `ialarm-v2`** (vs `ialarm` in original)
 - ✅ **Unique device identifiers** - No Home Assistant entity conflicts
 - ✅ **Enhanced logging** and discovery management
+- ✅ **Professional branding** - Antifurto365 manufacturer with customizable naming
 
-## 🤝 Coexistence Configuration
+## ⚠️ Important Connection Limitation
 
-**NEW:** The addon includes pre-configured branding to avoid conflicts with the original:
+**IMPORTANT:** The iAlarm central unit allows only **one connection at a time**. You cannot run both the original and this enhanced version simultaneously.
+
+**However,** this enhanced version provides better configuration options and can replace the original addon:
 
 ```yaml
 branding:
   prefix: "ialarm-v2"              # MQTT topic prefix (vs "ialarm")
-  uniqueIdSuffix: "_stinocon"      # Prevents HA entity conflicts  
-  deviceNameSuffix: " (Stinocon)"  # UI clarity
-  manufacturer: "Stinocon Mods"    # Custom manufacturer
+  uniqueIdSuffix: "_ialarmv2"      # Prevents HA entity conflicts  
+  deviceNameSuffix: " (ialarm)"    # UI clarity
+  manufacturer: "Antifurto365"     # Custom manufacturer
 ```
 
-**Result:** Your devices will appear as "iAlarm Security Panel (Stinocon)" with topics under `ialarm-v2/*`, allowing both versions to run simultaneously.
+**Result:** Your devices will appear as "iAlarm Security Panel (ialarm)" with topics under `ialarm-v2/*` and clean entity names.
 
 ## Compatible Models
 

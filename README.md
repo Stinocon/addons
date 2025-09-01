@@ -2,15 +2,16 @@
 
 🚀 **Enhanced iAlarm MQTT integration with critical bug fixes and coexistence support.**
 
-This repository provides fixed versions of the ialarm-mqtt add-on that can **coexist side-by-side** with the original addon using different MQTT prefixes and unique identifiers.
+This repository provides an enhanced version of the ialarm-mqtt add-on with critical bug fixes and improved entity naming.
 
 ## 🔧 Key Improvements
 
 - ✅ **Fixed bugs #45 and #51** - Entity name flip-flop and HA 2024.2+ compliance
-- ✅ **Coexistence support** - Run alongside original addon without conflicts  
+- ✅ **Clean entity naming** - No more ugly _2, _3, _4 suffixes (e.g., "Cantina", "Cantina Stato", "Cantina Batteria")
 - ✅ **MQTT prefix `ialarm-v2`** (vs `ialarm` in original)
 - ✅ **Unique device identifiers** - No Home Assistant entity conflicts
 - ✅ **Enhanced logging** and discovery management
+- ✅ **Professional branding** - Antifurto365 manufacturer with customizable naming
 
 ## 📦 Installation
 
@@ -24,20 +25,23 @@ See [Home Assistant documentation](https://www.home-assistant.io/common-tasks/os
 
 ## Add-ons provided by this repository
 
-- **[ialarm-mqtt](ialarm-mqtt/README.md)** `v0.12.4`
+- **[ialarm-mqtt](ialarm-mqtt/README.md)** `v0.12.6`
 
-    iAlarm MQTT integration for Home Assistant (fixed version with coexistence support).
+    iAlarm MQTT integration for Home Assistant (enhanced version with clean entity naming).
 
-## 🤝 Coexistence with Original
+## ⚠️ Important Connection Limitation
 
-This addon can run **simultaneously** with the original maxill1/ialarm-mqtt addon:
+**IMPORTANT:** The iAlarm central unit allows only **one connection at a time**. You cannot run both the original and this enhanced version simultaneously.
+
+**However,** this enhanced version provides better configuration options and can replace the original addon:
 
 | Feature | Original | Stinocon Version |
 |---------|----------|------------------|
 | MQTT Topics | `ialarm/*` | `ialarm-v2/*` |
-| Device Name | `iAlarm Security Panel` | `iAlarm Security Panel (Stinocon)` |
-| Unique IDs | `alarm_mqtt_xxx` | `alarm_mqtt_xxx_stinocon` |
-| Manufacturer | `Meian` | `Stinocon Mods` |
+| Device Name | `iAlarm Security Panel` | `iAlarm Security Panel (ialarm)` |
+| Unique IDs | `alarm_mqtt_xxx` | `alarm_mqtt_xxx_ialarmv2` |
+| Manufacturer | `Meian` | `Antifurto365` |
+| Entity Names | Ugly _2, _3, _4 suffixes | Clean descriptive names |
 
 ## 🔗 Source Code
 
