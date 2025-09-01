@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.15.0 - 🎉 STABLE RELEASE
+- **🎉 STABLE RELEASE**: Clean Entity Naming + Repository Cleanup
+- **✅ ENTITY NAMING FIXES**: Entity IDs now clean (pir_sala vs zone_18_pir_sala_pir_sala)
+- **✅ ENHANCED CLEANZONENAME**: Aggressive deduplication with comprehensive pattern matching
+- **✅ UNIQUE_ID V6**: Updated to _v6 for force refresh of all entities
+- **✅ IMPROVED GETZONEDEVICE**: Clean device names without redundant prefixes
+- **✅ REPOSITORY CLEANUP**: Updated .gitignore, removed obsolete v0.12.x tags
+- **✅ PRODUCTION READY**: Clean, stable, and maintainable codebase
+
+### Entity Naming Examples:
+- Before: `binary_sensor.zone_18_pir_sala_pir_sala` → After: `binary_sensor.pir_sala`
+- Before: `binary_sensor.zone_14_camera_camera` → After: `binary_sensor.camera`
+- Before: `binary_sensor.zone_9_finestra_studio_finestra_studio_batteria` → After: `binary_sensor.finestra_studio_batteria`
+
 ## 0.14.12
 - **COMPREHENSIVE DISCOVERY ROBUSTNESS FIXES**: Make discovery system much more robust
 - fix: make publishHomeAssistantMqttDiscovery more robust with better error handling
