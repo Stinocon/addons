@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.12.10
+- fix: improve cleanZoneName function to handle duplicate patterns
+- feat: add logic to detect and remove duplicate parts in zone names
+- feat: handle cases like 'zona_8_porta_studio_porta_studio' -> 'porta_studio'
+- feat: increment unique_id version to _v4 to force entity regeneration
+- fix: properly clean zone names that contain duplicate patterns
+
 ## 0.12.9
 - fix: clean zone names by removing zona_X_ prefix duplication
 - feat: add cleanZoneName() function to remove 'zona_X_' prefix from zone names
