@@ -1,6 +1,6 @@
 name: "iAlarm MQTT bridge"
 url: https://github.com/Stinocon/addons/tree/master/ialarm-mqtt
-version: "0.12.10"
+version: "0.12.11"
 slug: ialarm-mqtt
 description: "Enhanced iAlarm MQTT bridge with clean entity naming and bug fixes"
 arch:
@@ -15,10 +15,10 @@ boot: auto
 options:
   verbose: false
   branding:
-    prefix: "ialarm-v2"
-    uniqueIdSuffix: "_ialarmv2"
-    deviceNameSuffix: " (ialarm)"
-    manufacturer: "Antifurto365"
+    prefix: "ialarm"
+    uniqueIdSuffix: ""
+    deviceNameSuffix: ""
+    manufacturer: "Meian"
   server:
     host: 192.168.1.81
     port: 18034

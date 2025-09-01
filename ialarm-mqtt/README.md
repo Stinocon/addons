@@ -23,13 +23,13 @@ This enhanced version includes **critical fixes and improvements** over the orig
 
 ```yaml
 branding:
-  prefix: "ialarm-v2"              # MQTT topic prefix (vs "ialarm")
-  uniqueIdSuffix: "_ialarmv2"      # Prevents HA entity conflicts  
-  deviceNameSuffix: " (ialarm)"    # UI clarity
-  manufacturer: "Antifurto365"     # Custom manufacturer
+  prefix: "ialarm"                 # MQTT topic prefix (same as original)
+  uniqueIdSuffix: ""               # No suffix needed
+  deviceNameSuffix: ""             # No suffix needed
+  manufacturer: "Meian"            # Original manufacturer
 ```
 
-**Result:** Your devices will appear as "iAlarm Security Panel (ialarm)" with topics under `ialarm-v2/*` and clean entity names.
+**Result:** Your devices will appear as "iAlarm Security Panel" with topics under `ialarm/*` and clean entity names.
 
 ## Compatible Models
 

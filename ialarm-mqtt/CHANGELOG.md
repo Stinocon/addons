@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.12.11
+- feat: revert to original branding defaults for cleaner configuration
+- feat: use original "ialarm" prefix instead of "ialarm-v2"
+- feat: remove uniqueIdSuffix and deviceNameSuffix by default
+- feat: use original "Meian" manufacturer by default
+- feat: maintain same MQTT topics and device names as original
+- fix: cleaner configuration with original branding while keeping enhanced features
+
 ## 0.12.10
 - fix: improve cleanZoneName function to handle duplicate patterns
 - feat: add logic to detect and remove duplicate parts in zone names
