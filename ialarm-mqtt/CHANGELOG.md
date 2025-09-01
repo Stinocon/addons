@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.13.2
+- **FIX**: Improved MQTT client connection handling for web interface
+- fix: web interface now gracefully handles MQTT connection failures
+- fix: added retry mechanism for MQTT connection with 30-second intervals
+- fix: web interface starts in limited mode if MQTT unavailable, retries automatically
+- fix: increased MQTT connection timeout to 10 seconds for better reliability
+- feat: real-time status updates for MQTT connection state (full/limited mode)
+- feat: user-friendly error messages for MQTT connection issues
+- feat: automatic MQTT reconnection with status broadcast to frontend
+- feat: graceful degradation - web interface works even without MQTT (read-only mode)
+- improve: better error handling in API endpoints with 503 status for MQTT unavailable
+- improve: frontend handles MQTT connection state changes gracefully
+- improve: connection status indicators show MQTT state accurately
+
 ## 0.13.1
 - **CRITICAL FIX**: Resolved TCP connection conflicts between web interface and main bridge
 - fix: web interface now uses MQTT-only architecture (no direct alarm panel access)
