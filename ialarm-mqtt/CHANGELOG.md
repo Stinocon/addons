@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.12.5
+- feat: cleaner entity naming without redundancy (e.g., "PIR Studio" instead of "zona_17_pir_studio_zona_17_pir_studio")
+- feat: improved bypass entity naming (e.g., "PIR Studio Bypass" instead of "Bypass Zone 17 PIR Studio")
+- feat: updated branding defaults for better coexistence:
+  - prefix: "ialarm-v2" 
+  - uniqueIdSuffix: "_ialarmv2"
+  - deviceNameSuffix: " (ialarm)"
+  - manufacturer: "Antifurto365"
+- fix: ensure all entity names are clean and user-friendly
+
 ## 0.12.4
 - docs: comprehensive Home Assistant add-on README with configuration examples
 - docs: enhanced repository documentation with coexistence features

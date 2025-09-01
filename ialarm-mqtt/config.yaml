@@ -1,6 +1,6 @@
 name: "ialarm-mqtt"
 url: https://github.com/Stinocon/addons/tree/master/ialarm-mqtt
-version: "0.12.4"
+version: "0.12.5"
 slug: ialarm-mqtt
 description: "iAlarm MQTT integration for Home Assistant (fixed version)"
 arch:
@@ -16,9 +16,9 @@ options:
   verbose: false
   branding:
     prefix: "ialarm-v2"
-    uniqueIdSuffix: "_stinocon"
-    deviceNameSuffix: " (Stinocon)"
-    manufacturer: "Stinocon Mods"
+    uniqueIdSuffix: "_ialarmv2"
+    deviceNameSuffix: " (ialarm)"
+    manufacturer: "Antifurto365"
   server:
     host: 192.168.1.81
     port: 18034
