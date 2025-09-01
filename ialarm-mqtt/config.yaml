@@ -1,8 +1,8 @@
 name: "iAlarm MQTT bridge"
 url: https://github.com/Stinocon/addons/tree/master/ialarm-mqtt
-version: "0.15.9"
+version: "0.16.0"
 slug: ialarm-mqtt
-description: "SOLUZIONE DEFINITIVA: Entity naming con formato zone_X_name - IDs puliti e nomi eleganti"
+description: "FIX DEFINITIVO: Entity ID formato zone_X_name_tipo - Zero duplicazioni, IDs corretti"
 arch:
   - armhf
   - armv7
