@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.12.3
+- **BREAKING: Enable coexistence with original ialarm-mqtt addon**
+- feat: configurable MQTT prefix via `branding.prefix` (default: "ialarm")
+- feat: configurable unique_id suffix via `branding.uniqueIdSuffix` 
+- feat: configurable device name suffix via `branding.deviceNameSuffix`
+- feat: configurable manufacturer via `branding.manufacturer` (default: "Meian")
+- fix: allow side-by-side deployment with upstream addon using different prefixes
+
 ## 0.12.2
 - Fix: prevent duplicate HA discovery publishes (eliminates entity name flip-flop) - Issue #45
 - Fix: comply with HA 2024.2+ entity naming rules - Issue #51  
