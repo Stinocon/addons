@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.14.4
+- **ENHANCED DISCOVERY FIX**: Implement enhanced discovery blocking resolution
+- fix: add aggressive discovery reset if stuck for more than 60 seconds
+- fix: track discovery start time for better debugging
+- fix: force reset discovery flag if it has been stuck too long
+- improve: better logging with timestamps for discovery process
+- improve: more robust discovery state management
+- feat: add manual reset function for debugging discovery issues
+
 ## 0.14.3
 - **DOCUMENTATION FIXES**: Fix addon documentation inconsistencies
 - fix: correct branding defaults in README examples
