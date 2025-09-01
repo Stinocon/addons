@@ -12,9 +12,9 @@ WORKDIR /tmp
 # Install requirements for add-on
 RUN \
     apk add --no-cache \
-        git=2.36.4-r0 \
-        nodejs=16.17.1-r0 \
-        npm=8.10.0-r0 \
+        git \
+        nodejs \
+        npm \
     \
     && npm config set unsafe-perm true 
 
