@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.12.8
+- fix: correct entity naming and unique_id generation to eliminate _2, _3, _4 suffixes
+- fix: configSensorFault unique_id now includes '_fault' suffix (was missing)
+- feat: add '_v2' suffix to all unique_ids to force Home Assistant entity regeneration
+- feat: ensure all sensor types have unique, descriptive names:
+  - Fault sensor: "ZoneName Stato" with unique_id ending in "_fault_v2"
+  - Battery sensor: "ZoneName Batteria" with unique_id ending in "_lowbat_v2"
+  - Connectivity sensor: "ZoneName Connessione" with unique_id ending in "_wirelessloss_v2"
+  - Alarm sensor: "ZoneName" with unique_id ending in "_alarm_v2"
+  - Bypass switch: "ZoneName Bypass" with unique_id ending in "_bypass_v2"
+
 ## 0.12.7
 - feat: rename addon from "ialarm-mqtt" to "iAlarm MQTT bridge" for better clarity
 - feat: update repository title to "iAlarm MQTT Bridge (Enhanced)"
