@@ -24,13 +24,9 @@ See [Home Assistant documentation](https://www.home-assistant.io/common-tasks/os
 
 ## Add-ons provided by this repository
 
-- **[ialarm-mqtt](ialarm-mqtt/README.md)** `v0.12.3`
+- **[ialarm-mqtt](ialarm-mqtt/README.md)** `v0.12.4`
 
     iAlarm MQTT integration for Home Assistant (fixed version with coexistence support).
-    
-- **[ialarm-mqtt-dev](ialarm-mqtt-dev/README.md)**
-
-    iAlarm MQTT integration for Home Assistant (development branch).
 
 ## 🤝 Coexistence with Original
 
