@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.14.3
+- **DOCUMENTATION FIXES**: Fix addon documentation inconsistencies
+- fix: correct branding defaults in README examples
+- fix: remove contradictory coexistence information
+- fix: clarify single connection limitation
+- fix: update migration instructions
+- docs: consistent branding defaults across all documentation
+- improve: clear and accurate documentation
+
 ## 0.14.2
 - **FIX BRANDING DEFAULTS**: Correct addon configuration defaults for proper coexistence
 - fix: update branding defaults in config.yaml to enable coexistence with original addon
