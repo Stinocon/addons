@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.15.4 - 🎯 INCREMENTAL NAMING FIX - KEEP ZONE PREFIX, REMOVE DUPLICATIONS
+- **🎯 INCREMENTAL FIX**: Keep zone prefix but remove duplications
+- **✅ ENHANCED CLEANZONENAME**: Now preserves zone_X_ prefix while removing duplications
+- **✅ SMART PREFIX HANDLING**: Extracts and preserves zone prefix (zone_15_, zona_15_)
+- **✅ DUPLICATION REMOVAL**: Removes duplications in the name part only
+- **✅ UNIQUE_ID V6**: Updated to v6 for force refresh
+
+### Naming Examples:
+- **Input**: `"zona_15_pir_corridoio_pir_corridoio"`
+- **Output**: `"zone_15_pir_corridoio"` (keeps prefix, removes duplication)
+
+### Expected Entity Results:
+- ✅ `binary_sensor.zone_15_pir_corridoio_connessione`
+- ✅ `binary_sensor.zone_15_pir_corridoio_batteria`
+- ✅ `binary_sensor.zone_15_pir_corridoio_stato`
+- ✅ `switch.zone_15_pir_corridoio_bypass`
+
+### Instead of:
+- ❌ `binary_sensor.pir_corridoio_pir_corridoio_connessione`
+- ❌ `binary_sensor.zone_15_pir_corridoio_pir_corridoio_connessione`
+
+### Following Emergency Rules:
+- ✅ **Minimal change**: Only enhanced cleanZoneName()
+- ✅ **Functionality preserved**: All existing logic intact
+- ✅ **Incremental approach**: One small change at a time
+
 ## 0.15.3 - 🚨 EMERGENCY ROLLBACK - RESTORE WORKING FUNCTIONALITY
 - **🚨 EMERGENCY ROLLBACK**: Restore entity generation functionality
 - **✅ RESTORED CLEANZONENAME**: Back to working version that generates entities

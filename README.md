@@ -25,7 +25,7 @@ See [Home Assistant documentation](https://www.home-assistant.io/common-tasks/os
 
 ## Add-ons provided by this repository
 
-- **[iAlarm MQTT bridge](ialarm-mqtt/README.md)** `v0.15.3`
+- **[iAlarm MQTT bridge](ialarm-mqtt/README.md)** `v0.15.4`
 
     Enhanced iAlarm MQTT bridge with clean entity naming and bug fixes.
 
