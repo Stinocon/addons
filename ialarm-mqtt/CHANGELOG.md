@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.14.10
+- **CRITICAL DISCOVERY FIX**: Fix zones variable not defined in createMessages
+- fix: assign zonesToConfig to zones variable in createMessages
+- fix: resolve ReferenceError: zones is not defined
+- fix: ensure zones variable is available in createMessages scope
+
 ## 0.14.9
 - **DISCOVERY ERROR CATCHING**: Add try-catch to catch createMessages() errors
 - debug: add try-catch to catch createMessages() errors
