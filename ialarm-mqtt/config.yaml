@@ -15,7 +15,7 @@ boot: auto
 options:
   verbose: false
   branding:
-    prefix: "ialarm-fixed"
+    prefix: "ialarm-v2"
     uniqueIdSuffix: "_stinocon"
     deviceNameSuffix: " (Stinocon)"
     manufacturer: "Stinocon Mods"
