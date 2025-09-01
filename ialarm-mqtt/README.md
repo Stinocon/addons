@@ -23,13 +23,13 @@ This enhanced version includes **critical fixes and improvements** over the orig
 
 ```yaml
 branding:
-  prefix: "ialarm"                 # MQTT topic prefix (same as original)
-  uniqueIdSuffix: ""               # No suffix needed
-  deviceNameSuffix: ""             # No suffix needed
-  manufacturer: "Meian"            # Original manufacturer
+  prefix: "ialarm-v2"              # MQTT topic prefix (vs "ialarm" in original)
+  uniqueIdSuffix: "_ialarmv2"      # Prevents HA entity conflicts  
+  deviceNameSuffix: " (Enhanced)"  # UI clarity
+  manufacturer: "Antifurto365"     # Custom manufacturer
 ```
 
-**Result:** Your devices will appear as "iAlarm Security Panel" with topics under `ialarm/*` and clean entity names.
+**Result:** Your devices will appear as "iAlarm Security Panel (Enhanced)" with topics under `ialarm-v2/*` and clean entity names.
 
 ## Compatible Models
 
@@ -140,17 +140,17 @@ zones:
 
 - **TCP Implementation:** Since version 2.0, this addon uses TCP implementation. Ensure port is set to `18034` (not `80`)
 - **Zone Limit:** Maximum 40 zones supported per alarm panel
-- **Coexistence:** This version can run alongside the original maxill1 addon without conflicts
+- **Enhanced Features:** This version provides clean entity naming and bug fixes over the original
 - **Version Alignment:** Addon versions are aligned with the underlying ialarm-mqtt library
 
 ## Migration from Original
 
 If migrating from the original addon:
 
-1. **No conflicts:** This version uses different MQTT topics and unique IDs
-2. **Parallel installation:** You can install both versions simultaneously
-3. **Gradual migration:** Test this version while keeping the original running
-4. **Configuration compatibility:** Same configuration format with optional branding section
+1. **Single connection:** The iAlarm central unit allows only one connection at a time
+2. **Replace original:** Stop the original addon before starting this enhanced version
+3. **Configuration compatibility:** Same configuration format with enhanced branding defaults
+4. **Clean entities:** This version will generate clean entity names without ugly suffixes
 
 ## Changelog
 
