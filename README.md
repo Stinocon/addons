@@ -1,53 +1,33 @@
-# Home Assistant Add-ons: iAlarm MQTT Bridge (Enhanced)
+# Home Assistant Add-ons: iAlarm MQTT Integration
 
-🚀 **Enhanced iAlarm MQTT integration with critical bug fixes and clean entity naming.**
+🚀 **Professional iAlarm MQTT bridge for Home Assistant with enhanced features.**
 
-This repository provides an enhanced version of the iAlarm MQTT bridge with critical bug fixes, improved entity naming, and professional branding.
+Enhanced version of the iAlarm MQTT bridge with clean entity naming, robust discovery system, and professional Home Assistant integration.
 
-## 🔧 Key Improvements
+## 🔧 Key Features
 
-- ✅ **Fixed bugs #45 and #51** - Entity name flip-flop and HA 2024.2+ compliance
-- ✅ **Clean entity naming** - No more ugly _2, _3, _4 suffixes (e.g., "Cantina", "Cantina Stato", "Cantina Batteria")
-- ✅ **MQTT prefix `ialarm-v2`** (vs `ialarm` in original)
-- ✅ **Unique device identifiers** - No Home Assistant entity conflicts
-- ✅ **Enhanced logging** and discovery management
-- ✅ **Professional branding** - Antifurto365 manufacturer with customizable naming
+- ✅ **Clean Entity Naming** - Professional device names like "Sicurezza Cucina", "PIR Corridoio" 
+- ✅ **Zone-based Entity IDs** - Format: `zone_4_sicurezza_cucina_batteria`
+- ✅ **MQTT Coexistence** - Uses `ialarm-v2` prefix (distinct from original)
+- ✅ **Robust Discovery** - Reliable Home Assistant entity generation
+- ✅ **Professional Branding** - Antifurto365 manufacturer, clean device names
+- ✅ **Bug Fixes** - Resolved entity flip-flop and HA 2024.2+ compatibility issues
 
 ## 📦 Installation
 
-Add this custom repository to Home Assistant:
+Add this repository to Home Assistant:
 
 ```
 https://github.com/Stinocon/addons
 ```
 
-See [Home Assistant documentation](https://www.home-assistant.io/common-tasks/os#installing-third-party-add-ons) for detailed installation steps.
+## Add-ons
 
-## Add-ons provided by this repository
+- **[iAlarm MQTT Bridge](ialarm-mqtt/README.md)** 
+  
+  Professional iAlarm integration with clean entity naming and robust discovery.
 
-- **[iAlarm MQTT bridge](ialarm-mqtt/README.md)** `v0.15.5`
+## 🔗 Links
 
-    Enhanced iAlarm MQTT bridge with debug logging for zone prefix analysis.
-
-## ⚠️ Important Connection Limitation
-
-**IMPORTANT:** The iAlarm central unit allows only **one connection at a time**. You cannot run both the original and this enhanced version simultaneously.
-
-**However,** this enhanced version provides better configuration options and can replace the original addon:
-
-| Feature | Original | Enhanced Version |
-|---------|----------|------------------|
-| MQTT Topics | `ialarm/*` | `ialarm-v2/*` (distinct) |
-| Device Name | `iAlarm Security Panel` | `iAlarm Security Panel (Enhanced)` |
-| Unique IDs | `alarm_mqtt_xxx` | `alarm_mqtt_xxx_ialarmv2` |
-| Manufacturer | `Meian` | `Antifurto365` |
-| Entity Names | Ugly _2, _3, _4 suffixes | Clean descriptive names |
-
-## 🔗 Source Code
-
+- **Source Code:** https://github.com/Stinocon/ialarm-mqtt
 - **Add-on Repository:** https://github.com/Stinocon/addons
-- **iAlarm-MQTT Source:** https://github.com/Stinocon/ialarm-mqtt
-
-## 📝 License
-
-This project maintains the same license as the original work.
