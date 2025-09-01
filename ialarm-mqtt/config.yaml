@@ -1,8 +1,8 @@
 name: "iAlarm MQTT bridge"
 url: https://github.com/Stinocon/addons/tree/master/ialarm-mqtt
-version: "0.15.6"
+version: "0.15.7"
 slug: ialarm-mqtt
-description: "Enhanced iAlarm MQTT bridge with zone_X_ prefix naming to prevent duplications"
+description: "Fixed iAlarm MQTT bridge with proper zone_X_ prefix naming and cleaned entity names"
 arch:
   - armhf
   - armv7
