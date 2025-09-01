@@ -1,6 +1,14 @@
 # Changelog
 
 ## 0.12.11
+- **CRITICAL FIX**: Resolve discovery blocking issue preventing entity generation
+- fix: add safety timeout to reset discovery flag if it gets stuck
+- fix: prevent 'Discovery already in progress, skipping...' from blocking entity generation
+- fix: add proper cleanup of safety timeout when discovery completes normally
+- feat: add manual reset function for debugging discovery issues
+- improve: discovery flag now automatically resets after 30 seconds if stuck
+
+## 0.12.10
 - feat: revert to original branding defaults for cleaner configuration
 - feat: use original "ialarm" prefix instead of "ialarm-v2"
 - feat: remove uniqueIdSuffix and deviceNameSuffix by default
