@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.15.3 - 🚨 EMERGENCY ROLLBACK - RESTORE WORKING FUNCTIONALITY
+- **🚨 EMERGENCY ROLLBACK**: Restore entity generation functionality
+- **✅ RESTORED CLEANZONENAME**: Back to working version that generates entities
+- **✅ RESTORED CONFIGBINARYSENSORS**: Back to original working version
+- **✅ RESTORED SENSOR FUNCTIONS**: All sensor functions back to working versions
+- **✅ RESTORED UNIQUE_ID V5**: Back to v5 (working version)
+- **✅ ADDED DEBUG LOGGING**: Emergency debug logging for discovery process
+
+### Priority: Functionality First!
+- **PRIORITY**: Restore entity generation functionality first!
+- **Naming improvements**: Can be done incrementally later
+- **This should restore**: The working state where entities are generated
+
+### What's Restored:
+- ✅ Entity generation should work again
+- ✅ All discovery messages should be published
+- ✅ Home Assistant should receive entity configurations
+- ✅ Debug logging added for troubleshooting
+
 ## 0.15.2 - 🎯 MINIMAL FIX - PERFECT NAMING WITHOUT BREAKING FUNCTIONALITY
 - **🎯 MINIMAL FIX**: Perfect naming without breaking existing functionality
 - **✅ ENHANCED CLEANZONENAME**: Better duplication handling for entity IDs
