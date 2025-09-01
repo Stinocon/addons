@@ -1,8 +1,8 @@
-name: ialarm-mqtt (development)
+name: "ialarm-mqtt-dev"
 url: https://github.com/Stinocon/addons/tree/master/ialarm-mqtt
 version: dev-5e82642
 slug: ialarm-mqtt-dev
-description: integrates iAlarm (antifurtocasa365, Emooluxr, Casasicura and other Meian/Focus clones) via node-ialarm library
+description: "iAlarm MQTT integration for Home Assistant (development version)"
 arch:
   - armhf
   - armv7
