@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.14.0
+- **RESET TO WORKING VERSION**: Reset to commit 2999761 which was working correctly
+- Update version to 0.14.0 to avoid conflicts with existing builds
+- This version has the correct entity naming and unique_id generation
+- Clean slate to avoid version conflicts in Docker builds
+- Should resolve all discovery and entity generation issues
+
 ## 0.12.12
 - **ENHANCED FIX**: Enhanced discovery blocking resolution with aggressive reset
 - fix: add aggressive discovery reset if stuck for more than 60 seconds
