@@ -25,7 +25,7 @@ See [Home Assistant documentation](https://www.home-assistant.io/common-tasks/os
 
 ## Add-ons provided by this repository
 
-- **[iAlarm MQTT bridge](ialarm-mqtt/README.md)** `v0.14.1`
+- **[iAlarm MQTT bridge](ialarm-mqtt/README.md)** `v0.14.2`
 
     Enhanced iAlarm MQTT bridge with clean entity naming and bug fixes.
 
@@ -37,10 +37,10 @@ See [Home Assistant documentation](https://www.home-assistant.io/common-tasks/os
 
 | Feature | Original | Enhanced Version |
 |---------|----------|------------------|
-| MQTT Topics | `ialarm/*` | `ialarm/*` (same) |
-| Device Name | `iAlarm Security Panel` | `iAlarm Security Panel` (same) |
-| Unique IDs | `alarm_mqtt_xxx` | `alarm_mqtt_xxx` (same) |
-| Manufacturer | `Meian` | `Meian` (same) |
+| MQTT Topics | `ialarm/*` | `ialarm-v2/*` (distinct) |
+| Device Name | `iAlarm Security Panel` | `iAlarm Security Panel (Enhanced)` |
+| Unique IDs | `alarm_mqtt_xxx` | `alarm_mqtt_xxx_ialarmv2` |
+| Manufacturer | `Meian` | `Antifurto365` |
 | Entity Names | Ugly _2, _3, _4 suffixes | Clean descriptive names |
 
 ## 🔗 Source Code

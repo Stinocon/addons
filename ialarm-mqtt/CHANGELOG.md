@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.14.2
+- **FIX BRANDING DEFAULTS**: Correct addon configuration defaults for proper coexistence
+- fix: update branding defaults in config.yaml to enable coexistence with original addon
+- fix: prefix: "ialarm-v2" (vs "ialarm" in original)
+- fix: uniqueIdSuffix: "_ialarmv2" (vs "" in original)
+- fix: deviceNameSuffix: " (Enhanced)" (vs "" in original)
+- fix: manufacturer: "Antifurto365" (vs "Meian" in original)
+- improve: now properly distinguishes from original addon by default
+
 ## 0.14.1
 - **DEFINITIVE ENTITY NAMING FIX**: Implement robust cleanZoneName() function to eliminate all duplication patterns
 - fix: handle patterns like 'pir_corridoio_pir_corridoio' -> 'pir_corridoio'
