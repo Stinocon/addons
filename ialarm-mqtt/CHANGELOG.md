@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.14.8
+- **IAlarmHaDiscovery INSTANTIATION DEBUGGING**: Add detailed logging for IAlarmHaDiscovery instantiation
+- debug: add detailed logging for IAlarmHaDiscovery instantiation
+- debug: log before and after IAlarmHaDiscovery instantiation
+- debug: log before and after createMessages() calls
+- debug: separate logging for reset and discovery message creation
+- debug: track where the discovery process gets stuck
+
 ## 0.14.7
 - **IAlarmHaDiscovery DEBUGGING**: Add detailed logging to IAlarmHaDiscovery.createMessages
 - debug: add detailed logging to IAlarmHaDiscovery.createMessages function
