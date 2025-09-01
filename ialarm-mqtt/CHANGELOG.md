@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.14.7
+- **IAlarmHaDiscovery DEBUGGING**: Add detailed logging to IAlarmHaDiscovery.createMessages
+- debug: add detailed logging to IAlarmHaDiscovery.createMessages function
+- debug: log function entry with reset and zones parameters
+- debug: log reset cleanup message creation
+- debug: log zone iteration start and progress
+- debug: log function completion with message count
+- debug: add progress logging every 10 zones
+
 ## 0.14.6
 - **DISCOVERY DEBUGGING**: Add detailed logging for discovery process
 - debug: add detailed logging for discovery process
