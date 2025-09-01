@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.13.1
+- **CRITICAL FIX**: Resolved TCP connection conflicts between web interface and main bridge
+- fix: web interface now uses MQTT-only architecture (no direct alarm panel access)
+- fix: eliminated "Discovery already in progress" lock issues with timeout mechanism
+- fix: web interface subscribes to MQTT topics instead of creating parallel TCP connections
+- fix: discovery lock timeout (30s) prevents permanent lock after service crashes
+- feat: web interface MQTT client with automatic reconnection
+- feat: real-time updates via MQTT subscription instead of direct controller access
+- feat: improved error handling and connection status monitoring
+- feat: frontend handles both array and object MQTT data formats
+- feat: robust discovery mechanism with automatic reset on timeout
+- refactor: removed alarmController dependency from web server
+- refactor: simplified web server initialization (no controller methods needed)
+- security: web interface cannot interfere with main bridge TCP connection
+- performance: reduced resource usage by eliminating duplicate connections
+
 ## 0.13.0
 - **MAJOR**: Added complete web interface for alarm control and monitoring
 - feat: optional built-in web server with Express.js and WebSocket support
