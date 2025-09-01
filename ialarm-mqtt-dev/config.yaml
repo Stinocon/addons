@@ -129,4 +129,4 @@ schema:
       contactType: list(NO|NC)?
       device_class: str?
       statusProperty: list(alarm|open|fault|ok|problem|lowbat)?
-image: maxill1/{arch}-addon-ialarm-mqtt-dev
+image: stfncntr/{arch}-addon-ialarm-mqtt-dev

@@ -20,7 +20,7 @@ RUN \
 
 # clone version
 WORKDIR  /app
-RUN git clone --depth 1 --branch dev https://github.com/stfncntr/ialarm-mqtt.git
+RUN git clone --depth 1 --branch dev https://github.com/Stinocon/ialarm-mqtt.git
 
 #install deps
 WORKDIR  /app/ialarm-mqtt
