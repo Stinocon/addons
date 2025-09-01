@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.12.6
+- fix: eliminate automatic _2, _3, _4 suffixes from Home Assistant entity names
+- feat: specific entity names for each zone sensor type:
+  - Fault sensor: "ZoneName Stato" (instead of generic name causing _2 suffix)
+  - Battery sensor: "ZoneName Batteria" (instead of generic name causing _3 suffix)
+  - Connectivity sensor: "ZoneName Connessione" (instead of generic name causing _4 suffix)
+  - Alarm sensor: "ZoneName" (main sensor, no suffix needed)
+  - Bypass switch: "ZoneName Bypass" (already clean)
+- fix: professional entity naming without ugly automatic suffixes
+- example: "Zona 33 Cantina" now generates clean names like "Cantina", "Cantina Stato", "Cantina Batteria"
+
 ## 0.12.5
 - feat: cleaner entity naming without redundancy (e.g., "PIR Studio" instead of "zona_17_pir_studio_zona_17_pir_studio")
 - feat: improved bypass entity naming (e.g., "PIR Studio Bypass" instead of "Bypass Zone 17 PIR Studio")
