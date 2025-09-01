@@ -1,8 +1,15 @@
 # Changelog
 
+## 0.12.4
+- docs: comprehensive Home Assistant add-on README with configuration examples
+- docs: enhanced repository documentation with coexistence features
+- docs: migration guide for users switching from original addon
+- fix: remove inappropriate donation links from enhanced fork
+- chore: improved branding prefix from ialarm-fixed to ialarm-v2
+
 ## 0.12.3
 - **BREAKING: Enable coexistence with original ialarm-mqtt addon**
-- feat: configurable MQTT prefix via `branding.prefix` (default: "ialarm")
+- feat: configurable MQTT prefix via `branding.prefix` (default: "ialarm-v2")
 - feat: configurable unique_id suffix via `branding.uniqueIdSuffix` 
 - feat: configurable device name suffix via `branding.deviceNameSuffix`
 - feat: configurable manufacturer via `branding.manufacturer` (default: "Meian")
