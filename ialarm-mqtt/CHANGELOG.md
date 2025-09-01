@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.14.9
+- **DISCOVERY ERROR CATCHING**: Add try-catch to catch createMessages() errors
+- debug: add try-catch to catch createMessages() errors
+- debug: catch and log errors in reset message creation
+- debug: catch and log errors in discovery message creation
+- debug: add error stack trace logging for debugging
+
 ## 0.14.8
 - **IAlarmHaDiscovery INSTANTIATION DEBUGGING**: Add detailed logging for IAlarmHaDiscovery instantiation
 - debug: add detailed logging for IAlarmHaDiscovery instantiation
