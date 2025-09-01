@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.12.7
+- feat: rename addon from "ialarm-mqtt" to "iAlarm MQTT bridge" for better clarity
+- feat: update repository title to "iAlarm MQTT Bridge (Enhanced)"
+- feat: replace "Stinocon vs Original" with "Enhanced vs Original" for professional presentation
+- feat: remove "Stinocon Enhanced" references throughout documentation
+- feat: improve addon description and branding consistency
+- feat: update repository.json with new professional naming
+
 ## 0.12.6
 - fix: eliminate automatic _2, _3, _4 suffixes from Home Assistant entity names
 - feat: specific entity names for each zone sensor type:

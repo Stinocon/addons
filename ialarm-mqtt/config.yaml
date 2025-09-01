@@ -1,8 +1,8 @@
-name: "ialarm-mqtt"
+name: "iAlarm MQTT bridge"
 url: https://github.com/Stinocon/addons/tree/master/ialarm-mqtt
-version: "0.12.6"
+version: "0.12.7"
 slug: ialarm-mqtt
-description: "iAlarm MQTT integration for Home Assistant (fixed version)"
+description: "Enhanced iAlarm MQTT bridge with clean entity naming and bug fixes"
 arch:
   - armhf
   - armv7

@@ -1,12 +1,12 @@
-# Home Assistant Add-on: iAlarm MQTT (Stinocon Enhanced)
+# Home Assistant Add-on: iAlarm MQTT Bridge (Enhanced)
 
-🚀 **Enhanced iAlarm MQTT integration with critical bug fixes and coexistence support.**
+🚀 **Enhanced iAlarm MQTT integration with critical bug fixes and clean entity naming.**
 
-This add-on allows you to control iAlarm systems (antifurtocasa365, Emooluxr, Casasicura and other Meian/Focus clones) via the enhanced ialarm-mqtt library.
+This add-on allows you to control iAlarm systems (antifurtocasa365, Emooluxr, Casasicura and other Meian/Focus clones) via the enhanced ialarm-mqtt library with professional entity naming and bug fixes.
 
 ## 🔧 Enhanced Features
 
-This Stinocon version includes **critical fixes and improvements** over the original:
+This enhanced version includes **critical fixes and improvements** over the original:
 
 - ✅ **Fixed bugs #45 and #51** - Entity name flip-flop and HA 2024.2+ compliance
 - ✅ **Clean entity naming** - No more ugly _2, _3, _4 suffixes (e.g., "Cantina", "Cantina Stato", "Cantina Batteria")

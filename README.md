@@ -1,8 +1,8 @@
-# Home Assistant Add-ons: Stinocon custom repository (ialarm-mqtt fixed)
+# Home Assistant Add-ons: iAlarm MQTT Bridge (Enhanced)
 
-🚀 **Enhanced iAlarm MQTT integration with critical bug fixes and coexistence support.**
+🚀 **Enhanced iAlarm MQTT integration with critical bug fixes and clean entity naming.**
 
-This repository provides an enhanced version of the ialarm-mqtt add-on with critical bug fixes and improved entity naming.
+This repository provides an enhanced version of the iAlarm MQTT bridge with critical bug fixes, improved entity naming, and professional branding.
 
 ## 🔧 Key Improvements
 
@@ -25,9 +25,9 @@ See [Home Assistant documentation](https://www.home-assistant.io/common-tasks/os
 
 ## Add-ons provided by this repository
 
-- **[ialarm-mqtt](ialarm-mqtt/README.md)** `v0.12.6`
+- **[iAlarm MQTT bridge](ialarm-mqtt/README.md)** `v0.12.7`
 
-    iAlarm MQTT integration for Home Assistant (enhanced version with clean entity naming).
+    Enhanced iAlarm MQTT bridge with clean entity naming and bug fixes.
 
 ## ⚠️ Important Connection Limitation
 
@@ -35,7 +35,7 @@ See [Home Assistant documentation](https://www.home-assistant.io/common-tasks/os
 
 **However,** this enhanced version provides better configuration options and can replace the original addon:
 
-| Feature | Original | Stinocon Version |
+| Feature | Original | Enhanced Version |
 |---------|----------|------------------|
 | MQTT Topics | `ialarm/*` | `ialarm-v2/*` |
 | Device Name | `iAlarm Security Panel` | `iAlarm Security Panel (ialarm)` |
