@@ -1,5 +1,5 @@
 {
-    "name": "Maxill1 HA addons",
-    "url": "https://github.com/maxill1/addons",
-    "maintainer": "Luca Mazzilli <setmaat@gmail.com>"
+    "name": "Stinocon HA addons (ialarm-mqtt fixed)",
+    "url": "https://github.com/Stinocon/addons",
+    "maintainer": "stfncntr"
 }

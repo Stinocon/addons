@@ -26,5 +26,5 @@ jobs:
           args: |
             --all \
             --target ${{ env.ADDON_NAME }} \
-            --docker-user maxill1 \
-            --docker-hub maxill1
+            --docker-user stfncntr \
+            --docker-hub stfncntr

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.12.2
+- Fix: prevent duplicate HA discovery publishes (eliminates entity name flip-flop) - Issue #45
+- Fix: comply with HA 2024.2+ entity naming rules - Issue #51  
+- Add: structured logs for discovery topics and unique_id
+- Add: discovery cooldown to prevent rapid re-triggers
+
 ## 0.12.0
 - fixed stability issues https://github.com/maxill1/ialarm-mqtt/issues/23
 - fixed max zones https://github.com/maxill1/ialarm-mqtt/issues/24
