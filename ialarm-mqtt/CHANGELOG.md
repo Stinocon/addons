@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.12.9
+- fix: clean zone names by removing zona_X_ prefix duplication
+- feat: add cleanZoneName() function to remove 'zona_X_' prefix from zone names
+- feat: update all entity naming to use cleaned zone names:
+  - Fault sensor: "PIR Corridoio Stato" (instead of "zona_15_pir_corridoio_pir_corridoio_stato")
+  - Battery sensor: "Porta Ingresso Batteria" (instead of "zona_20_porta_ingresso_porta_ingresso_batteria")
+  - Connectivity sensor: "PIR Corridoio Connessione" (instead of "zona_15_pir_corridoio_pir_corridoio_connessione")
+  - Alarm sensor: "PIR Corridoio" (instead of "zona_15_pir_corridoio_pir_corridoio")
+  - Bypass switch: "PIR Corridoio Bypass" (instead of "zona_15_pir_corridoio_pir_corridoio_bypass")
+- feat: update device names to use cleaned zone names
+- feat: increment unique_id version to _v3 to force entity regeneration
+
 ## 0.12.8
 - fix: correct entity naming and unique_id generation to eliminate _2, _3, _4 suffixes
 - fix: configSensorFault unique_id now includes '_fault' suffix (was missing)
