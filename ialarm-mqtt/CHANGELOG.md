@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.12.12
+- **ENHANCED FIX**: Enhanced discovery blocking resolution with aggressive reset
+- fix: add aggressive discovery reset if stuck for more than 60 seconds
+- fix: track discovery start time for better debugging
+- fix: force reset discovery flag if it has been stuck too long
+- improve: better logging with timestamps for discovery process
+- improve: more robust discovery state management
+
 ## 0.12.11
 - **CRITICAL FIX**: Resolve discovery blocking issue preventing entity generation
 - fix: add safety timeout to reset discovery flag if it gets stuck
