@@ -62,6 +62,8 @@ Details and options: **[`reel2recipe/README.md`](reel2recipe/README.md)** ·
 ```
 <slug>/          one directory per add-on, named after its slug:
                  config.yaml, build.yaml, Dockerfile, rootfs/, README.md, CHANGELOG.md, icons
+                 README.md is English; a README.it.md beside it is the Italian version,
+                 and the two are updated together or one of them starts lying
 repository.json  what Home Assistant reads to list this repository
 docs/brand/      the banner at the top of this README
 .github/         one issue template and one publish workflow per add-on
