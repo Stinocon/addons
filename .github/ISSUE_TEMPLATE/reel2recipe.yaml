@@ -1,0 +1,55 @@
+name: Reel2Recipe — add-on issue
+description: Installing, configuring or starting the add-on. For recipe extraction itself, use the links below instead.
+labels: ["reel2recipe"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this only if the problem is in the **add-on packaging**: it will not install or
+        start, the model download fails, the Ingress panel does not open, an option is
+        rejected. Anything about the extracted recipe — transcription, ingredients,
+        conversions, exports — belongs in
+        [Stinocon/Reel2Recipe](https://github.com/Stinocon/Reel2Recipe/issues).
+
+        Two things that are expected behaviour and not bugs: the **first start downloads about
+        10 GB** and the interface reports "LLM not ready" until it finishes, and a recipe takes
+        **several minutes** on CPU.
+  - type: textarea
+    id: issue
+    attributes:
+      label: Description of the issue
+      description: What you expected, what happened instead, and how to reproduce it.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Add-on version
+      description: As shown in the add-on page in Home Assistant.
+      placeholder: '1.0.0'
+    validations:
+      required: true
+  - type: textarea
+    id: hardware
+    attributes:
+      label: Machine
+      description: Architecture, CPU, RAM and free disk space. The add-on is amd64 only and wants 16 GB of RAM and ~15 GB free.
+      placeholder: "amd64, Intel N100, 16 GB RAM, 40 GB free"
+    validations:
+      required: true
+  - type: textarea
+    id: platform
+    attributes:
+      label: Home Assistant version
+      description: From Settings → System → Repairs → system information.
+      placeholder: "Core: core-2026.7.0\nSupervisor: supervisor-2026.06.2\nOperating System: HAOS 15.1"
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Add-on log
+      description: From the add-on's Log tab. Set `log_level` to `debug` first if the log says nothing useful.
+      render: shell
+    validations:
+      required: false

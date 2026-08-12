@@ -1,0 +1,10 @@
+#!/command/with-contenv bashio
+# Ollama, il modello locale che struttura la ricetta.
+#
+# Ascolta solo su 127.0.0.1: è un servizio interno all'addon, non un endpoint di rete. Il
+# vincolo fondativo del progetto è che nessun dato lasci la macchina, e un Ollama esposto
+# sarebbe un modo elegante di violarlo per distrazione.
+
+bashio::log.info "Avvio di Ollama (modelli in ${OLLAMA_MODELS})…"
+
+exec /usr/local/bin/ollama serve

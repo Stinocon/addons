@@ -1,0 +1,6 @@
+#!/command/with-contenv bashio
+# Se l'interfaccia muore, l'addon non ha più ragione di stare in piedi: senza di lei
+# resterebbe solo un Ollama silenzioso che occupa memoria. Meglio fermarsi e farlo vedere
+# nello stato dell'addon, che restare "in esecuzione" senza servire nulla.
+bashio::log.warning "L'interfaccia si è fermata (codice ${1}). Fermo l'addon."
+exec /run/s6/basedir/bin/halt

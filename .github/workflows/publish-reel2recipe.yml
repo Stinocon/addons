@@ -1,0 +1,94 @@
+name: "Publish reel2recipe"
+
+env:
+  ADDON_PATH: reel2recipe
+
+# Niente `release: [published]` e niente tag generico `addon-*`: in un repository con più
+# addon quei trigger pubblicano anche quello che non c'entra. Il tag è specifico.
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'reel2recipe-*'
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    name: Prepare build matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      version: ${{ steps.info.outputs.version }}
+      name: ${{ steps.info.outputs.name }}
+      description: ${{ steps.info.outputs.description }}
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v5
+
+      - name: Read add-on info from config.yaml
+        id: info
+        run: |
+          image=$(yq e '.image' "${ADDON_PATH}/config.yaml")
+          clean="${image//\{arch\}-/}"
+          echo "image_name=${clean##*/}" >> "$GITHUB_OUTPUT"
+          echo "registry_prefix=docker.io/${clean%/*}" >> "$GITHUB_OUTPUT"
+          echo "architectures=$(yq e -o=json -I=0 '.arch' "${ADDON_PATH}/config.yaml")" >> "$GITHUB_OUTPUT"
+          echo "version=$(yq e '.version' "${ADDON_PATH}/config.yaml")" >> "$GITHUB_OUTPUT"
+          echo "name=$(yq e '.name' "${ADDON_PATH}/config.yaml")" >> "$GITHUB_OUTPUT"
+          echo "description=$(yq e '.description' "${ADDON_PATH}/config.yaml")" >> "$GITHUB_OUTPUT"
+
+      - name: Build matrix
+        id: matrix
+        uses: home-assistant/builder/actions/prepare-multi-arch-matrix@2026.06.0
+        with:
+          architectures: ${{ steps.info.outputs.architectures }}
+          image-name: ${{ steps.info.outputs.image_name }}
+          registry-prefix: ${{ steps.info.outputs.registry_prefix }}
+
+  build:
+    name: Publish ${{ matrix.arch }}
+    needs: prepare
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      # Ollama con i suoi runner pesa oltre un giga e i modelli Python non scherzano: il
+      # runner GitHub parte con poco spazio libero e la build muore a metà, con un errore
+      # che non nomina il disco.
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          df -h /
+
+      # Il BUILD_FROM non è passato qui: lo dichiara build.yaml, che il builder legge dal
+      # contesto dell'addon. Ripeterlo significherebbe tenere allineate due copie della
+      # stessa scelta, e prima o poi non lo sarebbero.
+      - name: Build and push ${{ matrix.image }}
+        uses: home-assistant/builder/actions/build-image@2026.06.0
+        with:
+          arch: ${{ matrix.arch }}
+          context: "./${{ env.ADDON_PATH }}"
+          image: ${{ matrix.image }}
+          image-tags: |
+            ${{ needs.prepare.outputs.version }}
+            latest
+          version: ${{ needs.prepare.outputs.version }}
+          labels: |
+            io.hass.type=addon
+            io.hass.name=${{ needs.prepare.outputs.name }}
+            io.hass.description=${{ needs.prepare.outputs.description }}
+          cosign: "false"
+          push: "true"
+          container-registry: docker.io
+          container-registry-username: ${{ secrets.DOCKERHUB_USERNAME }}
+          container-registry-password: ${{ secrets.DOCKERHUB_TOKEN }}

@@ -1,0 +1,53 @@
+name: "Reel2Recipe"
+url: https://github.com/Stinocon/addons/tree/master/reel2recipe
+version: "1.0.2"
+slug: reel2recipe
+description: "Estrae ricette dai reel di cucina e le esporta in formato Mela. Whisper e LLM girano dentro l'addon: nessuna IA a pagamento, nessuna chiave API, nessun dato fuori dalla macchina."
+
+# Solo amd64. L'inferenza di un modello da 14 miliardi di parametri gira su CPU: serve un
+# miniPC con 16 GB di RAM, non un Raspberry. Pubblicare un'immagine aarch64 significherebbe
+# far installare a qualcuno un addon che sulla sua macchina non finirà mai una ricetta.
+arch:
+  - amd64
+
+init: false
+startup: application
+boot: auto
+
+# L'interfaccia passa dall'Ingress: compare nella barra laterale di Home Assistant e non
+# richiede di aprire una porta. La porta resta comunque mappabile per chi la vuole diretta.
+ingress: true
+ingress_port: 8500
+panel_icon: mdi:chef-hat
+panel_title: Reel2Recipe
+ports:
+  8500/tcp: null
+ports_description:
+  8500/tcp: "Interfaccia web diretta (facoltativa: di norma basta l'Ingress)"
+
+# Sola lettura, e serve a una cosa sola: leggere il file dei cookie per i reel che
+# richiedono l'accesso. Nulla viene scritto in /share.
+map:
+  - share:ro
+
+# I modelli stanno su /data perché devono sopravvivere agli aggiornamenti dell'addon, ma
+# non devono finire nei backup di Home Assistant: sono una decina di GB riscaricabili, e un
+# backup che li contiene diventa inutilizzabile.
+backup_exclude:
+  - ollama/**
+  - whisper/**
+  - workspace/media/**
+
+options:
+  modello_llm: qwen2.5:14b
+  scarica_modello: true
+  file_cookie: ""
+  log_level: info
+
+schema:
+  modello_llm: str
+  scarica_modello: bool
+  file_cookie: str?
+  log_level: list(trace|debug|info|notice|warning|error|fatal)
+
+image: stfncntr/{arch}-addon-reel2recipe

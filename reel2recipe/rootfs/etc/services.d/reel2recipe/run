@@ -1,0 +1,154 @@
+#!/command/with-contenv bashio
+# L'interfaccia web di Reel2Recipe, servita a Home Assistant tramite Ingress.
+#
+# Ordine delle cose: si aspetta che Ollama risponda, si avvia il download del modello se
+# manca, e si parte comunque. Il download non blocca l'avvio di proposito — sono diversi GB
+# e possono volerci decine di minuti — perché l'interfaccia ha già un modo onesto di dire
+# che il cervello non è pronto: `/api/stato`, che la pagina interroga da sola.
+
+set -e
+
+MODELLO="$(bashio::config 'modello_llm')"
+[[ "${MODELLO}" == *:* ]] || MODELLO="${MODELLO}:latest"   # come lo registra Ollama
+
+# Il file dei cookie serve ai reel che richiedono l'accesso. Qui dentro non c'è un browser
+# da cui pescarli, quindi la via è un file esportato altrove e messo in /share.
+if bashio::config.has_value 'file_cookie'; then
+    # Il percorso è relativo a /share, ma scriverlo per intero è l'errore che chiunque fa la
+    # prima volta: si tollera invece di produrre «/share//share/cookies.txt» e un file non
+    # trovato che non spiega niente.
+    cookie="$(bashio::config 'file_cookie')"
+    cookie="${cookie#/}"
+    cookie="${cookie#share/}"
+    export R2R_COOKIES="/share/${cookie}"
+    bashio::log.info "Cookie da ${R2R_COOKIES} (ne viene usata una copia: l'originale non si tocca)."
+fi
+
+# ---------------------------------------------------------------------------------------
+# Attesa di Ollama
+# ---------------------------------------------------------------------------------------
+bashio::log.info "Attendo che Ollama risponda…"
+for _ in $(seq 1 60); do
+    if curl -sf --max-time 2 "http://127.0.0.1:11434/api/tags" > /dev/null 2>&1; then
+        break
+    fi
+    sleep 1
+done
+
+if ! curl -sf --max-time 2 "http://127.0.0.1:11434/api/tags" > /dev/null 2>&1; then
+    bashio::log.warning "Ollama non risponde dopo 60 s: l'interfaccia parte lo stesso e segnalerà «LLM non pronto»."
+fi
+
+# ---------------------------------------------------------------------------------------
+# Modello, in secondo piano
+# ---------------------------------------------------------------------------------------
+# Un tentativo solo: avvia il pull, batte un colpo al minuto e riferisce com'è finita.
+un_tentativo() {
+    # L'output di `ollama pull` è una barra di avanzamento a ritorni-a-capo: riversata nel
+    # log dell'addon lo renderebbe illeggibile. Meglio un battito ogni minuto con quanto è
+    # già a terra — dice la stessa cosa in venti righe invece che in ventimila.
+    ollama pull "${MODELLO}" > /tmp/pull.log 2>&1 &
+    local pid=$!
+    while kill -0 "${pid}" 2> /dev/null; do
+        sleep 60
+        bashio::log.info "…download in corso: $(du -sh "${OLLAMA_MODELS}" 2> /dev/null | cut -f1) su disco."
+    done
+    wait "${pid}"
+}
+
+# Nove gigabyte che falliscono una volta non sono un caso eccezionale: sono la normalità
+# statistica. Un `digest mismatch` a fine scaricamento — visto davvero, alla prima
+# installazione — lasciava l'addon senza cervello per sempre, perché il pull si tentava una
+# volta sola. Da qui i tentativi ripetuti.
+#
+# Ma sono TRE, non infiniti: se la causa è il disco pieno, riprovare in eterno non la
+# risolve, riempie il registro e tiene la macchina occupata. Dopo tre giri si smette e si
+# dice cosa fare.
+TENTATIVI=3
+
+scarica_in_secondo_piano() {
+    bashio::log.info "Scarico ${MODELLO}. Sono diversi GB: l'interfaccia è già aperta e resta «non pronta» finché non finisce."
+
+    local attesa=30
+    for tentativo in $(seq 1 "${TENTATIVI}"); do
+        if un_tentativo; then
+            bashio::log.info "Modello ${MODELLO} pronto: da adesso le ricette si possono estrarre."
+            return 0
+        fi
+
+        # Lo spazio libero va nel registro a ogni fallimento, perché è la domanda che ci si
+        # pone subito dopo e distingue le due cause: un file troncato per disco pieno dà lo
+        # stesso `digest mismatch` di una corruzione in transito.
+        bashio::log.warning \
+            "Tentativo ${tentativo} di ${TENTATIVI} fallito: $(tail -n 3 /tmp/pull.log)"
+        bashio::log.warning \
+            "Spazio libero su /data: $(df -h /data 2> /dev/null | awk 'NR==2 {print $4}')."
+
+        if [ "${tentativo}" -lt "${TENTATIVI}" ]; then
+            bashio::log.info "Riprovo fra ${attesa} s."
+            sleep "${attesa}"
+            attesa=$((attesa * 2))
+        fi
+    done
+
+    bashio::log.error \
+        "Scaricamento di ${MODELLO} fallito ${TENTATIVI} volte. Se lo spazio libero qui sopra è meno della dimensione del modello, il problema è il disco; altrimenti riavvia l'add-on per ritentare."
+    return 1
+}
+
+if bashio::config.true 'scarica_modello'; then
+    if ollama list 2> /dev/null | awk '{print $1}' | grep -Fxq "${MODELLO}"; then
+        bashio::log.info "Modello ${MODELLO} già presente."
+    else
+        scarica_in_secondo_piano &
+    fi
+else
+    bashio::log.info "Scaricamento automatico disattivato: se non c'è un modello in /data/ollama, non si estrae nulla."
+fi
+
+# ---------------------------------------------------------------------------------------
+# Modello di trascrizione, anch'esso in anticipo
+# ---------------------------------------------------------------------------------------
+# faster-whisper scarica il suo modello (~1,5 GB) alla PRIMA trascrizione, cioè dentro la
+# richiesta dell'utente e senza dirlo a nessuno: la barra si fermerebbe su «Trascrizione del
+# parlato» per minuti, senza che il registro spieghi il perché. Meglio pagarlo all'avvio,
+# quando c'è già un download in corso e nessuno sta aspettando una ricetta.
+scalda_whisper() {
+    bashio::log.info "Preparo il modello di trascrizione (~1,5 GB)…"
+    if /app/.venv/bin/python -c \
+        "from faster_whisper import WhisperModel; WhisperModel('large-v3-turbo', device='cpu', compute_type='int8')" \
+        > /tmp/whisper.log 2>&1; then
+        bashio::log.info "Modello di trascrizione pronto."
+    else
+        bashio::log.warning "Preparazione della trascrizione non riuscita: $(tail -n 2 /tmp/whisper.log). Verrà ritentata al primo reel."
+    fi
+}
+
+if [ -z "$(ls -A "${HF_HOME}/hub" 2> /dev/null)" ]; then
+    scalda_whisper &
+fi
+
+# ---------------------------------------------------------------------------------------
+# Interfaccia
+# ---------------------------------------------------------------------------------------
+# 0.0.0.0 e non 127.0.0.1: è l'Ingress di Home Assistant, da fuori dal container, a
+# collegarsi. La porta non è esposta all'esterno se non la si mappa esplicitamente.
+#
+# Si esegue direttamente il binario dell'ambiente virtuale invece di `uv run`: qui l'unico
+# ambiente esistente è quello che uv ha costruito in fase di build, e un livello in meno
+# significa che s6 supervisiona il processo vero e i segnali arrivano dove devono.
+# «Avvio» e non «pronta»: il messaggio precede l'exec, quindi non può testimoniare che il
+# server sia partito. Quando diceva «pronta» il registro ha affermato per quattro riavvii di
+# fila una cosa che non era vera, e ha mandato la diagnosi dalla parte sbagliata.
+bashio::log.info "Avvio l'interfaccia sulla porta 8500 (Ingress)…"
+
+# --ollama PRIMA di `serve`: è un'opzione globale del programma, non del sottocomando, e
+# argparse dopo il sottocomando la rifiuta. Messa dopo, l'interfaccia usciva con codice 2 a
+# ogni avvio, s6 riavviava all'infinito e l'Ingress non trovava nessuno in ascolto: Home
+# Assistant rispondeva «502 Bad Gateway». Il contratto è fissato da `tests/test_cli.py`
+# nel repo di Reel2Recipe: se si tocca questa riga, si aggiorna quello.
+exec /app/.venv/bin/r2r \
+    --ollama "http://127.0.0.1:11434" \
+    serve \
+    --host 0.0.0.0 \
+    --porta 8500

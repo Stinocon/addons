@@ -1,0 +1,23 @@
+blank_issues_enabled: false
+contact_links:
+  # This repository only packages applications that live elsewhere. Anything about what an
+  # add-on *does* once it is running belongs in the application repository, not here — one
+  # contact link per add-on, added alongside its issue template.
+  - name: Reel2Recipe — the application itself
+    url: https://github.com/Stinocon/Reel2Recipe/issues
+    about: Recipe extraction, transcription, conversions, the web interface, exports.
+  - name: ialarm-mqtt — the application itself
+    url: https://github.com/Stinocon/ialarm-mqtt/issues
+    about: Entities, MQTT discovery, panel communication (this fork's enhancements).
+  - name: ialarm-mqtt — the original project
+    url: https://github.com/maxill1/ialarm-mqtt/issues
+    about: Behaviour inherited from upstream, not specific to this fork.
+  - name: node-ialarm
+    url: https://github.com/maxill1/node-ialarm/issues
+    about: The library that talks to the alarm panel.
+  - name: iAlarm troubleshooting / FAQ
+    url: https://github.com/maxill1/ialarm-mqtt/wiki/Troubleshooting
+    about: Read this before opening an issue about an unresponsive panel.
+  - name: iAlarm questions and discussion
+    url: https://github.com/maxill1/ialarm-mqtt/discussions/new
+    about: Questions, supported devices, showing what you built.

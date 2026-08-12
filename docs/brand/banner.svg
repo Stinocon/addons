@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 260" role="img"
+     aria-label="Stinocon Add-ons — an add-on repository for Home Assistant">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1f2b"/>
+      <stop offset="1" stop-color="#123246"/>
+    </linearGradient>
+    <!-- Home Assistant's blue: this repository is nothing on its own, it is something you
+         add to Home Assistant, and the tile should say so before the words do. -->
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#41bdf5"/>
+      <stop offset="1" stop-color="#1a7fae"/>
+    </linearGradient>
+    <linearGradient id="word" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f2fbff"/>
+      <stop offset="1" stop-color="#8fd6f5"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#41bdf5" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#41bdf5" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="lit" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffd9b0" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffd9b0" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="edge">
+      <rect width="1200" height="260" rx="20"/>
+    </clipPath>
+  </defs>
+
+  <rect width="1200" height="260" rx="20" fill="url(#bg)"/>
+
+  <g clip-path="url(#edge)">
+    <ellipse cx="1000" cy="50" rx="380" ry="230" fill="url(#glow)"/>
+
+    <!-- Faint rounded squares drifting to the right: the add-on cards of the store this
+         repository shows up in. Decoration, kept below the noise floor on purpose. -->
+    <g fill="none" stroke="#7fd3f5" opacity="0.10">
+      <rect x="880" y="150" width="54" height="54" rx="14"/>
+      <rect x="962" y="112" width="42" height="42" rx="11"/>
+      <rect x="1030" y="168" width="34" height="34" rx="9"/>
+      <rect x="1092" y="86" width="26" height="26" rx="7"/>
+    </g>
+  </g>
+
+  <!-- The mark: a house with lit rooms. It deliberately does NOT count the add-ons.
+       An earlier version had exactly two windows, one per add-on, which was charming and
+       wrong: the third add-on would have made the drawing lie, and a banner is the last
+       place anyone thinks to check. A grid of windows reads as architecture, not as
+       inventory — it stays true whatever the store ends up holding. The accent colours are
+       still the ones the add-ons use, but as a palette rather than as a census. -->
+  <g transform="translate(70 60)">
+    <rect width="140" height="140" rx="24" fill="url(#tile)"/>
+
+    <!-- house silhouette, cut dark out of the blue tile -->
+    <path d="M70 18 L124 66 L124 118 Q124 126 116 126 L24 126 Q16 126 16 118 L16 66 Z"
+          fill="#07202c" opacity="0.92"/>
+
+    <!-- light spilling from the windows, before the windows themselves. Kept tight: wider
+         and neighbouring windows share one smudge instead of lighting separate rooms. -->
+    <g fill="url(#lit)">
+      <ellipse cx="53" cy="80" rx="18" ry="16"/>
+      <ellipse cx="87" cy="80" rx="18" ry="16"/>
+      <ellipse cx="53" cy="106" rx="18" ry="16"/>
+      <ellipse cx="87" cy="106" rx="18" ry="16"/>
+    </g>
+
+    <g>
+      <rect x="42" y="70" width="22" height="20" rx="4" fill="#e0805c"/>
+      <rect x="76" y="70" width="22" height="20" rx="4" fill="#7fc98a"/>
+      <rect x="42" y="96" width="22" height="20" rx="4" fill="#9aa6f0"/>
+      <rect x="76" y="96" width="22" height="20" rx="4" fill="#e8b45c"/>
+    </g>
+  </g>
+
+  <text x="248" y="116" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif"
+        font-size="64" font-weight="700" fill="url(#word)" letter-spacing="0.5">Stinocon Add-ons</text>
+  <text x="250" y="155" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif"
+        font-size="24" fill="#8fb0c4">An add-on repository for Home Assistant</text>
+
+  <!-- The chip used to list the add-ons by name, which made the banner go stale the moment
+       the list changed. It now says what stays true however many there are. -->
+  <g transform="translate(250 177)">
+    <rect width="440" height="32" rx="16" fill="#0e2c3c" stroke="#1c4c63"/>
+    <circle cx="19" cy="16" r="4.5" fill="#41bdf5"/>
+    <text x="34" y="21" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif"
+          font-size="15" fill="#a3c2d3">local-first · add the repository once, the add-ons follow</text>
+  </g>
+</svg>
