@@ -1,129 +1,141 @@
-# Reel2Recipe — add-on per Home Assistant
+<p align="center">
+  <strong>English</strong> · <a href="README.it.md">Italiano</a>
+</p>
 
-Estrae ricette dai reel di cucina e le rende utilizzabili: le struttura, ne normalizza le
-quantità, le archivia in una libreria ricercabile e le esporta in formato **Mela**.
+# Reel2Recipe — Home Assistant add-on
 
-Il problema che risolve non è "estrarre una ricetta" ma **ritrovarla**: chi salva ricette su
-Instagram poi non le ritrova più.
+Extracts recipes from cooking reels and makes them usable: it structures them, normalises the
+amounts, files them in a searchable library and exports them in **Mela** format.
 
-Codice sorgente e documentazione completa: **[Stinocon/Reel2Recipe](https://github.com/Stinocon/Reel2Recipe)**.
+The problem it solves is not "extracting a recipe" but **finding it again**: people save
+recipes on Instagram and then never find them.
 
-## Cosa gira dentro l'add-on
+Source code and full documentation:
+**[Stinocon/Reel2Recipe](https://github.com/Stinocon/Reel2Recipe)**.
 
-Tutto. La trascrizione usa **Whisper** in locale, la strutturazione un **LLM locale via
-Ollama**, entrambi dentro questo container. Nessuna chiave API, nessun abbonamento, nessun
-dato che lascia la macchina — ed è un vincolo di progetto, non una caratteristica di questa
-versione: il prodotto deve continuare a funzionare anche se si smette di pagare qualsiasi
-cosa.
+## Languages
 
-Il corollario è che il lavoro pesante lo fa la CPU del tuo server.
+**Italian and English, on both sides of the tool.** The interface switch is in the header;
+the choice is remembered, and on first open it follows your browser's language. From it
+descend the other two axes — the recipe's language and the measurement system — which follow
+it by default and stay overridable under *Options*.
 
-## Requisiti
+The language *spoken* in the reel is a separate matter and is not inferred from those:
+Whisper detects it, so an English reel can become an Italian recipe, or stay English.
+
+One honest limitation before you rely on it: translating **ingredient names** is the least
+reliable part of the chain — see [what it does not do](#what-it-does-not-do-worth-knowing-first).
+The amounts stay right; the words are what slip.
+
+## What runs inside the add-on
+
+Everything. Transcription uses **Whisper** locally, structuring a **local LLM via Ollama**,
+both inside this container. No API key, no subscription, no data leaving the machine — and
+that is a design constraint, not a property of this release: the product has to keep working
+even if you stop paying for everything.
+
+The corollary is that your server's CPU does the heavy lifting.
+
+## Requirements
 
 | | |
 |---|---|
-| Architettura | **amd64 soltanto** — un miniPC o un NUC, non un Raspberry |
-| RAM | **16 GB** consigliati: il modello predefinito ne occupa circa 9 quando è caricato |
-| Disco | **~15 GB**: 1,5 GB di immagine, ~9 GB per il modello LLM, ~1,5 GB per Whisper |
-| Tempi | Alcuni minuti per ricetta su CPU. È un lavoro da lanciare e lasciar fare |
+| Architecture | **amd64 only** — a miniPC or a NUC, not a Raspberry Pi |
+| RAM | **16 GB** recommended: the default model takes about 9 when loaded |
+| Disk | **~15 GB**: 1.5 GB of image, ~9 GB for the LLM, ~1.5 GB for Whisper |
+| Time | A few minutes per recipe on CPU. It is a job you start and let run |
 
-Se la macchina è più modesta, in `modello_llm` si può mettere `qwen2.5:7b-instruct`: dimezza
-memoria e tempi, ma **perde i gruppi di ingredienti** ("per la salsa", "per la base") e
-tende a completare le dosi mancanti invece di dichiararle. Il modello grande resta il
-predefinito per questa ragione.
+On a more modest machine you can set `modello_llm` to `qwen2.5:7b-instruct`: it halves memory
+and time, but **loses ingredient groups** ("for the sauce", "for the base") and tends to fill
+in missing amounts instead of declaring them. That is why the larger model is the default.
 
-## Installazione
+## Installation
 
-1. In Home Assistant: **Impostazioni → Add-on → Store**, menu in alto a destra,
-   **Repository**, e aggiungi:
+1. In Home Assistant: **Settings → Add-ons → Add-on Store**, top-right menu,
+   **Repositories**, then add:
 
    ```
    https://github.com/Stinocon/addons
    ```
 
-2. Installa **Reel2Recipe** e avvialo.
-3. **Il primo avvio scarica circa 10 GB**: il modello di linguaggio e quello di trascrizione.
-   L'interfaccia è già raggiungibile nel frattempo e mostra "LLM non pronto" finché non ha
-   finito; il registro dell'add-on riporta un avanzamento ogni minuto. Si scaricano una volta
-   sola e restano su `/data`, quindi gli aggiornamenti dell'add-on non li ripagano.
-4. Apri il pannello dalla barra laterale.
+2. Install **Reel2Recipe** and start it.
+3. **The first start downloads about 10 GB**: the language model and the transcription one.
+   The interface is already reachable meanwhile and shows "LLM not ready" until it has
+   finished; the add-on log reports progress every minute. They are downloaded once and stay
+   on `/data`, so add-on updates do not pay for them again.
+4. Open the panel from the sidebar.
 
-## Opzioni
+## Options
 
-| opzione | predefinito | cosa fa |
+| option | default | what it does |
 |---------|-------------|---------|
-| `modello_llm` | `qwen2.5:14b` | Il modello Ollama che struttura la ricetta. Scaricato al primo avvio se manca |
-| `scarica_modello` | `true` | Disattivalo se preferisci gestire i modelli a mano |
-| `file_cookie` | *(vuoto)* | File di cookie in formato Netscape dentro `/share`. Vanno bene sia `cookies.txt` sia `/share/cookies.txt`. Il file non viene mai modificato: se ne usa una copia |
-| `log_level` | `info` | Verbosità del registro |
+| `modello_llm` | `qwen2.5:14b` | The Ollama model that structures the recipe. Downloaded on first start if missing |
+| `scarica_modello` | `true` | Turn it off if you prefer to manage models by hand |
+| `file_cookie` | *(empty)* | Netscape-format cookie file inside `/share`. Both `cookies.txt` and `/share/cookies.txt` work. The file is never modified: a copy is used |
+| `log_level` | `info` | Log verbosity |
 
-## Come si usa
+## How to use it
 
-Due strade, e non sono equivalenti sul piano legale:
+Two routes, and they are not equivalent legally:
 
-- **Carichi un file** che hai già sul dispositivo (trascina-e-rilascia sulla pagina),
-  incollando la didascalia. È la strada senza attriti.
-- **Incolli il link** del reel: l'add-on lo scarica. Scaricare un reel viola i Termini d'Uso
-  di Instagram — è la ragione per cui questo strumento è **locale e per uso personale**, e
-  perché l'alternativa senza download esiste sempre. Vedi
-  [docs/legale.md](https://github.com/Stinocon/Reel2Recipe/blob/main/docs/legale.md).
+- **You upload a file** you already have on the device (drag and drop onto the page), pasting
+  the caption in. This is the frictionless route.
+- **You paste the reel's link** and the add-on downloads it. Downloading a reel breaches
+  Instagram's Terms of Use — which is why this tool is **local and for personal use**, and
+  why the route without downloading always exists. See
+  [docs/legale.md](https://github.com/Stinocon/Reel2Recipe/blob/main/docs/legale.md)
+  (Italian, with an English summary).
 
-Instagram richiede l'accesso per buona parte dei contenuti. Qui dentro non c'è un browser da
-cui prendere i cookie, quindi la via è esportarli altrove in formato Netscape, metterli in
-`/share` e indicarli in `file_cookie` — per esempio `cookies-instagram.txt`.
+Instagram requires you to be signed in for much of its content. There is no browser in here
+to take cookies from, so the way is to export them elsewhere in Netscape format, put them in
+`/share` and name them in `file_cookie` — `cookies-instagram.txt`, for instance.
 
-Il risultato non è un file buttato in una cartella: la ricetta entra in una libreria con
-ricerca full-text, si corregge a mano dove serve, e si esporta in `.melarecipe`, Markdown o
-PDF.
+The result is not a file dropped in a folder: the recipe enters a library with full-text
+search, gets corrected by hand where needed, and exports to `.melarecipe`, Markdown or PDF.
 
-**L'interfaccia è in italiano e in inglese**, con il selettore in testata. Da quella scelta
-scendono le altre due — la lingua della ricetta e il sistema di misura — che di base la
-seguono e restano sovrascrivibili nelle *Opzioni*. La lingua *parlata* nel reel è un'altra
-cosa ancora e non si deduce da queste: la riconosce Whisper da sé, così un reel inglese può
-diventare una ricetta italiana.
+## What it does not do, worth knowing first
 
-## Quello che non fa, e va saputo prima
+- **The model does not convert the amounts, the code does**, with density tables that each
+  cite a source. Where a density is unknown the conversion is not done: the volume is kept
+  and the gap declared. In a kitchen, a wrong weight you don't know is wrong does real
+  damage.
+- **It does not invent.** Amounts or steps not deducible from the material stay declared
+  gaps. An incomplete but honest recipe is usable; one completed at random is not.
+- **Translating ingredient names is the weak spot.** From an English source, names go wrong
+  with some regularity; from a long Italian caption towards English the model translates the
+  title and stays anchored to Italian in the list. It is a limit of the local model, not of
+  the conversion, which stays deterministic in both directions.
+- **It does not create Home Assistant entities.** It is an application living in the sidebar,
+  not an integration: there are no sensors, services or automations.
 
-- **Le quantità non le converte il modello, le converte il codice** con tabelle di densità
-  che hanno una fonte dichiarata. Dove una densità non è nota, la conversione non si fa: si
-  conserva il volume e si dichiara la lacuna. Un peso sbagliato di cui non sai che è
-  sbagliato, in cucina, fa danni.
-- **Non inventa.** Quantità o passaggi non deducibili dal materiale restano buchi
-  dichiarati. Una ricetta incompleta ma onesta è utilizzabile; una completata a caso no.
-- **La traduzione italiano → inglese è il punto debole.** Su didascalie italiane lunghe il
-  modello traduce il titolo e resta ancorato all'italiano nell'elenco. È un limite del
-  modello locale, non della conversione, che resta deterministica in entrambe le direzioni.
-- **Non crea entità in Home Assistant.** È un'applicazione che vive nel pannello laterale,
-  non un'integrazione: non ci sono sensori, servizi o automazioni.
+## Data and backups
 
-## Dati e backup
-
-Tutto sta su `/data`, che sopravvive agli aggiornamenti:
+Everything sits on `/data`, which survives updates:
 
 ```
-/data/workspace/ricette.db     la libreria
-/data/workspace/media/         i reel scaricati
-/data/ollama/                  i modelli LLM
-/data/whisper/                 i modelli di trascrizione
+/data/workspace/ricette.db     the library
+/data/workspace/media/         the downloaded reels
+/data/ollama/                  the LLM models
+/data/whisper/                 the transcription models
 ```
 
-Modelli e media sono **esclusi dai backup** di Home Assistant: sono una decina di GB
-riscaricabili, e un backup che li contenesse sarebbe ingestibile. La libreria delle ricette,
-che è l'unica cosa non riproducibile, è invece dentro.
+Models and media are **excluded from Home Assistant backups**: they are ten-odd GB that can
+be downloaded again, and a backup containing them would be unmanageable. The recipe library,
+the one thing that cannot be reproduced, is included.
 
-Il materiale scaricato è di terzi: resta qui e non si ridistribuisce.
+The downloaded material belongs to third parties: it stays here and is not redistributed.
 
-## Segnalazioni
+## Reporting problems
 
-I problemi di **installazione, configurazione o avvio dell'add-on** vanno
-[qui](https://github.com/Stinocon/addons/issues). Tutto ciò che riguarda la ricetta —
-trascrizione, ingredienti, conversioni, esportazioni — va invece su
-[Stinocon/Reel2Recipe](https://github.com/Stinocon/Reel2Recipe/issues), dove sta il codice.
+Problems with **installing, configuring or starting the add-on** go
+[here](https://github.com/Stinocon/addons/issues). Anything about the recipe itself —
+transcription, ingredients, conversions, exports — goes to
+[Stinocon/Reel2Recipe](https://github.com/Stinocon/Reel2Recipe/issues), where the code lives.
 
-## Licenza
+## Licence
 
-MIT: questo add-on sotto la [`LICENSE`](../LICENSE) del repository, l'applicazione sotto
-[quella di Reel2Recipe](https://github.com/Stinocon/Reel2Recipe/blob/main/LICENSE). Le
-attribuzioni delle dipendenze stanno nel
-[NOTICE.md di Reel2Recipe](https://github.com/Stinocon/Reel2Recipe/blob/main/NOTICE.md); la
-provenienza di quanto sta in questo repository nel [`NOTICE.md`](../NOTICE.md) qui accanto.
+MIT: this add-on under the repository's [`LICENSE`](../LICENSE), the application under
+[Reel2Recipe's](https://github.com/Stinocon/Reel2Recipe/blob/main/LICENSE). Dependency
+attributions are in
+[Reel2Recipe's NOTICE.md](https://github.com/Stinocon/Reel2Recipe/blob/main/NOTICE.md); the
+provenance of what lives in this repository is in the [`NOTICE.md`](../NOTICE.md) next door.

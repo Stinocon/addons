@@ -1,82 +1,85 @@
 # Changelog
 
+<!-- English only, on purpose: Home Assistant shows this file to whoever installs the
+     add-on, from any country. One language, and the one that reaches the most people. The
+     add-on's README is the bilingual one. -->
+
 ## 1.0.3
 
-**L'interfaccia parla anche inglese.** Il selettore sta in testata: la scelta viene
-ricordata e alla prima apertura si parte dalla lingua del browser. Da lì scende una catena
-di tre anelli — interfaccia, lingua della ricetta, sistema di misura — ciascuno con il
-precedente come ripiego e ciascuno sovrascrivibile. Chi non tocca niente ottiene un insieme
-coerente; chi cucina in una lingua e vive in un'altra può incrociarli.
+**The interface speaks English too.** The switch is in the header: the choice is remembered
+and on first open it follows your browser's language. From it descends a chain of three
+links — interface, recipe language, measurement system — each falling back to the one before
+it and each overridable. Change nothing and you get a coherent set; someone who cooks in one
+language and lives in another can cross them.
 
-**Il selettore della lingua non era collegato a niente.** Era disegnato nel pannello
-*Opzioni* fin dalla 1.0.0, si poteva scegliere, e ogni estrazione usciva comunque in
-italiano metrico. Un comando che non fa niente è peggio di un comando assente: insegna a
-non fidarsi dell'interfaccia.
+**The recipe-language selector was not wired to anything.** It had been drawn in the
+*Options* panel since 1.0.0, you could pick a language, and every extraction came out in
+Italian with metric units regardless. A control that does nothing is worse than a missing
+one: it teaches you not to trust the interface.
 
-**A Whisper si diceva che ogni reel era italiano.** La lingua del parlato era fissata a
-"it" e non era esposta da nessuna parte, quindi anche un reel inglese veniva trascritto
-come se fosse italiano — parole italiane forzate su suoni inglesi, e da lì in poi tutto il
-resto lavorava su quelle. Il difetto era invisibile, perché una ricetta plausibile il
-modello la produce comunque. Ora la lingua la riconosce Whisper da sé, e resta forzabile
-dalle *Opzioni* quando sbaglia.
+**Whisper was told every reel was Italian.** The spoken language was pinned to "it" and
+exposed nowhere, so even an English reel was transcribed as if it were Italian — Italian
+words forced onto English sounds, and everything downstream then worked on those. The fault
+was invisible, because the model produces a plausible recipe anyway. Now Whisper detects the
+language itself, and it can still be forced from *Options* when detection gets it wrong.
 
-**Trascinare un video perdeva le impostazioni.** Il caricamento di un file accettava solo
-lingua e sistema: backend di trascrizione, modello e «usa solo la didascalia» venivano
-scartati in silenzio. Ora le due strade prendono le stesse opzioni.
+**Dragging in a video threw away your settings.** Uploading a file only accepted the language
+and the measurement system: transcription backend, model and "use the caption only" were
+silently discarded. Both routes now take the same options.
 
 ## 1.0.2
 
-**Il modello non si scaricava più dopo un errore.** Alla prima installazione i 9 GB di
-`qwen2.5:14b` sono arrivati interi e sono stati scartati dalla verifica dello sha256
-(`digest mismatch`). Il pull si tentava una volta sola: dopo quel fallimento l'add-on
-restava senza modello per sempre, e l'unico rimedio era riavviarlo a mano.
+**The model stopped re-downloading after a failure.** On first install the 9 GB of
+`qwen2.5:14b` arrived whole and were rejected by the sha256 check (`digest mismatch`). The
+pull was attempted once only: after that failure the add-on stayed without a model forever,
+and the only remedy was restarting it by hand.
 
-Ora ritenta **tre volte**, con attesa crescente. Tre e non infinite: se la causa è il disco
-pieno, riprovare in eterno non la risolve. Per distinguere le due cause — un file troncato
-per spazio esaurito dà lo stesso `digest mismatch` di una corruzione in transito — a ogni
-fallimento il registro scrive lo spazio libero su `/data`.
+It now retries **three times**, with growing waits. Three and not endlessly: if the cause is
+a full disk, retrying forever does not fix it. To tell the two causes apart — a file
+truncated by exhausted space gives the same `digest mismatch` as corruption in transit — the
+log writes the free space on `/data` at every failure.
 
-**Il messaggio dell'interfaccia era sbagliato tre volte.** Consigliava
-`ollama pull qwen2.5:7b-instruct`: un modello diverso da quello che l'add-on installa, e per
-giunta quello scartato perché perde i gruppi di ingredienti e inventa le dosi. Diceva di
-eseguire comandi in una shell che dentro Home Assistant non esiste. E non distingueva «nessun
-modello» da «lo sto scaricando adesso», che è il caso normale della prima mezz'ora.
+**The interface's message was wrong three times over.** It suggested
+`ollama pull qwen2.5:7b-instruct`: a different model from the one the add-on installs, and
+moreover the one rejected for losing ingredient groups and inventing amounts. It told you to
+run commands in a shell that does not exist inside Home Assistant. And it did not distinguish
+"no model" from "downloading it right now", which is the normal case for the first half hour.
 
 ## 1.0.1
 
-**L'interfaccia non partiva.** L'add-on si installava e si avviava, ma aprendolo Home
-Assistant rispondeva «502 Bad Gateway».
+**The interface would not start.** The add-on installed and started, but opening it made Home
+Assistant answer "502 Bad Gateway".
 
-Lo script di servizio passava `--ollama` dopo il sottocomando `serve`, ma è un'opzione
-globale del programma e va prima: argparse usciva con codice 2, s6 riavviava il servizio
-all'infinito, e l'Ingress non trovava nessuno in ascolto sulla porta 8500. Il server non è
-mai partito nemmeno una volta — con un proxy davanti sembrava un problema di rete.
+The service script passed `--ollama` after the `serve` subcommand, but it is a global option
+of the program and goes before it: argparse exited with code 2, s6 restarted the service
+endlessly, and the Ingress found nobody listening on port 8500. The server never started even
+once — with a proxy in front it looked like a network problem.
 
-Il registro contribuiva all'equivoco: annunciava «Interfaccia pronta sull'Ingress» *prima*
-di avviarla, quindi affermava a ogni riavvio una cosa che non era vera. Ora dice «Avvio
-l'interfaccia» e non testimonia più su ciò che non ha visto.
+The log added to the confusion: it announced "Interface ready on the Ingress" *before*
+starting it, so at every restart it asserted something that was not true. It now says
+"Starting the interface" and no longer testifies to what it has not seen.
 
-Quella riga è un contratto fra due repository e non la controllava nessuno: ora è fissata da
-`tests/test_cli.py` in Reel2Recipe.
+That line is a contract between two repositories and nobody was checking it: it is now held
+in place by `tests/test_cli.py` in Reel2Recipe.
 
 ## 1.0.0
 
-Prima versione stabile. Le 0.1.x che l'hanno preceduta erano di collaudo e non sono più
-disponibili: quanto avevano corretto è dentro questa.
+First stable version. The 0.1.x releases before it were trial runs and are no longer
+available: what they fixed is inside this one.
 
-- Interfaccia di Reel2Recipe servita tramite Ingress, nel pannello laterale.
-- Ollama e Whisper girano dentro l'add-on: nessun servizio remoto, nessuna chiave API,
-  nessun dato che lascia la macchina.
-- Il modello LLM viene scaricato al primo avvio (`modello_llm`, `scarica_modello`) senza
-  bloccare l'interfaccia, che nel frattempo dichiara di non essere pronta. Il modello di
-  trascrizione (~1,5 GB) si scarica anch'esso all'avvio, e non alla prima ricetta: prima la
-  barra si fermava su «Trascrizione del parlato» per minuti senza spiegazione.
-- Libreria, media e modelli su `/data`; modelli e media esclusi dai backup.
-- `file_cookie` per i reel che richiedono l'accesso, letto da `/share` in sola lettura. Si
-  lavora su una copia privata e temporanea: yt-dlp riscrive quel file a fine scaricamento,
-  ma `/share` è montato in sola lettura, e senza la copia un download riuscito falliva
-  all'ultimo passo. La copia contiene credenziali di sessione, quindi nasce con permessi
-  ristretti e nome imprevedibile, e viene cancellata alla fine.
-- I passi del procedimento escono senza numerazione: Mela numera le righe da sé, e
-  aggiungerla produceva «1 1. Frullare il tofu».
-- Solo `amd64`: l'inferenza gira su CPU e serve una macchina con 16 GB di RAM.
+- The Reel2Recipe interface served through the Ingress, in the sidebar.
+- Ollama and Whisper run inside the add-on: no remote service, no API key, no data leaving
+  the machine.
+- The LLM is downloaded on first start (`modello_llm`, `scarica_modello`) without blocking
+  the interface, which meanwhile declares itself not ready. The transcription model (~1.5 GB)
+  is downloaded at startup too, rather than on the first recipe: previously the progress bar
+  sat on "Transcribing the speech" for minutes with no explanation.
+- Library, media and models on `/data`; models and media excluded from backups.
+- `file_cookie` for reels that require signing in, read from `/share` read-only. A private,
+  temporary copy is used: yt-dlp rewrites that file when a download ends, but `/share` is
+  mounted read-only, and without the copy a successful download failed at the last step. The
+  copy holds session credentials, so it is created with restricted permissions and an
+  unpredictable name, and deleted afterwards.
+- Method steps come out unnumbered: Mela numbers the lines itself, and adding it produced
+  "1 1. Blend the tofu".
+- `amd64` only: inference runs on the CPU and needs a machine with 16 GB of RAM.
