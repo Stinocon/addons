@@ -1,0 +1,50 @@
+name: iAlarm MQTT Bridge — add-on issue
+description: Installing, configuring or starting the add-on. For what it does once running, use the links below instead.
+labels: ["ialarm-mqtt"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this only if the problem is in the **add-on packaging**: it will not install, will
+        not start, an option is rejected, the build is broken. Problems with entities, MQTT
+        discovery or panel communication belong in
+        [Stinocon/ialarm-mqtt](https://github.com/Stinocon/ialarm-mqtt/issues).
+  - type: textarea
+    id: issue
+    attributes:
+      label: Description of the issue
+      description: What you expected, what happened instead, and how to reproduce it.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Add-on version
+      description: As shown in the add-on page in Home Assistant. If you are on edge/dev, report the commit hash.
+      placeholder: '1.2.2'
+    validations:
+      required: true
+  - type: textarea
+    id: platform
+    attributes:
+      label: Platform
+      description: From Settings → System → Repairs → system information.
+      placeholder: "Core: core-2026.7.0\nSupervisor: supervisor-2026.06.2\nOperating System: HAOS 15.1\nArchitecture: amd64"
+    validations:
+      required: true
+  - type: textarea
+    id: config
+    attributes:
+      label: Add-on configuration
+      description: Your configuration with **passwords and IP addresses removed**.
+      render: yaml
+    validations:
+      required: false
+  - type: textarea
+    id: log
+    attributes:
+      label: Add-on log
+      description: "From the add-on's Log tab. Set `verbose: true` first if the log says nothing useful."
+      render: shell
+    validations:
+      required: false

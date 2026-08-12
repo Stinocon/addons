@@ -1,0 +1,34 @@
+#!/command/with-contenv bashio
+# Home Assistant add-on: iAlarm MQTT bridge.
+#
+# Starts the bridge under s6. Everything it needs is in /data/options.json, which the
+# Supervisor writes from the add-on configuration — the bridge reads that file directly,
+# so this script never has to translate options.
+
+readonly CONFIG=/data/options.json
+readonly APP=/app/ialarm-mqtt
+readonly LIB="${APP}/node_modules/ialarm"
+
+# Versions are read by node rather than by grepping package.json. Node is already in the
+# image and the file is already JSON: parsing it by hand only adds ways to pick up the
+# wrong "version" — a dependency's, for instance, if the field order ever changes.
+read_version() {
+    node -p "require('$1/package.json').version" 2> /dev/null || echo "unknown"
+}
+
+bashio::log.info \
+    "ialarm-mqtt $(read_version "${APP}") with node-ialarm $(read_version "${LIB}") on node $(node -v)"
+bashio::log.info "Configuration from ${CONFIG}"
+
+# Both directories matter: /opt holds what the image installed, /data what the user added.
+export NODE_PATH=/opt/node_modules:/data/node_modules
+
+cd "${APP}" || bashio::exit.nok "Cannot enter ${APP}: the image is not built as expected"
+
+bashio::log.info "Starting ialarm-mqtt..."
+
+# Until 1.2.2 this line repeated the entry point as its own first argument — a leftover from
+# when it read `node "${options[@]}"`, where the script path belonged in the array. The
+# bridge's parser walks the arguments and keeps only the flags it knows (`-c`, `--hassos`
+# and a few more), so the stray path was read and discarded on every start.
+exec bin/ialarm-mqtt.js --hassos "${CONFIG}"

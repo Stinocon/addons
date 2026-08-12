@@ -1,0 +1,4 @@
+#!/command/with-contenv bashio
+# Ollama non deve morire in silenzio: senza di lui l'interfaccia resta in piedi ma non
+# struttura più nulla, e il sintomo che vede l'utente è solo "LLM non pronto".
+bashio::log.warning "Ollama si è fermato (codice ${1}). s6 lo riavvia."

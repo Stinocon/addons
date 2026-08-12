@@ -1,0 +1,16 @@
+#!/command/with-contenv bashio
+# s6 runs this whenever the bridge exits, with the exit code as the first argument.
+#
+# Two codes are not failures: 0 is a clean stop, and 256 means "killed by a signal", which
+# is what stopping or updating the add-on looks like from here. Everything else is a crash,
+# and a crashed bridge must take the add-on down with it: left running, the add-on would
+# report itself healthy while the alarm silently stopped being watched.
+if [[ "${1}" -ne 0 ]] && [[ "${1}" -ne 256 ]]; then
+    bashio::log.warning "ialarm-mqtt crashed (code ${1}). Halting the add-on."
+    # exec, so nothing is logged after this: the previous version announced "restarting"
+    # even while halting, and a log that contradicts what is happening sends whoever reads
+    # it looking in the wrong place.
+    exec /run/s6/basedir/bin/halt
+fi
+
+bashio::log.info "ialarm-mqtt stopped (code ${1}). s6 will restart it."

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="640" viewBox="0 0 640 640">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F59F00"/>
+      <stop offset="1" stop-color="#E8590C"/>
+    </linearGradient>
+  </defs>
+  <!-- Contenuto centrato in verticale: QuickLook impagina sempre in un quadrato, e la banda
+       utile si ritaglia dopo con un crop centrato. -->
+  <g transform="translate(24,248) scale(0.28125)">
+    <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#g)"/>
+    <circle cx="256" cy="136" r="22" fill="#fff"/>
+    <rect x="88" y="168" width="336" height="40" rx="20" fill="#fff"/>
+    <rect x="56" y="248" width="56" height="36" rx="18" fill="#fff"/>
+    <rect x="400" y="248" width="56" height="36" rx="18" fill="#fff"/>
+    <path d="M112 232 h288 v120 a64 64 0 0 1 -64 64 h-160 a64 64 0 0 1 -64 -64 z" fill="#fff"/>
+    <path d="M224 264 v104 l88 -52 z" fill="#E8590C"/>
+  </g>
+  <text x="196" y="342" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="62" font-weight="600" fill="#E8590C">Reel2Recipe</text>
+</svg>
