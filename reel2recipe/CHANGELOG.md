@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.0.3
+
+**L'interfaccia parla anche inglese.** Il selettore sta in testata: la scelta viene
+ricordata e alla prima apertura si parte dalla lingua del browser. Da lì scende una catena
+di tre anelli — interfaccia, lingua della ricetta, sistema di misura — ciascuno con il
+precedente come ripiego e ciascuno sovrascrivibile. Chi non tocca niente ottiene un insieme
+coerente; chi cucina in una lingua e vive in un'altra può incrociarli.
+
+**Il selettore della lingua non era collegato a niente.** Era disegnato nel pannello
+*Opzioni* fin dalla 1.0.0, si poteva scegliere, e ogni estrazione usciva comunque in
+italiano metrico. Un comando che non fa niente è peggio di un comando assente: insegna a
+non fidarsi dell'interfaccia.
+
+**A Whisper si diceva che ogni reel era italiano.** La lingua del parlato era fissata a
+"it" e non era esposta da nessuna parte, quindi anche un reel inglese veniva trascritto
+come se fosse italiano — parole italiane forzate su suoni inglesi, e da lì in poi tutto il
+resto lavorava su quelle. Il difetto era invisibile, perché una ricetta plausibile il
+modello la produce comunque. Ora la lingua la riconosce Whisper da sé, e resta forzabile
+dalle *Opzioni* quando sbaglia.
+
+**Trascinare un video perdeva le impostazioni.** Il caricamento di un file accettava solo
+lingua e sistema: backend di trascrizione, modello e «usa solo la didascalia» venivano
+scartati in silenzio. Ora le due strade prendono le stesse opzioni.
+
 ## 1.0.2
 
 **Il modello non si scaricava più dopo un errore.** Alla prima installazione i 9 GB di

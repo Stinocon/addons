@@ -1,6 +1,6 @@
 name: "Reel2Recipe"
 url: https://github.com/Stinocon/addons/tree/master/reel2recipe
-version: "1.0.2"
+version: "1.0.3"
 slug: reel2recipe
 description: "Estrae ricette dai reel di cucina e le esporta in formato Mela. Whisper e LLM girano dentro l'addon: nessuna IA a pagamento, nessuna chiave API, nessun dato fuori dalla macchina."
 

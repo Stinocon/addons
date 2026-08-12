@@ -76,6 +76,12 @@ Il risultato non è un file buttato in una cartella: la ricetta entra in una lib
 ricerca full-text, si corregge a mano dove serve, e si esporta in `.melarecipe`, Markdown o
 PDF.
 
+**L'interfaccia è in italiano e in inglese**, con il selettore in testata. Da quella scelta
+scendono le altre due — la lingua della ricetta e il sistema di misura — che di base la
+seguono e restano sovrascrivibili nelle *Opzioni*. La lingua *parlata* nel reel è un'altra
+cosa ancora e non si deduce da queste: la riconosce Whisper da sé, così un reel inglese può
+diventare una ricetta italiana.
+
 ## Quello che non fa, e va saputo prima
 
 - **Le quantità non le converte il modello, le converte il codice** con tabelle di densità
