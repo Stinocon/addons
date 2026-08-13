@@ -101,11 +101,11 @@ RUN \
 # il guasto si vedrebbe come una pagina bianca e una conversione che non trova le tabelle.
 RUN \
     /app/.venv/bin/python -c "\
-from reel2recipe.percorsi import RADICE_REPO; \
-from reel2recipe.units import carica_tabelle; \
-assert (RADICE_REPO / 'web' / 'index.html').is_file(), RADICE_REPO; \
-carica_tabelle(); \
-print('percorsi e tabelle a posto:', RADICE_REPO)"
+from reel2recipe.paths import REPO_ROOT; \
+from reel2recipe.units import load_tables; \
+assert (REPO_ROOT / 'web' / 'index.html').is_file(), REPO_ROOT; \
+load_tables(); \
+print('paths and tables are fine:', REPO_ROOT)"
 
 COPY rootfs /
 

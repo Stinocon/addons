@@ -4,6 +4,22 @@
      add-on, from any country. One language, and the one that reaches the most people. The
      add-on's README is the bilingual one. -->
 
+## 1.0.4
+
+**The add-on could not be built.** Its Dockerfile ends with a sanity check that imports two
+names from Reel2Recipe, to make sure the clone is installed in a shape where the code can
+still find `web/` and `data/`. Two renames in the upstream project moved those names —
+`percorsi` became `paths`, `carica_tabelle` became `load_tables` — and nothing connected the
+two repositories, so every build since has stopped on that line.
+
+The failure was at least loud: the build halts and no broken image ships. But it went
+unnoticed for two releases because the list of coupling points between the two repos named
+four, and this was the fifth. Reel2Recipe's own test suite now holds this contract too, next
+to the start-up line it already held, so a rename there turns something red before it stops a
+build here.
+
+Nothing changes for anyone already running the add-on.
+
 ## 1.0.3
 
 **The interface speaks English too.** The switch is in the header: the choice is remembered
