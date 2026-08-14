@@ -4,6 +4,27 @@
      add-on, from any country. One language, and the one that reaches the most people. The
      add-on's README is the bilingual one. -->
 
+## 1.0.5
+
+**The add-on's log speaks English.** Everything it writes while running — the wait for Ollama,
+the model download and its retries, the free space reported on a failure, the transcription
+warm-up, the reason it halts — was in Italian. The CHANGELOG had been English for two releases
+already, on the argument that Home Assistant shows it to whoever installs the add-on, from any
+country. That argument applies with more force to the log, which is what somebody actually
+reads when something has gone wrong and they have no idea why.
+
+The service scripts, the Dockerfile's comments and the add-on's description and port label
+moved with it. The start-up line now uses `--port` instead of the Italian alias `--porta`;
+the alias still works, and Reel2Recipe's `tests/test_cli.py` — the one automatic check that
+crosses the two repositories — was updated in the same pass rather than left to discover the
+change at the next 502.
+
+**The three configuration options keep their Italian names** (`modello_llm`,
+`scarica_modello`, `file_cookie`). They are not text, they are the keys Home Assistant has
+saved in your add-on's configuration: renaming them would silently reset the model you chose
+and the path to your cookie file back to the defaults, and no migration inside the add-on can
+prevent that. They stay until there is a reason worth that cost.
+
 ## 1.0.4
 
 **The add-on could not be built.** Its Dockerfile ends with a sanity check that imports two
