@@ -1,12 +1,12 @@
 name: "Reel2Recipe"
 url: https://github.com/Stinocon/addons/tree/master/reel2recipe
-version: "1.0.4"
+version: "1.0.5"
 slug: reel2recipe
-description: "Estrae ricette dai reel di cucina e le esporta in formato Mela. Whisper e LLM girano dentro l'addon: nessuna IA a pagamento, nessuna chiave API, nessun dato fuori dalla macchina."
+description: "Extracts recipes from cooking reels and exports them in Mela format. Whisper and the LLM run inside the add-on: no paid AI, no API key, no data leaving the machine."
 
-# Solo amd64. L'inferenza di un modello da 14 miliardi di parametri gira su CPU: serve un
-# miniPC con 16 GB di RAM, non un Raspberry. Pubblicare un'immagine aarch64 significherebbe
-# far installare a qualcuno un addon che sulla sua macchina non finirà mai una ricetta.
+# amd64 only. Inference for a 14-billion-parameter model runs on the CPU: it needs a miniPC
+# with 16 GB of RAM, not a Raspberry. Publishing an aarch64 image would mean letting somebody
+# install an add-on that on their machine will never finish a recipe.
 arch:
   - amd64
 
@@ -14,8 +14,8 @@ init: false
 startup: application
 boot: auto
 
-# L'interfaccia passa dall'Ingress: compare nella barra laterale di Home Assistant e non
-# richiede di aprire una porta. La porta resta comunque mappabile per chi la vuole diretta.
+# The interface goes through the Ingress: it appears in Home Assistant's sidebar and does not
+# require opening a port. The port stays mappable for anyone who wants it directly.
 ingress: true
 ingress_port: 8500
 panel_icon: mdi:chef-hat
@@ -23,16 +23,16 @@ panel_title: Reel2Recipe
 ports:
   8500/tcp: null
 ports_description:
-  8500/tcp: "Interfaccia web diretta (facoltativa: di norma basta l'Ingress)"
+  8500/tcp: "Direct web interface (optional: the Ingress is normally enough)"
 
-# Sola lettura, e serve a una cosa sola: leggere il file dei cookie per i reel che
-# richiedono l'accesso. Nulla viene scritto in /share.
+# Read-only, and it serves one purpose: reading the cookie file for the reels that require
+# being logged in. Nothing is written to /share.
 map:
   - share:ro
 
-# I modelli stanno su /data perché devono sopravvivere agli aggiornamenti dell'addon, ma
-# non devono finire nei backup di Home Assistant: sono una decina di GB riscaricabili, e un
-# backup che li contiene diventa inutilizzabile.
+# The models live on /data because they have to survive add-on updates, but they must not end
+# up in Home Assistant's backups: they are some ten GB that can be downloaded again, and a
+# backup containing them becomes unusable.
 backup_exclude:
   - ollama/**
   - whisper/**
