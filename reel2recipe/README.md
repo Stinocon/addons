@@ -43,7 +43,7 @@ The corollary is that your server's CPU does the heavy lifting.
 | Architecture | **amd64 only** — a miniPC or a NUC, not a Raspberry Pi |
 | RAM | **16 GB** recommended: the default model takes about 9 when loaded |
 | Disk | **~15 GB**: 1.5 GB of image, ~9 GB for the LLM, ~1.5 GB for Whisper |
-| Time | A few minutes per recipe on CPU. It is a job you start and let run |
+| Time | A few minutes per recipe on CPU. A recipe asked for in a language the reel is not in costs a second model call and takes noticeably longer — the log says which step it is on. It is a job you start and let run |
 
 On a more modest machine you can set `modello_llm` to `qwen2.5:7b-instruct`: it halves memory
 and time, but **loses ingredient groups** ("for the sauce", "for the base") and tends to fill
