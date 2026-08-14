@@ -44,7 +44,7 @@ Il corollario è che il lavoro pesante lo fa la CPU del tuo server.
 | Architettura | **amd64 soltanto** — un miniPC o un NUC, non un Raspberry |
 | RAM | **16 GB** consigliati: il modello predefinito ne occupa circa 9 quando è caricato |
 | Disco | **~15 GB**: 1,5 GB di immagine, ~9 GB per il modello LLM, ~1,5 GB per Whisper |
-| Tempi | Alcuni minuti per ricetta su CPU. È un lavoro da lanciare e lasciar fare |
+| Tempi | Alcuni minuti per ricetta su CPU. Una ricetta chiesta in una lingua diversa da quella del reel costa una seconda chiamata al modello e ci mette sensibilmente di più — il registro dice a che passo è. È un lavoro da lanciare e lasciar fare |
 
 Se la macchina è più modesta, in `modello_llm` si può mettere `qwen2.5:7b-instruct`: dimezza
 memoria e tempi, ma **perde i gruppi di ingredienti** ("per la salsa", "per la base") e
