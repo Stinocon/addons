@@ -83,7 +83,7 @@ Two routes, and they are not equivalent legally:
 - **You paste the reel's link** and the add-on downloads it. Downloading a reel breaches
   Instagram's Terms of Use — which is why this tool is **local and for personal use**, and
   why the route without downloading always exists. See
-  [docs/legale.md](https://github.com/Stinocon/Reel2Recipe/blob/main/docs/legale.md)
+  [docs/legal.md](https://github.com/Stinocon/Reel2Recipe/blob/main/docs/legal.md)
   (Italian, with an English summary).
 
 Instagram requires you to be signed in for much of its content. There is no browser in here

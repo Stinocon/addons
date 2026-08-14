@@ -85,7 +85,7 @@ Due strade, e non sono equivalenti sul piano legale:
 - **Incolli il link** del reel: l'add-on lo scarica. Scaricare un reel viola i Termini d'Uso
   di Instagram — è la ragione per cui questo strumento è **locale e per uso personale**, e
   perché l'alternativa senza download esiste sempre. Vedi
-  [docs/legale.md](https://github.com/Stinocon/Reel2Recipe/blob/main/docs/legale.md).
+  [docs/legal.it.md](https://github.com/Stinocon/Reel2Recipe/blob/main/docs/legal.it.md).
 
 Instagram richiede l'accesso per buona parte dei contenuti. Qui dentro non c'è un browser da
 cui prendere i cookie, quindi la via è esportarli altrove in formato Netscape, metterli in
