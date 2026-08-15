@@ -22,10 +22,10 @@ la seguono e restano sovrascrivibili nelle *Opzioni*.
 La lingua *parlata* nel reel è un'altra cosa e non si deduce da queste: la riconosce Whisper
 da sé, così un reel inglese può diventare una ricetta italiana, o restare in inglese.
 
-Un limite da conoscere prima di farci affidamento: tradurre i **nomi degli ingredienti** è la
-parte meno affidabile della catena — vedi
-[quello che non fa](#quello-che-non-fa-e-va-saputo-prima). Le quantità restano giuste; sono
-le parole a scivolare.
+Un limite da conoscere prima di farci affidamento: tradurre è la parte meno deterministica
+della catena — vedi [quello che non fa](#quello-che-non-fa-e-va-saputo-prima). Le quantità non
+si muovono mai; sono le parole a poter scivolare, e i nomi degli ingredienti più comuni non
+più, perché vengono da una tabella e non dal modello.
 
 ## Cosa gira dentro l'add-on
 
@@ -103,10 +103,21 @@ PDF.
   sbagliato, in cucina, fa danni.
 - **Non inventa.** Quantità o passaggi non deducibili dal materiale restano buchi
   dichiarati. Una ricetta incompleta ma onesta è utilizzabile; una completata a caso no.
-- **Tradurre i nomi degli ingredienti è il punto debole.** Da una fonte inglese i nomi
-  sbagliano con una certa regolarità; da una didascalia italiana lunga verso l'inglese il
-  modello traduce il titolo e resta ancorato all'italiano nell'elenco. È un limite del
-  modello locale, non della conversione, che resta deterministica in entrambe le direzioni.
+- **Una sezione intera può sparire dall'elenco degli ingredienti.** È l'unico difetto aperto,
+  e serve che il reel sia anche *parlato* oltre che scritto: un gruppo con un nome — «Per la
+  salsa» — sparisce dall'elenco mentre il procedimento continua a descriverne gli
+  ingredienti, e un paragrafo del procedimento può essere promosso a gruppo mai esistito. La
+  ricetta li conosce, la lista della spesa no: quindi **rileggi l'elenco degli ingredienti
+  contro il procedimento** prima di fare la spesa. La causa è la trascrizione: il parlato
+  racconta il montaggio e nomina un'intera sezione come un componente solo. Due tentativi di
+  correggerlo dal prompt sono falliti.
+- **I nomi degli ingredienti erano il punto debole, e in gran parte non lo sono più.** Il
+  modello sostituiva invece di tradurre — `maiale` tornava «bacon» — che è peggio di una
+  parola straniera, perché compreresti la cosa sbagliata. I nomi comuni ora vengono da una
+  tabella di 158 ingredienti e il modello non vede nemmeno la parola. Gli restano la prosa e
+  gli ingredienti che la tabella non ha, dove gli è imposto di tenere la parola originale nel
+  dubbio: una parola italiana dentro una ricetta inglese è quella regola che funziona, non che
+  fallisce.
 - **Non crea entità in Home Assistant.** È un'applicazione che vive nel pannello laterale,
   non un'integrazione: non ci sono sensori, servizi o automazioni.
 
