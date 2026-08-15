@@ -4,6 +4,39 @@
      add-on, from any country. One language, and the one that reaches the most people. The
      add-on's README is the bilingual one. -->
 
+## 1.0.6
+
+**Amounts are written the way your language writes them, and the unit tables are finally
+read.** This release carries Reel2Recipe 1.1.0, and what changes is visible on every recipe
+card — including the ones already in your library, which will read slightly differently from
+how you remember them. That is a correction, not a regression, but it is not invisible either.
+
+Two tables of unit names existed, were correct, and were never consulted: everything that went
+through a conversion kept the canonical unit instead of the one meant to be shown. So an
+imperial recipe in English said "2 cup" and one in Italian said "2 lb". They now say "2 cups"
+and "2 libbre". Ounces gained their Italian name as well, next to `libbra` and `oncia liquida`
+which already had one.
+
+**The decimal separator followed the measurement system instead of the language.** Metric was
+treated as Italian, so anybody reading in English and cooking in grams — the default this
+add-on ships, and how the United Kingdom, Ireland, Australia, Canada and India cook — was
+shown "0,5 g". It now reads "0.5 g", while Italian keeps the comma. The shape of the number
+still comes from the system, because a fraction is what a measuring cup can do; only the
+separator follows the reader.
+
+**Counting units behaved differently depending on how the model happened to inflect them.**
+"2 spicchi" was a count with the typical weight in brackets, while "2 spicchio" and "2 clove"
+became an estimate in grams presented as the primary amount — an estimate standing in for a
+count that was available, which is exactly the swap this project exists to prevent. English
+counting units are also recognised on the way in now: "2 cloves garlic" used to fall through
+as an unreadable measure with no weight attached.
+
+**Translation improves on the hardest case.** A reel captioned in two languages with amounts
+in Tbsp and Tsp measured 75% on units and 50% on sections; it now measures 100% on units,
+sections, terms and amounts, over two runs in both directions. One defect stays open and is
+described in the project's README: when a reel is spoken as well as captioned, a whole named
+section can still go missing from the ingredient list while the method keeps describing it.
+
 ## 1.0.5
 
 **The add-on's log speaks English.** Everything it writes while running — the wait for Ollama,

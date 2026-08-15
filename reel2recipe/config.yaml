@@ -1,6 +1,6 @@
 name: "Reel2Recipe"
 url: https://github.com/Stinocon/addons/tree/master/reel2recipe
-version: "1.0.5"
+version: "1.0.6"
 slug: reel2recipe
 description: "Extracts recipes from cooking reels and exports them in Mela format. Whisper and the LLM run inside the add-on: no paid AI, no API key, no data leaving the machine."
 
