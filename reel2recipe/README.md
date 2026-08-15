@@ -23,9 +23,10 @@ it by default and stay overridable under *Options*.
 The language *spoken* in the reel is a separate matter and is not inferred from those:
 Whisper detects it, so an English reel can become an Italian recipe, or stay English.
 
-One honest limitation before you rely on it: translating **ingredient names** is the least
-reliable part of the chain — see [what it does not do](#what-it-does-not-do-worth-knowing-first).
-The amounts stay right; the words are what slip.
+One honest limitation before you rely on it: translating is the least deterministic part of
+the chain — see [what it does not do](#what-it-does-not-do-worth-knowing-first). The amounts
+never move; the words are what can slip, and the common ingredient names no longer can,
+because they come from a table rather than from the model.
 
 ## What runs inside the add-on
 
@@ -101,10 +102,19 @@ search, gets corrected by hand where needed, and exports to `.melarecipe`, Markd
   damage.
 - **It does not invent.** Amounts or steps not deducible from the material stay declared
   gaps. An incomplete but honest recipe is usable; one completed at random is not.
-- **Translating ingredient names is the weak spot.** From an English source, names go wrong
-  with some regularity; from a long Italian caption towards English the model translates the
-  title and stays anchored to Italian in the list. It is a limit of the local model, not of
-  the conversion, which stays deterministic in both directions.
+- **A whole section can go missing from the ingredient list.** It is the one open defect, and
+  it needs the reel to be *spoken* as well as captioned: a named group — "For the sauce" —
+  disappears from the list while the method goes on describing its ingredients, and a
+  paragraph of the method can be promoted to a group that never existed. Your recipe knows
+  about them, your shopping list does not, so **read the ingredient list against the method**
+  before you shop. The cause is the transcript: the speech narrates the assembly and names a
+  whole section as one component. Two attempts to fix it from the prompt have failed.
+- **Ingredient names used to be the weak spot, and mostly are not any more.** The model was
+  substituting rather than translating — `maiale` came back as "bacon" — which is worse than a
+  foreign word, because you would buy the wrong thing. The common names now come from a table
+  of 158 ingredients and the model never sees the word. What is left to it is the prose and
+  the ingredients the table does not hold, where it is told to keep the original word when
+  unsure: an Italian word inside an English recipe is that rule working, not failing.
 - **It does not create Home Assistant entities.** It is an application living in the sidebar,
   not an integration: there are no sensors, services or automations.
 
