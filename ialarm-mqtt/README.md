@@ -18,6 +18,7 @@ This enhanced version includes **critical fixes and improvements** over the orig
 - ✅ **Zone ID indicators** - optional `zoneId` feature: a per-zone "Zone ID" sensor plus a global `id → name` directory sensor for automations
 - ✅ **Bridge diagnostics** - optional `diagnostics` feature: link health, last successful poll and error counters as HA entities instead of log lines
 - ✅ **No history gaps on restart** - entities are updated in place instead of being deleted and recreated at every start
+- ✅ **Survives an unreachable panel** - reconnects with exponential backoff (5s → 60s) instead of hanging until the add-on is restarted
 
 > ⚠️ **Disclaimer — "vibecoded".** The enhancements and fixes listed above were *vibecoded*:
 > developed with AI assistance rather than hand-written by a maintainer with deep knowledge
@@ -230,7 +231,7 @@ all fed by one retained payload on `{prefix}/alarm/diagnostics`:
 
 | Entity | State | Use it for |
 |--------|-------|-----------|
-| `sensor.ialarm_diagnostics` | `ok`, `degraded`, `starting`, `offline` | Dashboard badge; its attributes hold the whole payload (panel status, uptime, counters, `lastError`, `lastErrorAt`, `zonesLoaded`, `lastDiscoveryAt`, `lastUpdated`) |
+| `sensor.ialarm_diagnostics` | `ok`, `degraded`, `starting`, `offline` | Dashboard badge; its attributes hold the whole payload (panel status, uptime, counters, `lastError`, `lastErrorAt`, `zonesLoaded`, `reconnectAttempts`, `nextReconnectAt`, `lastDiscoveryAt`, `lastUpdated`) |
 | `sensor.ialarm_last_poll` | timestamp of the last successful read | "no successful read for 5 minutes → notify me" |
 | `sensor.ialarm_connection_errors` | count since start | spotting a flaky panel or network |
 | `sensor.ialarm_panel_disconnections` | count since start | the same, at the TCP level |
