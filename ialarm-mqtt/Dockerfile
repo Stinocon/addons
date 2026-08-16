@@ -34,7 +34,7 @@ WORKDIR  /app/ialarm-mqtt
 # outright rather than warn.
 RUN npm install \
         --no-audit \
-        --no-optional \
+        --omit=optional \
         --no-update-notifier \
         --omit=dev \
     \
