@@ -265,6 +265,26 @@ server:
   polling_diagnostics: 60000
 ```
 
+**Keep them out of the recorder.** `sensor.ialarm_last_poll` is a timestamp that changes on
+every publish, so at the default 60s it writes about 1440 entries a day, and the same goes for
+the attributes of `sensor.ialarm_diagnostics`. That buries the real events in the logbook, which
+is exactly where you look when hunting a low battery. Exclude the two that keep moving, and keep
+the counters, which change rarely and are worth a history:
+
+```yaml
+# configuration.yaml
+recorder:
+  exclude:
+    entities:
+      - sensor.ialarm_last_poll
+      - sensor.ialarm_diagnostics
+```
+
+Nothing is lost: the current values stay visible and usable, and an automation triggering on
+`sensor.ialarm_diagnostics` with a `for:` still works, because that is evaluated on the live
+state and not on the recorder. Raising `server.polling_diagnostics` reduces the volume too, but
+does not change the nature of it.
+
 Two deliberate choices worth knowing:
 
 - The payload is published on **its own timer** (`server.polling_diagnostics`, default 60 s),
