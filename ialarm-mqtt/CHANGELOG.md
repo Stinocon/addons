@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.5.0 - NODE 18, AND A COMPARISON THAT MISSED NESTED CHANGES
+
+- **NODE 16 IS GONE**: the image ran on Node 16.20, out of support since September 2023. The
+  base image moves from `hassio-addons/base:12.2.6` (Alpine 3.16) to `14.1.3` (Alpine 3.18),
+  which brings **Node 18.20**. That is as far as the Home Assistant ecosystem goes today: no
+  community or official base ships Node 20 or later, so this is an improvement rather than a
+  destination.
+- **BUILD FIXES THAT CAME WITH IT**: npm 9 removed `unsafe-perm`, so `npm config set
+  unsafe-perm true` failed the build outright instead of warning; `--only=production` and
+  `--no-optional` became `--omit=dev` and `--omit=optional`.
+- **TESTED IN A REAL CONTAINER, NOT JUST BUILT**: the s6 service scripts use the legacy
+  format and the base skips two major versions, so the image was run locally before release.
+  The service starts (`copying legacy longrun ialarm-mqtt`), the bridge comes up on Node
+  18.20.1, and `docker stop` shuts everything down with exit code 0.
+- **STALE COMMUNICATION STATUS FIXED** (bridge 0.15.20): the routine deciding whether a
+  payload changed never compared anything below the top level. The visible effect was on the
+  communication status sensor, whose values all live one level down: a connection error could
+  take up to five minutes to reach Home Assistant. It is now reported immediately.
+- **QUIETER LOG**: the discovery debug block, the per-zone placeholder identifiers, the
+  disabled-zone filtering and the caching line duplicating every publish are now debug level.
+- **THE BRIDGE NOW HAS TESTS**: 65 checks (`npm test` in the source repository) covering the
+  discovery payloads, the identifiers your manual renames depend on, the reset staying
+  opt-in, the reconnection backoff and the polling lifecycle. They run against a real MQTT
+  broker without a panel.
+- Requires ialarm-mqtt 0.15.20.
+
 ## 1.4.2 - COMMANDS NO LONGER FIGHT THE POLLING FOR THE CONNECTION
 
 - **THE BUG**: arm, disarm and bypass are supposed to pause the status polling while their
