@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.3.0 - BRIDGE DIAGNOSTICS IN HOME ASSISTANT
+
+- **WHY**: until now the only way to know whether the bridge was still talking to the panel
+  was to open the add-on log. Four diagnostic sensors now carry that state into Home
+  Assistant, where it can be seen on a dashboard and used in automations.
+- **NEW `diagnostics` FEATURE**: adds, on the alarm device,
+  - `sensor.ialarm_diagnostics` — `ok` / `degraded` / `starting` / `offline`, with the full
+    payload as attributes: panel connection status, uptime, poll counters, last error and
+    when it happened, zones loaded, last discovery;
+  - `sensor.ialarm_last_poll` — timestamp of the last successful read from the panel, so an
+    automation can fire on "no successful read for 5 minutes";
+  - `sensor.ialarm_connection_errors` and `sensor.ialarm_panel_disconnections` — counters
+    since the bridge started.
+- **COST CONTROL**: the payload is published on its own timer (`server.polling_diagnostics`,
+  default 60000 ms), not at the status-polling rate, plus immediately on connect, disconnect,
+  error and discovery. It would otherwise write to the HA recorder every few seconds.
+- **NO AVAILABILITY TOPIC** on these four entities, on purpose: availability goes offline
+  exactly when the panel link drops, which is when these values are worth reading. The
+  `lastUpdated` attribute says how fresh the payload is.
+- **EXISTING INSTALLS**: saved add-on options are not migrated, so add `diagnostics` to your
+  `server.features` list to enable it. Nothing else changes — no existing entity, unique ID
+  or manual rename is touched.
+
 ## 1.2.3 - PROVENANCE AND SERVICE SCRIPTS
 
 - **PROVENANCE**: the last two files still identical to upstream's — the s6 `run` and

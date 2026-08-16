@@ -16,6 +16,7 @@ This enhanced version includes **critical fixes and improvements** over the orig
 - ✅ **Professional branding** - Antifurto365 manufacturer with customizable naming
 - ✅ **Configurable arm modes** - `supportedFeatures` (default Home/Away) hides the unused Night/Vacation/Custom-bypass buttons
 - ✅ **Zone ID indicators** - optional `zoneId` feature: a per-zone "Zone ID" sensor plus a global `id → name` directory sensor for automations
+- ✅ **Bridge diagnostics** - optional `diagnostics` feature: link health, last successful poll and error counters as HA entities instead of log lines
 
 > ⚠️ **Disclaimer — "vibecoded".** The enhancements and fixes listed above were *vibecoded*:
 > developed with AI assistance rather than hand-written by a maintainer with deep knowledge
@@ -86,6 +87,8 @@ server:
     - bypass
     - zoneNames
     - zoneId             # Zone ID sensor + id->name directory (see below)
+    - diagnostics        # Bridge health sensors (see below)
+  polling_diagnostics: 60000  # How often the health payload is published (ms)
 
 mqtt:
   host: 192.168.1.82     # MQTT broker IP
@@ -159,6 +162,7 @@ All are enabled by default. Remove any you don't want.
 | `bypass` | Per-zone bypass switches |
 | `zoneNames` | Fetch real zone names from the panel (`GetZone`); if disabled, generic names are used |
 | `zoneId` | Per-zone **Zone ID** diagnostic sensor + global **zone directory** sensor (see below) |
+| `diagnostics` | Bridge health sensors: link status, last successful poll, error counters (see below) |
 
 ```yaml
 server:
@@ -169,6 +173,7 @@ server:
     - bypass
     - zoneNames
     - zoneId
+    - diagnostics
 ```
 
 ### Arm modes (supported_features)
@@ -215,6 +220,47 @@ These sensors ship with clean default entity IDs, e.g. `sensor.<zone>_ialarm_id_
 is **first created**, so if you enabled `zoneId` on an earlier version and got long auto-generated
 IDs, delete those entities (or their device) once — they will be recreated with the clean IDs on
 the next discovery.
+
+### Bridge diagnostics (`diagnostics` feature)
+
+Add `diagnostics` to the `features` list to see the health of the bridge itself in Home
+Assistant instead of in the add-on log. Four diagnostic sensors appear on the alarm device,
+all fed by one retained payload on `{prefix}/alarm/diagnostics`:
+
+| Entity | State | Use it for |
+|--------|-------|-----------|
+| `sensor.ialarm_diagnostics` | `ok`, `degraded`, `starting`, `offline` | Dashboard badge; its attributes hold the whole payload (panel status, uptime, counters, `lastError`, `lastErrorAt`, `zonesLoaded`, `lastDiscoveryAt`, `lastUpdated`) |
+| `sensor.ialarm_last_poll` | timestamp of the last successful read | "no successful read for 5 minutes → notify me" |
+| `sensor.ialarm_connection_errors` | count since start | spotting a flaky panel or network |
+| `sensor.ialarm_panel_disconnections` | count since start | the same, at the TCP level |
+
+`degraded` means the panel link is up but the last successful read is older than three polling
+intervals (at least 30 s); `offline` means the TCP connection to the panel is down.
+
+```yaml
+server:
+  features:
+    - armDisarm
+    - sensors
+    - events
+    - bypass
+    - zoneNames
+    - zoneId
+    - diagnostics
+  polling_diagnostics: 60000
+```
+
+Two deliberate choices worth knowing:
+
+- The payload is published on **its own timer** (`server.polling_diagnostics`, default 60 s),
+  plus immediately on connect, disconnect, error and discovery. Publishing it at the
+  status-polling rate would write to the Home Assistant recorder every few seconds.
+- These four entities carry **no availability topic**. Availability goes offline exactly when
+  the panel link drops — which is when you want to read the error that caused it. Check the
+  `lastUpdated` attribute to know how fresh the values are.
+
+Like the zone ID sensors these are additive: enabling or disabling the feature does not affect
+any other entity, unique ID or manual rename.
 
 ## 🔗 Documentation & Support
 
