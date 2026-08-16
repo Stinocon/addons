@@ -1,5 +1,5 @@
 
-ARG BUILD_FROM=ghcr.io/hassio-addons/base:12.2.6
+ARG BUILD_FROM=ghcr.io/hassio-addons/base:14.1.3
 FROM $BUILD_FROM
 
 ENV LANG=C.UTF-8
@@ -9,7 +9,10 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 WORKDIR /tmp
 
-# Install requirements for add-on
+# Install requirements for add-on. Node comes from the base image's Alpine
+# release: base 12.x carried Alpine 3.16 and Node 16 (end of life since
+# September 2023), base 14.x carries Alpine 3.18 and Node 18. No Home Assistant
+# base image ships Node 20 or later yet.
 RUN \
     apk add --no-cache \
         git \
