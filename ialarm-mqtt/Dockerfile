@@ -17,9 +17,7 @@ RUN \
     apk add --no-cache \
         git \
         nodejs \
-        npm \
-    \
-    && npm config set unsafe-perm true 
+        npm
 
 # clone version
 WORKDIR  /app
@@ -31,12 +29,14 @@ RUN git clone --depth 1 --branch master https://github.com/Stinocon/ialarm-mqtt.
 
 #install deps
 WORKDIR  /app/ialarm-mqtt
+# npm 9 (which ships with Node 18) dropped `unsafe-perm` and replaced
+# `--only=production` with `--omit=dev`; the old spelling made the build fail
+# outright rather than warn.
 RUN npm install \
         --no-audit \
         --no-optional \
         --no-update-notifier \
-        --only=production \
-        --unsafe-perm \
+        --omit=dev \
     \
     && rm -fr \
         /root/.cache \
