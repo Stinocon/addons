@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.5.1 - THE START-UP LOG IS FINALLY QUIET
+
+- **THE BLOCK THAT SURVIVED**: 1.5.0 was meant to move the noisy discovery logging to debug,
+  and moved everything except the part that prints on every start — the
+  `=== DISCOVERY DEBUG ===` header with the full zone dump. The edit had been applied to the
+  wrong file, where it matched nothing and failed without complaining. Spotted in a real
+  add-on log after the release, not before it.
+- **ALSO LOWERED**: `Discovery called`, `Starting discovery process`, `Creating
+  reset/discovery messages`, `Created N messages`, `createMessages called` and `Starting zone
+  iteration`. And `Publishing HA discovery reset for N topics` now appears only when there is
+  something to clear, which on a normal start there no longer is.
+- **WHAT A START STILL TELLS YOU**: whether discovery ran and with which settings, how many
+  entities were published, and every topic sent. Set the add-on to `verbose` to get the rest
+  back when troubleshooting.
+- Logging only: no entity, option or behaviour changes. Requires ialarm-mqtt 0.15.21.
+
 ## 1.5.0 - NODE 18, AND A COMPARISON THAT MISSED NESTED CHANGES
 
 - **NODE 16 IS GONE**: the image ran on Node 16.20, out of support since September 2023. The
