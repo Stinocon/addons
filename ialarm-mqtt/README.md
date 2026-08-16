@@ -153,6 +153,17 @@ zones:
 - `smoke`, `gas`, `safety`
 - `moisture`, `problem`
 
+### The remaining options
+
+The ones not covered elsewhere in this README:
+
+| Option | Default | What it does |
+|--------|---------|--------------|
+| `verbose` | `false` | Debug logging. Turn it on to get back the details a normal start no longer prints — the zone dump, the discovery internals, the cache bookkeeping — then turn it off again, because it is a lot of output. |
+| `server.showUnnamedZones` | `true` | Whether zones with no name on the panel still get entities. Zones the panel marks as disabled are skipped either way. |
+| `server.delay` | `200` | Milliseconds the bridge waits before sending a command when the connection is busy. Raise it only if the panel drops requests. |
+| `events.icon` / `bypass.icon` | `mdi:message-alert` / `mdi:lock-open` | Icons for the "last event" sensor and the bypass switches. Any `mdi:` icon. |
+
 ### Features list
 
 The `server.features` option controls which groups of entities the add-on publishes.
