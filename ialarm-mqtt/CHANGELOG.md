@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.4.2 - COMMANDS NO LONGER FIGHT THE POLLING FOR THE CONNECTION
+
+- **THE BUG**: arm, disarm and bypass are supposed to pause the status polling while their
+  command travels to the panel, because the panel accepts a single TCP connection at a time.
+  The pause never happened: the code cleared the *array* of timers instead of the timers
+  inside it. Commands and polling talked over each other, which is where the "a request is in
+  progress, we will wait" log lines came from.
+- **NOW**: the pause works, and the polling resumes when the command is answered. A watchdog
+  restarts it anyway after 30 seconds if an answer never arrives, so a lost command cannot
+  leave the bridge running but silent.
+- **TIMERS SEPARATED**: availability, diagnostics and the watchdog no longer share the list
+  with the status polling, so a command does not restart their interval. Before, on a busy
+  hour, the diagnostics timer could be reset often enough never to fire.
+- **HONEST AVAILABILITY**: the 5-minute availability timer no longer republishes "online"
+  while the panel link is down, undoing the "offline" published when it dropped.
+- **DIAGNOSTICS WHEN THEY MATTER**: the service timers now start with the MQTT connection
+  instead of the panel one, so the health payload is published exactly when the panel cannot
+  be reached.
+- Requires ialarm-mqtt 0.15.19.
+
 ## 1.4.1 - THE BRIDGE NO LONGER GIVES UP ON AN UNREACHABLE PANEL
 
 - **THE BUG**: if the panel did not answer when the add-on started, the bridge stopped for
