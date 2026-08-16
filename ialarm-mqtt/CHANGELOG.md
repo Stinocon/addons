@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.4.1 - THE BRIDGE NO LONGER GIVES UP ON AN UNREACHABLE PANEL
+
+- **THE BUG**: if the panel did not answer when the add-on started, the bridge stopped for
+  good. Its retry was gated behind "more than 10 errors", but the first connection refusal
+  was followed by a disconnect that reset the counter, and with no connection there was
+  nothing left to produce further errors. Polling never started either, since it starts once
+  connected. Only restarting the add-on brought it back.
+- **NOW**: reconnection follows the connection state instead of an error count. One attempt
+  is queued at a time with exponential backoff — 5s, 10s, 20s, 40s, up to 60s — and keeps
+  going for as long as the panel is unreachable. When the panel answers, the backoff resets.
+- **VISIBLE FROM HOME ASSISTANT**: `sensor.ialarm_diagnostics` gained the `reconnectAttempts`
+  and `nextReconnectAt` attributes, so "it is retrying, next attempt in 40s" can be read
+  without opening the log.
+- Requires ialarm-mqtt 0.15.18.
+
 ## 1.4.0 - NO MORE HISTORY GAPS ON RESTART
 
 - **WHY**: every start-up published an empty payload to all the discovery `/config` topics
