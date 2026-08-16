@@ -20,6 +20,7 @@ This enhanced version includes **critical fixes and improvements** over the orig
 - ✅ **No history gaps on restart** - entities are updated in place instead of being deleted and recreated at every start
 - ✅ **Survives an unreachable panel** - reconnects with exponential backoff (5s → 60s) instead of hanging until the add-on is restarted
 - ✅ **Commands don't fight the polling** - arm/disarm and bypass suspend the status polling while they run, with a watchdog to resume it
+- ✅ **Node 18** - the image left Node 16, out of support since 2023 (no Home Assistant base image offers Node 20 yet)
 
 > ⚠️ **Disclaimer — "vibecoded".** The enhancements and fixes listed above were *vibecoded*:
 > developed with AI assistance rather than hand-written by a maintainer with deep knowledge
