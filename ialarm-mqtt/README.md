@@ -19,6 +19,7 @@ This enhanced version includes **critical fixes and improvements** over the orig
 - ✅ **Bridge diagnostics** - optional `diagnostics` feature: link health, last successful poll and error counters as HA entities instead of log lines
 - ✅ **No history gaps on restart** - entities are updated in place instead of being deleted and recreated at every start
 - ✅ **Survives an unreachable panel** - reconnects with exponential backoff (5s → 60s) instead of hanging until the add-on is restarted
+- ✅ **Commands don't fight the polling** - arm/disarm and bypass suspend the status polling while they run, with a watchdog to resume it
 
 > ⚠️ **Disclaimer — "vibecoded".** The enhancements and fixes listed above were *vibecoded*:
 > developed with AI assistance rather than hand-written by a maintainer with deep knowledge
