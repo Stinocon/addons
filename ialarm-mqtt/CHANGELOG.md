@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.4.0 - NO MORE HISTORY GAPS ON RESTART
+
+- **WHY**: every start-up published an empty payload to all the discovery `/config` topics
+  before republishing them. That deletes and recreates every entity, so Home Assistant showed
+  them as `unavailable → unknown → <value>` on each restart. The history of every sensor was
+  interrupted, and any automation triggering on an explicit `from:` silently missed the
+  transition that happened across the restart — which is exactly how a low-battery flag can
+  pass unnoticed.
+- **NOW**: on start the entity configs are published directly and Home Assistant updates the
+  existing entities in place. No deletion, no gap, and the 5-second wait that existed only to
+  let HA process the cleanup is gone: entities appear immediately.
+- **THE CLEANUP IS STILL THERE, ON DEMAND**: the **Discovery Reset** switch (and the
+  `{prefix}/alarm/discovery` topic) still clears every config first, then republishes. Use it
+  after disabling a feature, to remove the entities it left behind. With discovery disabled in
+  the configuration the cleanup also still runs, since removing the entities is the point.
+- **OLD BEHAVIOUR AVAILABLE**: set `hadiscovery.resetOnStart: true` to clean up at every start
+  as before.
+- **QUIETER START**: the cleanup addresses all 128 zones the panel can have — about a thousand
+  MQTT messages that no longer go out at every restart.
+- Manual renames were never at risk either way: Home Assistant keys them to `unique_id`, which
+  this release does not touch.
+
 ## 1.3.0 - BRIDGE DIAGNOSTICS IN HOME ASSISTANT
 
 - **WHY**: until now the only way to know whether the bridge was still talking to the panel

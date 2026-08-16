@@ -17,6 +17,7 @@ This enhanced version includes **critical fixes and improvements** over the orig
 - ✅ **Configurable arm modes** - `supportedFeatures` (default Home/Away) hides the unused Night/Vacation/Custom-bypass buttons
 - ✅ **Zone ID indicators** - optional `zoneId` feature: a per-zone "Zone ID" sensor plus a global `id → name` directory sensor for automations
 - ✅ **Bridge diagnostics** - optional `diagnostics` feature: link health, last successful poll and error counters as HA entities instead of log lines
+- ✅ **No history gaps on restart** - entities are updated in place instead of being deleted and recreated at every start
 
 > ⚠️ **Disclaimer — "vibecoded".** The enhancements and fixes listed above were *vibecoded*:
 > developed with AI assistance rather than hand-written by a maintainer with deep knowledge
@@ -261,6 +262,40 @@ Two deliberate choices worth knowing:
 
 Like the zone ID sensors these are additive: enabling or disabling the feature does not affect
 any other entity, unique ID or manual rename.
+
+### Discovery on restart (`resetOnStart`)
+
+At every start the add-on publishes the discovery configuration of its entities. Up to version
+1.3.0 it first published an **empty** payload to all those topics, which makes Home Assistant
+delete the entities and then recreate them a moment later. Two consequences:
+
+- every sensor showed `unavailable → unknown → <value>` on each restart, leaving a gap in its
+  history;
+- an automation triggering on an explicit `from:` (for example `from: 'off'` `to: 'on'`) missed
+  any change that happened across the restart, because the transition it saw started from
+  `unknown`.
+
+Since 1.4.0 the configs are published directly and Home Assistant updates the entities in
+place. Nothing is deleted, the history is continuous, and the entities appear immediately
+instead of after the 5-second pause that existed only to let HA process the cleanup.
+
+The cleanup is still available when you actually want it:
+
+- the **Discovery Reset** switch (or any payload on `{prefix}/alarm/discovery`) clears every
+  config and republishes — use it after turning a feature off, to remove the entities it left
+  behind;
+- with discovery disabled in the configuration the cleanup runs anyway, since removing the
+  entities is the whole point.
+
+To go back to the old behaviour:
+
+```yaml
+hadiscovery:
+  resetOnStart: true
+```
+
+Your manual renames are safe either way: Home Assistant keys them to `unique_id`, which none of
+this changes.
 
 ## 🔗 Documentation & Support
 
