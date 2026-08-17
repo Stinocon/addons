@@ -125,6 +125,14 @@ Four things, in this order:
    for directories with a `config.yaml`, so nothing needs to register it anywhere.
 2. **A publish workflow**, copied from an existing one, with `ADDON_PATH` and the tag pattern
    changed. The pattern must not match any other add-on's tags.
+
+   If the add-on is multi-arch on **architecture-specific** base images (`{arch}-base-debian`
+   and friends, rather than one multi-arch manifest), the workflow must also read `build_from`
+   out of `build.yaml` and pass it as `build-args: BUILD_FROM=…`. The builder action does not
+   pass it on its own, and a `Dockerfile` that supplies a default instead will quietly build
+   one architecture on the other one's base image — a failure that names neither. Leave
+   `ARG BUILD_FROM` without a default there, so a missing value fails loudly.
+   `ezviz-stream-bridge` is the worked example.
 3. **An issue template** in `.github/ISSUE_TEMPLATE/`, and a contact link in `config.yml`
    routing anything about the application itself to the repository where that code lives.
 4. **A row in the add-ons table and in the release table above**, plus a short section under

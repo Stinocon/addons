@@ -68,6 +68,19 @@ jobs:
         id: info
         run: echo "version=$(yq e '.version' "${ADDON_PATH}/config.yaml")" >> "$GITHUB_OUTPUT"
 
+      # Le basi di questo addon sono arch-specific (`{arch}-base-debian`), e l'action NON passa
+      # BUILD_FROM da sé: va passato qui, o buildx usa il default del Dockerfile e su una delle
+      # due architetture tira giù l'immagine dell'altra. Il valore resta in build.yaml, che
+      # rimane l'unico posto dove la base è scritta.
+      - name: Read the base image for this architecture
+        id: base
+        run: |
+          build_from=$(yq e ".build_from.${{ matrix.arch }}" "${ADDON_PATH}/build.yaml")
+          if [ -z "${build_from}" ] || [ "${build_from}" = "null" ]; then
+              echo "build.yaml has no build_from for ${{ matrix.arch }}" >&2; exit 1
+          fi
+          echo "build_from=${build_from}" >> "$GITHUB_OUTPUT"
+
       # Vale più del solito qui: il Dockerfile verifica in build che `pyezvizapi stream proxy`
       # esista ancora con i flag che il servizio gli passa. Se un bump di versione li rinomina,
       # questo job diventa rosso invece di lasciare l'addon in restart loop sulla macchina di
@@ -80,6 +93,8 @@ jobs:
           image: ${{ matrix.image }}
           image-tags: ${{ steps.info.outputs.version }}
           version: ${{ steps.info.outputs.version }}
+          build-args: |
+            BUILD_FROM=${{ steps.base.outputs.build_from }}
           cosign: "false"
           push: "false"
           # not used (push disabled) but required by the action schema
