@@ -6,6 +6,15 @@ contact_links:
   - name: Reel2Recipe — the application itself
     url: https://github.com/Stinocon/Reel2Recipe/issues
     about: Recipe extraction, transcription, conversions, the web interface, exports.
+  - name: EZVIZ Stream Bridge — the application itself
+    url: https://github.com/Stinocon/ezviz-stream-bridge/issues
+    about: Login and session handling, proxy restarts, stream contents, camera compatibility.
+  - name: EZVIZ Stream Bridge — why there is no local stream
+    url: https://github.com/Stinocon/ezviz-stream-bridge/blob/main/docs/investigation.md
+    about: Read before asking for RTSP, ONVIF or a cloud-free mode — all three were measured and ruled out.
+  - name: pyezvizapi
+    url: https://github.com/RenierM26/pyEzvizApi/issues
+    about: The library implementing the EZVIZ cloud API and the stream protocol.
   - name: ialarm-mqtt — the application itself
     url: https://github.com/Stinocon/ialarm-mqtt/issues
     about: Entities, MQTT discovery, panel communication (this fork's enhancements).
