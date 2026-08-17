@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.1
+
+- A missing serial now lists the account's cameras in the log, each with its serial and model,
+  instead of only rejecting the empty field. Enter the credentials, leave the serial blank,
+  start once, and copy the serial the log prints. Works from a stored token too, so it still
+  helps on two-factor accounts.
+- README: a proper "Finding the serial" section, and a corrected note — the account password is
+  not the camera verification code, and the verification code is not needed at all.
+
 ## 0.1.0
 
 First release.

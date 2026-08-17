@@ -79,18 +79,37 @@ which case you do not need this add-on at all.
 ## Configuration
 
 ```yaml
-username: your@email.example      # EZVIZ *account* credentials, not the camera's
-password: your-account-password   # 6-letter verification code
+username: your@email.example      # EZVIZ *account* email — the one you log in to the app with
+password: your-account-password   # the account password, NOT the camera verification code
 region: apiieu.ezvizlife.com      # apiieu = Europe, apius = Americas, apiisgp = Singapore
 cameras:
-  - serial: BB1234567             # from the device label / the app's device information
+  - serial: BB1234567             # the device serial — see "Finding the serial" below
     port: 8558
 log_level: info
 ```
 
-`serial` is the device serial, which is not the six-letter verification code printed on the
-camera — that is a different thing and will be rejected. Up to five cameras, on ports
-8558-8562, one port each.
+Up to five cameras, on ports 8558-8562, one port each.
+
+### Finding the serial
+
+The `serial` is the device serial, and it is **not** the six-letter verification code printed on
+the camera — that is a different thing and will be rejected. Three ways to get it, easiest first:
+
+1. **Let the add-on tell you.** Fill in `username` and `password`, leave `serial` empty, and
+   start the add-on. It will fail — a camera needs a serial — but the log then lists every
+   camera on your account with its serial:
+
+   ```
+   [ERROR] Cameras on this EZVIZ account -- copy a serial into the configuration:
+   [ERROR]   BB1234567  Front door [CS-CP4-R100-6E2WPFBS]
+   ```
+
+   Copy the serial into the configuration and start it again. (This works from a stored token
+   too, so it still helps on two-factor accounts once you have placed the token.)
+2. **In the EZVIZ app:** open the camera, *Settings → Device Information*; the serial is listed
+   there, usually 9 characters.
+3. **On the device label:** the serial is printed near the QR code, on the body or in the
+   manual — distinct from the verification code beside it.
 
 ## Using it from go2rtc and Frigate
 
