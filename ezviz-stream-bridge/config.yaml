@@ -1,0 +1,63 @@
+name: "EZVIZ Stream Bridge"
+url: https://github.com/Stinocon/addons/tree/master/ezviz-stream-bridge
+version: "0.1.0"
+slug: ezviz_stream_bridge
+description: "Serves EZVIZ camera video as MPEG-TS over HTTP, so go2rtc and Frigate can use cameras that expose no RTSP."
+
+# aarch64 and amd64 only. pyezvizapi needs `cryptography`, which publishes no wheels for
+# 32-bit ARM: on armv7/armhf the build would compile it from Rust source on every image,
+# and a Raspberry that manages to finish is not a machine to then decode 1080p HEVC on.
+arch:
+  - aarch64
+  - amd64
+
+init: false
+startup: services
+boot: auto
+
+# No ingress: what this serves is a media stream for other containers, not a web page.
+#
+# The ports are declared but left unmapped, because they are usually not needed: an add-on
+# in the same Supervisor network reaches this one by hostname, and go2rtc inside Frigate
+# does exactly that. Map them only for a Frigate running outside Home Assistant, and
+# remember that doing so publishes an unauthenticated stream on the LAN.
+ports:
+  8558/tcp: null
+  8559/tcp: null
+  8560/tcp: null
+  8561/tcp: null
+  8562/tcp: null
+ports_description:
+  8558/tcp: "First camera (only needed by consumers outside Home Assistant)"
+  8559/tcp: "Second camera"
+  8560/tcp: "Third camera"
+  8561/tcp: "Fourth camera"
+  8562/tcp: "Fifth camera"
+
+# The EZVIZ session token lives on /data so it survives restarts and updates: a fresh login
+# on every start is a login EZVIZ counts, and it rate-limits them. It stays out of backups
+# because it is a bearer credential for the whole account, not configuration worth restoring.
+backup_exclude:
+  - ezviz_token.json
+
+options:
+  username: ""
+  password: ""
+  region: apiieu.ezvizlife.com
+  cameras:
+    - serial: ""
+      port: 8558
+  log_level: info
+
+schema:
+  username: str
+  password: password
+  # Regional API host. apiieu = Europe, apius = Americas, apiisgp = Singapore. Getting this
+  # wrong looks exactly like a wrong password, so it is a visible field rather than a guess.
+  region: str
+  cameras:
+    - serial: str
+      port: int(8558,8562)?
+  log_level: list(trace|debug|info|notice|warning|error|fatal)
+
+image: stfncntr/{arch}-addon-ezviz-stream-bridge

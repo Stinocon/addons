@@ -1,0 +1,71 @@
+name: EZVIZ Stream Bridge — add-on issue
+description: Installing, configuring or starting the add-on. For the stream itself, use the links below instead.
+labels: ["ezviz-stream-bridge"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this only if the problem is in the **add-on packaging**: it will not install or
+        start, an option is rejected, the port is not reachable. Anything about the bridge's
+        own behaviour — login, session handling, restarts, the stream contents — belongs in
+        [Stinocon/ezviz-stream-bridge](https://github.com/Stinocon/ezviz-stream-bridge/issues).
+
+        **Three things that are expected behaviour and not bugs**, and please read them before
+        opening an issue:
+
+        - **The stream goes through the EZVIZ cloud.** With no internet connection there is no
+          stream. This is not a limitation of the add-on: the affected cameras have no local
+          video interface at all. The measured account is in
+          [`docs/investigation.md`](https://github.com/Stinocon/ezviz-stream-bridge/blob/main/docs/investigation.md).
+        - **There is no RTSP to enable.** EZVIZ never implemented RTSP or ONVIF for the video
+          door viewer and doorbell category. The "enable RTSP" guides you have found are for
+          their IP cameras.
+        - **Battery drain with Frigate `detect`/`record` on.** Every connection wakes the
+          camera; a permanent consumer never lets it sleep. Keep the stream on-demand.
+  - type: textarea
+    id: issue
+    attributes:
+      label: Description of the issue
+      description: What you expected, what happened instead, and how to reproduce it.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Add-on version
+      description: As shown in the add-on page in Home Assistant.
+      placeholder: '0.1.0'
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Camera model and firmware
+      description: "The model code and firmware version, from the EZVIZ app under device information. Do not post the serial or the verification code."
+      placeholder: "CS-CP4-R100-6E2WPFBS, V5.3.3 build 251118"
+    validations:
+      required: true
+  - type: input
+    id: consumer
+    attributes:
+      label: What consumes the stream
+      description: go2rtc, Frigate, VLC, ffmpeg — and whether it runs as an add-on or outside Home Assistant.
+      placeholder: "go2rtc inside the Frigate add-on"
+    validations:
+      required: false
+  - type: textarea
+    id: platform
+    attributes:
+      label: Home Assistant version
+      description: From Settings → System → Repairs → system information.
+      placeholder: "Core: core-2026.7.0\nSupervisor: supervisor-2026.06.2\nOperating System: HAOS 15.1"
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Add-on log
+      description: "From the add-on's Log tab. Set `log_level` to `debug` first if the log says nothing useful. Redact the device serial before pasting."
+      render: shell
+    validations:
+      required: false

@@ -1,0 +1,86 @@
+name: "Test ezviz-stream-bridge"
+
+env:
+  ADDON_PATH: ezviz-stream-bridge
+
+# Solo sulle modifiche che riguardano questo add-on: senza il filtro, un commit di un altro
+# addon o del README farebbe ripartire una build che non può cambiare esito.
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'ezviz-stream-bridge/**'
+      - '.github/workflows/test-ezviz-stream-bridge.yml'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'ezviz-stream-bridge/**'
+      - '.github/workflows/test-ezviz-stream-bridge.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    name: Prepare build matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v5
+
+      - name: Read add-on info from config.yaml
+        id: info
+        run: |
+          image=$(yq e '.image' "${ADDON_PATH}/config.yaml")
+          clean="${image//\{arch\}-/}"
+          echo "image_name=${clean##*/}" >> "$GITHUB_OUTPUT"
+          echo "registry_prefix=docker.io/${clean%/*}" >> "$GITHUB_OUTPUT"
+          echo "architectures=$(yq e -o=json -I=0 '.arch' "${ADDON_PATH}/config.yaml")" >> "$GITHUB_OUTPUT"
+
+      - name: Build matrix
+        id: matrix
+        uses: home-assistant/builder/actions/prepare-multi-arch-matrix@2026.06.0
+        with:
+          architectures: ${{ steps.info.outputs.architectures }}
+          image-name: ${{ steps.info.outputs.image_name }}
+          registry-prefix: ${{ steps.info.outputs.registry_prefix }}
+
+  build:
+    name: Test build ${{ matrix.arch }}
+    needs: prepare
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Read add-on version
+        id: info
+        run: echo "version=$(yq e '.version' "${ADDON_PATH}/config.yaml")" >> "$GITHUB_OUTPUT"
+
+      # Vale più del solito qui: il Dockerfile verifica in build che `pyezvizapi stream proxy`
+      # esista ancora con i flag che il servizio gli passa. Se un bump di versione li rinomina,
+      # questo job diventa rosso invece di lasciare l'addon in restart loop sulla macchina di
+      # qualcuno.
+      - name: Test build (no push)
+        uses: home-assistant/builder/actions/build-image@2026.06.0
+        with:
+          arch: ${{ matrix.arch }}
+          context: "./${{ env.ADDON_PATH }}"
+          image: ${{ matrix.image }}
+          image-tags: ${{ steps.info.outputs.version }}
+          version: ${{ steps.info.outputs.version }}
+          cosign: "false"
+          push: "false"
+          # not used (push disabled) but required by the action schema
+          container-registry-password: ${{ secrets.GITHUB_TOKEN }}

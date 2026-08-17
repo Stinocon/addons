@@ -25,6 +25,7 @@ Install whichever you need: they are independent, and none requires another.
 |---|---|---|---|
 | **[iAlarm MQTT Bridge](ialarm-mqtt/)** | Bridges an iAlarm / Meian / Focus alarm panel to Home Assistant over MQTT, with clean entity naming and a working discovery | `amd64`, `aarch64` | see [`config.yaml`](ialarm-mqtt/config.yaml) |
 | **[Reel2Recipe](reel2recipe/)** | Extracts recipes from cooking reels and exports them to Mela; Whisper and the LLM run inside the add-on | `amd64` only | see [`config.yaml`](reel2recipe/config.yaml) |
+| **[EZVIZ Stream Bridge](ezviz-stream-bridge/)** | Serves EZVIZ camera video as MPEG-TS over HTTP, for go2rtc and Frigate, on cameras that expose no RTSP | `amd64`, `aarch64` | see [`config.yaml`](ezviz-stream-bridge/config.yaml) |
 
 ### iAlarm MQTT Bridge
 
@@ -57,6 +58,24 @@ Details and options: **[`reel2recipe/README.md`](reel2recipe/README.md)** ·
 [changelog](reel2recipe/CHANGELOG.md) ·
 [application source](https://github.com/Stinocon/Reel2Recipe)
 
+### EZVIZ Stream Bridge
+
+Serves the video from an EZVIZ camera as MPEG-TS over HTTP, so go2rtc and Frigate can use a
+camera that offers no RTSP. It exists for the video door viewers and battery models, where
+EZVIZ never implemented a local video interface at all — their own port specification lists
+RTSP and ONVIF for IP cameras and omits both for that category, so there is no setting to find
+and no firmware flag to flip.
+
+**It reaches the camera through the EZVIZ cloud**, because that is the only path those devices
+offer. The camera ends up in Home Assistant without the EZVIZ app, but not without an internet
+connection. On battery models the stream also has to be treated as on-demand: every connection
+wakes the camera, so Frigate's `detect` and `record` must stay off.
+
+Details and options: **[`ezviz-stream-bridge/README.md`](ezviz-stream-bridge/README.md)** ·
+[changelog](ezviz-stream-bridge/CHANGELOG.md) ·
+[application source](https://github.com/Stinocon/ezviz-stream-bridge) ·
+[why there is no local stream](https://github.com/Stinocon/ezviz-stream-bridge/blob/main/docs/investigation.md)
+
 ## Repository layout
 
 ```
@@ -84,15 +103,17 @@ multi-add-on repository would rebuild the one that had nothing to do with it.
 |---|---|---|
 | `ialarm-mqtt` | `addon-v<version>` (e.g. `addon-v1.2.2`) | [`publish-ialarm-mqtt.yml`](.github/workflows/publish-ialarm-mqtt.yml) |
 | `reel2recipe` | `reel2recipe-<version>` (e.g. `reel2recipe-1.0.0`) | [`publish-reel2recipe.yml`](.github/workflows/publish-reel2recipe.yml) |
+| `ezviz-stream-bridge` | `ezviz-stream-bridge-<version>` (e.g. `ezviz-stream-bridge-0.1.0`) | [`publish-ezviz-stream-bridge.yml`](.github/workflows/publish-ezviz-stream-bridge.yml) |
 
 The tag must be pushed **after** `config.yaml` carries the matching `version:` — the workflow
 reads the version from `config.yaml`, not from the tag name, and tags the image with it.
 
-Pull requests and pushes touching `ialarm-mqtt/` also get a no-push test build
-([`test-ialarm-mqtt.yml`](.github/workflows/test-ialarm-mqtt.yml)), filtered by path so a
-change to another add-on does not trigger it. `reel2recipe` has no equivalent: its image
-bundles Ollama and pulls multi-gigabyte wheels, and building it on every push would spend far
-more CI time than the check is worth.
+Pull requests and pushes touching `ialarm-mqtt/` or `ezviz-stream-bridge/` also get a no-push
+test build ([`test-ialarm-mqtt.yml`](.github/workflows/test-ialarm-mqtt.yml),
+[`test-ezviz-stream-bridge.yml`](.github/workflows/test-ezviz-stream-bridge.yml)), filtered by
+path so a change to another add-on does not trigger it. `reel2recipe` has no equivalent: its
+image bundles Ollama and pulls multi-gigabyte wheels, and building it on every push would spend
+far more CI time than the check is worth.
 
 ## Adding another add-on
 
@@ -120,8 +141,8 @@ Report an issue **where the code lives**, not where the packaging lives:
 
 ## Licence
 
-MIT — see [`LICENSE`](LICENSE). It covers everything in this repository: the packaging of
-both add-ons, the workflows, the documentation and the artwork.
+MIT — see [`LICENSE`](LICENSE). It covers everything in this repository: the packaging of every
+add-on, the workflows, the documentation and the artwork.
 
 It does not cover the applications the add-ons install, which have their own authors and
 licences — `ialarm-mqtt` is MIT, © 2019 Luca Mazzilli. [`NOTICE.md`](NOTICE.md) lists them,

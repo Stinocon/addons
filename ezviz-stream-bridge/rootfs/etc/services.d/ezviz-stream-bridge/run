@@ -1,0 +1,36 @@
+#!/command/with-contenv bashio
+# The bridge: one MPEG-TS proxy per configured camera, supervised.
+#
+# There is almost nothing to do here, and that is deliberate. Login, token expiry, restarts
+# and backoff all live in the Python supervisor, because they are one problem — "keep a
+# working session and a live proxy" — and splitting it across a shell script and a program
+# is how the two halves end up disagreeing about whose turn it is to log in.
+#
+# The options are read straight from /data/options.json by the supervisor rather than being
+# unpacked into arguments here: the password would otherwise land in the process table.
+
+set -e
+
+if ! bashio::config.has_value 'username' || ! bashio::config.has_value 'password'; then
+    bashio::log.fatal "Set the EZVIZ account username and password in the add-on configuration."
+    bashio::log.fatal "These are the credentials of the EZVIZ *account*, not the 6-letter"
+    bashio::log.fatal "verification code printed on the camera."
+    bashio::exit.nok
+fi
+
+# An empty serial is what a fresh install has, and the supervisor would reject it with a
+# correct but puzzling message about a camera having no serial. Saying it here names the
+# field the user has to fill instead.
+if [ "$(bashio::config 'cameras[0].serial')" = "" ]; then
+    bashio::log.fatal "No camera serial configured. Add the serial from the device label"
+    bashio::log.fatal "(it also appears in the EZVIZ app under device information)."
+    bashio::exit.nok
+fi
+
+bashio::log.info "Starting EZVIZ Stream Bridge…"
+
+# exec, so s6 supervises the supervisor itself and SIGTERM reaches it directly: it needs
+# the signal to shut its proxies down, and a shell in between would swallow it.
+exec ezviz-stream-bridge \
+    --options /data/options.json \
+    --token-file /data/ezviz_token.json

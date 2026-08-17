@@ -1,0 +1,6 @@
+#!/command/with-contenv bashio
+# The bridge is the only thing this add-on runs, so if it stops there is nothing left to
+# supervise. Halting makes the add-on show as stopped, which is the honest state; staying
+# up would report "running" while serving no streams at all.
+bashio::log.warning "The bridge stopped (code ${1}). Halting the add-on."
+exec /run/s6/basedir/bin/halt
