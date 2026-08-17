@@ -113,16 +113,37 @@ the camera — that is a different thing and will be rejected. Three ways to get
 
 ## Using it from go2rtc and Frigate
 
-Add-ons on the same Home Assistant instance reach each other by hostname, so nothing needs to
-be published:
+**Map the port first.** Open the add-on's *Network* tab, set the host port for `8558/tcp` to
+`8558`, Save, then fully **Stop and Start** the add-on (not Restart — a port change only takes
+effect when the container is recreated). The stream is then reachable at
+`http://<home-assistant-ip>:8558/BB1234567.ts`.
+
+Do **not** use an add-on hostname like `local-ezviz_stream_bridge` — it does not resolve from a
+store-installed add-on's container, and go2rtc fails with "no such host". Use the Home Assistant
+host IP, which the Frigate add-on already knows (it logs `Got IP address from supervisor: …`).
+
+go2rtc, in Frigate's configuration:
 
 ```yaml
-streams:
-  doorbell: http://local-ezviz_stream_bridge:8558/BB1234567.ts
+go2rtc:
+  streams:
+    doorbell:
+      # The ffmpeg: prefix is required — the source is MPEG-TS and go2rtc must demux it.
+      # #video=h264 transcodes the camera's HEVC to H.264 so the browser live view shows a
+      # picture (HEVC over WebRTC/MSE is usually a black screen). It costs CPU; drop it if you
+      # only run detection and never open the live view.
+      - "ffmpeg:http://<home-assistant-ip>:8558/BB1234567.ts#video=h264#audio=aac"
 ```
 
-Then in Frigate, for a battery camera. `detect` and `record` start **off** and are switched on
-by an automation for the length of an event, as described above — not left off forever:
+### Battery cameras: do not give Frigate a permanent role
+
+This is the setting that decides whether the camera lasts months or days. **Every consumer that
+stays connected keeps a cloud session open and the camera encoding**, and the add-on faithfully
+serves whoever connects — it never generates traffic on its own. So a Frigate input with a
+`record` role, or `detect` left enabled, is a 24/7 consumer that never lets the camera sleep.
+
+For a battery doorbell, give the input **no always-on role**, and switch detection on only for
+the length of an event, driven by the camera's own motion sensor:
 
 ```yaml
 cameras:
@@ -132,14 +153,32 @@ cameras:
         - path: rtsp://127.0.0.1:8554/doorbell
           roles: [detect]
     detect:
-      enabled: false     # switched on via frigate/doorbell/detect/set
+      enabled: false     # turned on via MQTT frigate/doorbell/detect/set on a motion event
     record:
-      enabled: false     # switched on via frigate/doorbell/recordings/set
+      enabled: false     # turned on via MQTT frigate/doorbell/recordings/set, if you want a clip
 ```
 
-For a Frigate running outside Home Assistant, map the port in the add-on's *Network* tab and
-point it at the Home Assistant host instead. Be aware that the stream is not authenticated:
-mapping the port publishes it to everyone on the LAN.
+An automation flips `detect`/`record` ON when `binary_sensor.<doorbell>_motion` fires and OFF a
+minute later. Note the numbers, measured through the add-on: ~4 s to the first byte, first
+keyframe ~1.5 s in, keyframes every 4 s — so an event-gated recording starts mid-scene, six-odd
+seconds after the trigger. That is a hardware limit, not a setting.
+
+### Seeing who is connected
+
+The add-on logs every HTTP connection with an id, its source address and User-Agent, and the
+VTM session that opens and closes with it:
+
+```
+[HTTP] conn=7 connected from=172.30.32.1:41682 ua=Lavf/62.3.100 active=1
+[VTM]  conn=7 session opening
+[VTM]  conn=7 session closed
+[HTTP] conn=7 closed after 63.0s reason='client disconnected' active=1
+```
+
+`active` is how many streams are live right now. If it never drops to 0 while nobody is watching,
+a consumer still has a permanent role — the source address and `Lavf/…` User-Agent (FFmpeg,
+i.e. go2rtc) tell you which one. With everything event-gated, `active` should sit at 0 between
+events.
 
 ## Credits
 
