@@ -84,12 +84,10 @@ RUN \
 RUN \
     ezviz-stream-bridge --help > /dev/null \
     && python3 -c "import ezviz_stream_bridge; print(ezviz_stream_bridge.__version__)" \
+    && python3 -m ezviz_stream_bridge.proxy --help > /dev/null \
     && ffmpeg -hide_banner -version > /dev/null \
-    && help="$(pyezvizapi stream proxy --help)" \
-    && for flag in --serial --listen-host --listen-port; do \
-        echo "${help}" | grep -q -- "${flag}" \
-            || { echo "pyezvizapi ${PYEZVIZAPI_VERSION} has no ${flag}" >&2; exit 1; }; \
-    done
+    && python3 -c "from pyezvizapi.cloud_stream import copy_cloud_stream_to_mpegts" \
+    && python3 -c "from pyezvizapi.client import EzvizClient"
 
 COPY rootfs /
 

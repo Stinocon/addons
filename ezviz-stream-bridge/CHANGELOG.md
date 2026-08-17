@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.1.2
+
+- The proxy now runs in-process instead of shelling out to `pyezvizapi stream proxy`, so every
+  HTTP connection is logged with an id, its source address and User-Agent, and the VTM session
+  that opens and closes with it. This is what identifies a stuck consumer: if `active` never
+  returns to 0 while nobody watches, the source address and `Lavf/…` User-Agent name it.
+- The lifecycle is unchanged and confirmed on-demand: one connection opens one VTM session,
+  closed the instant the client disconnects; the bridge generates no traffic of its own, and no
+  retry or keepalive keeps a session alive without a client.
+- Corrected the start-up log and README: the reachable endpoint is the Home Assistant host IP on
+  the mapped port, never the `local-ezviz_stream_bridge` hostname (which does not resolve from a
+  store add-on and made go2rtc fail with "no such host").
+- README: the go2rtc/Frigate section now spells out the permanent-consumer trap for battery
+  cameras — a `record` role or enabled `detect` never lets the camera sleep — and how to read
+  the new connection logs.
+
 ## 0.1.1
 
 - A missing serial now lists the account's cameras in the log, each with its serial and model,
