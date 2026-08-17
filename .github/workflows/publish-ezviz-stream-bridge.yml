@@ -64,10 +64,20 @@ jobs:
 
       # Nessuno step di pulizia disco come in reel2recipe: qui l'immagine è ffmpeg più
       # qualche wheel Python, e lo spazio del runner basta con ampio margine.
-      #
-      # Il BUILD_FROM non è passato qui: lo dichiara build.yaml, che il builder legge dal
-      # contesto dell'addon. Ripeterlo significherebbe tenere allineate due copie della
-      # stessa scelta, e prima o poi non lo sarebbero.
+
+      # Le basi di questo addon sono arch-specific (`{arch}-base-debian`), e l'action NON passa
+      # BUILD_FROM da sé: va passato qui, o buildx usa il default del Dockerfile e su una delle
+      # due architetture tira giù l'immagine dell'altra. Il valore resta in build.yaml, che
+      # rimane l'unico posto dove la base è scritta.
+      - name: Read the base image for this architecture
+        id: base
+        run: |
+          build_from=$(yq e ".build_from.${{ matrix.arch }}" "${ADDON_PATH}/build.yaml")
+          if [ -z "${build_from}" ] || [ "${build_from}" = "null" ]; then
+              echo "build.yaml has no build_from for ${{ matrix.arch }}" >&2; exit 1
+          fi
+          echo "build_from=${build_from}" >> "$GITHUB_OUTPUT"
+
       - name: Build and push ${{ matrix.image }}
         uses: home-assistant/builder/actions/build-image@2026.06.0
         with:
@@ -78,6 +88,8 @@ jobs:
             ${{ needs.prepare.outputs.version }}
             latest
           version: ${{ needs.prepare.outputs.version }}
+          build-args: |
+            BUILD_FROM=${{ steps.base.outputs.build_from }}
           labels: |
             io.hass.type=addon
             io.hass.name=${{ needs.prepare.outputs.name }}

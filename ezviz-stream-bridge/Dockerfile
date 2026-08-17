@@ -1,4 +1,16 @@
-ARG BUILD_FROM=ghcr.io/home-assistant/aarch64-base-debian:trixie-2026.02.0
+# Deliberately without a default, unlike the other add-ons in this repository.
+#
+# They can afford one: ialarm-mqtt uses a multi-arch manifest, so the same reference is right
+# on both architectures, and reel2recipe is amd64-only. This add-on is the first here that is
+# multi-arch on *architecture-specific* base images, and there a default is a trap: the builder
+# action does not pass BUILD_FROM unless the workflow asks it to, so the default quietly wins
+# and one of the two architectures gets the other one's base image. That is exactly what
+# happened on the first build — an aarch64 base pulled on an x86 runner, failing at the first
+# RUN with exit 255 and an error naming neither the architecture nor the image.
+#
+# With no default, a missing BUILD_FROM fails immediately and says the base name is empty.
+# The value comes from build.yaml, passed per architecture by the workflow's `build-args`.
+ARG BUILD_FROM
 FROM ${BUILD_FROM}
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
