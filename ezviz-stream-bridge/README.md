@@ -176,6 +176,161 @@ fires and OFF a minute later. Note the numbers, measured through the add-on: ~4 
 byte, first keyframe ~1.5 s in, keyframes every 4 s — so an event-gated recording starts
 mid-scene, six-odd seconds after the trigger. That is a hardware limit, not a setting.
 
+### Event-gated in practice: two Home Assistant automations
+
+A worked example of the pattern this add-on exists for. **Adapt the entity ids** — every one of
+them below is a placeholder, and two of them come from components that name entities after
+*your* device and camera names:
+
+| entity | who creates it | notes |
+|---|---|---|
+| `binary_sensor.ezviz_doorbell_motion` | the **official EZVIZ integration** for Home Assistant | **Not** from Frigate, and not from this add-on. The name follows your EZVIZ device name — find yours under *Developer tools → States* and substitute it |
+| `binary_sensor.doorbell_person_occupancy` | Frigate (via the Frigate HA integration) | Named after the **Frigate camera**, here `doorbell` |
+| `image.doorbell_person` | Frigate (via the Frigate HA integration) | Same, the last person snapshot |
+| `person.user_1`, `notify.mobile_app_user_1` | your Home Assistant | Placeholders for your people and phones |
+| `alarm_control_panel.home_alarm` | your alarm, **if you have one** | Entirely optional — see the note under the second automation |
+
+The chain is:
+
+```
+EZVIZ integration motion sensor  (the only signal available while the camera sleeps)
+   -> MQTT frigate/doorbell/enabled/set = ON
+      -> Frigate starts its FFmpeg, go2rtc opens this add-on, the bridge opens one cloud session
+         -> detection, tracking and recording, for as long as the camera stays enabled
+            -> Frigate's own person detection
+               -> a Home Assistant notification with the snapshot
+```
+
+Responsibilities stay separated: EZVIZ decides *when there is something to look at*, Frigate does
+the looking, Home Assistant does the telling.
+
+**1. The stream lifecycle.**
+
+```yaml
+alias: Doorbell - Frigate lifecycle
+description: >
+  Enables the Frigate camera while the EZVIZ motion sensor reports activity, and disables it
+  again 60 seconds after that activity stops. The camera streams only around events.
+triggers:
+  - trigger: state
+    entity_id: binary_sensor.ezviz_doorbell_motion
+    to: "on"
+  - trigger: state
+    entity_id: binary_sensor.ezviz_doorbell_motion
+    to: "off"
+    for:
+      seconds: 60
+actions:
+  # The current state is read again here rather than trusted from the trigger: with
+  # mode: restart a returning motion cancels the pending run, and this keeps the published
+  # command consistent with what the sensor actually says at the moment of publishing.
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: binary_sensor.ezviz_doorbell_motion
+            state: "on"
+        sequence:
+          - action: mqtt.publish
+            data:
+              topic: frigate/doorbell/enabled/set
+              payload: "ON"
+      - conditions:
+          - condition: state
+            entity_id: binary_sensor.ezviz_doorbell_motion
+            state: "off"
+        sequence:
+          - action: mqtt.publish
+            data:
+              topic: frigate/doorbell/enabled/set
+              payload: "OFF"
+mode: restart
+```
+
+`enabled` is the only Frigate switch that stops the stream being consumed — see the section
+above. `mode: restart` is deliberate: motion returning inside the 60 seconds cancels the pending
+shutdown. Note the triggers carry no `from:` clause on purpose: an entity that goes
+`unavailable → on` (an integration hiccup, a cloud error) would otherwise never fire, and a
+Home Assistant restart re-arms the off-branch by itself as the sensor settles.
+
+**2. The notification.**
+
+```yaml
+alias: Doorbell - person detected
+description: Critical notification with a snapshot when Frigate sees a person at the door.
+triggers:
+  - trigger: state
+    entity_id: binary_sensor.doorbell_person_occupancy
+    from: "off"
+    to: "on"
+    for:
+      seconds: 3
+conditions:
+  # OPTIONAL. Delete this whole block to be notified every time. It exists so the phone only
+  # buzzes when nobody is home, or when the alarm is armed; `alarm_control_panel.home_alarm`
+  # is only an example — plenty of installations have no alarm entity at all.
+  - condition: or
+    conditions:
+      - condition: template
+        value_template: >
+          {{ states('person.user_1') != 'home' and states('person.user_2') != 'home' }}
+      - condition: state
+        entity_id: alarm_control_panel.home_alarm
+        state:
+          - armed_away
+          - armed_home
+actions:
+  - action: notify.mobile_app_user_1
+    data:
+      title: Someone at the door
+      message: A person was detected at the door.
+      data:
+        image: /api/image_proxy/image.doorbell_person
+        push:
+          sound:
+            name: default
+            critical: 1
+            volume: 1
+  - action: notify.mobile_app_user_2
+    data:
+      title: Someone at the door
+      message: A person was detected at the door.
+      data:
+        image: /api/image_proxy/image.doorbell_person
+        push:
+          sound:
+            name: default
+            critical: 1
+            volume: 1
+mode: single
+```
+
+#### What this buys, and what it costs
+
+The point is the battery: the camera streams for a minute or two per event instead of
+permanently. Everything below is the price, stated up front.
+
+- **The notification is 25-60 seconds late, and that is a floor, not a tuning problem.** The
+  official EZVIZ integration polls the cloud every 30 s, and its motion sensor is really
+  "an alarm arrived within the last 60 s" rather than "motion is happening now". Add Frigate's
+  own start-up (its watchdog checks the enabled flag every `ffmpeg.retry_interval`, 10 s by
+  default) and the few seconds this add-on needs to open the cloud session and fill FFmpeg's
+  probe. **You capture the tail of an event, not its beginning**: whoever rang is still there;
+  whoever walked past is already gone.
+- **A Frigate restart leaves the camera enabled.** Up to Frigate 0.17 the runtime enabled state
+  is not remembered, so a restarted Frigate comes back with the camera enabled and starts
+  consuming again. This example does not cover that — the next motion cycle turns it off, which
+  may be hours away. If that matters to you, add a third trigger on the MQTT topic
+  `frigate/available` with payload `online` and publish `OFF`.
+- **`person_occupancy` can be left stale.** If the camera is disabled while a person is still
+  tracked — someone standing still stops producing motion long before they leave — Frigate stops
+  updating the topic and the sensor keeps its last value until frames flow again. The `off → on`
+  edge of the next event can then be missed. A trigger on the MQTT topic `frigate/events`
+  filtering `type: new` and `label: person` is immune to this, at the cost of a template.
+- **The live view is a separate consumer.** go2rtc is a different process and knows nothing
+  about the `enabled` flag, so opening the Frigate live view — or a dashboard card that streams
+  — wakes the camera regardless of these automations, for as long as the page is open. That is
+  not a fault to compensate for in an automation; it is worth knowing before leaving a tab open.
+
 ### Seeing who is connected
 
 The add-on logs every HTTP connection with an id, its source address and User-Agent, and the
