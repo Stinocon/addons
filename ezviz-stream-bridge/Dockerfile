@@ -20,9 +20,11 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # compile Rust and C from source on every architecture.
 
 ARG BUILD_ARCH=aarch64
-# Pinned, not floating: the service below depends on the flags of `pyezvizapi stream proxy`,
-# and the assertions further down check they are still there. A surprise rename would
-# otherwise turn into an add-on that restarts forever with an argparse error.
+# Pinned, not floating: since bridge 0.1.3 the session is driven through
+# `open_cloud_stream(socket_factory=...)` and `iter_packets(include_control=True)`, which is
+# what lets a session be cancelled while the camera is silent. The assertions further down
+# check both are still there, because losing either would not fail at build time -- it would
+# fail as a cloud session nobody can close, on a battery.
 ARG PYEZVIZAPI_VERSION="1.0.5.0"
 ARG BRIDGE_REF="main"
 
@@ -85,8 +87,16 @@ RUN \
     ezviz-stream-bridge --help > /dev/null \
     && python3 -c "import ezviz_stream_bridge; print(ezviz_stream_bridge.__version__)" \
     && python3 -m ezviz_stream_bridge.proxy --help > /dev/null \
+    && python3 -m ezviz_stream_bridge.proxy --help | grep -q -- --first-video-timeout \
     && ffmpeg -hide_banner -version > /dev/null \
-    && python3 -c "from pyezvizapi.cloud_stream import copy_cloud_stream_to_mpegts" \
+    && python3 -c "from pyezvizapi.cloud_stream import open_cloud_stream" \
+    && python3 -c "from pyezvizapi.stream import VtmChannel" \
+    && python3 -c "\
+import inspect; \
+from pyezvizapi.cloud_stream import open_cloud_stream; \
+from pyezvizapi.stream import VtmStreamClient; \
+assert 'socket_factory' in inspect.signature(open_cloud_stream).parameters; \
+assert 'include_control' in inspect.signature(VtmStreamClient.iter_packets).parameters" \
     && python3 -c "from pyezvizapi.client import EzvizClient"
 
 COPY rootfs /
