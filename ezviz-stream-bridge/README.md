@@ -54,13 +54,18 @@ upload, so an always-on consumer means an always-encoding camera. On a 4600 mAh 
 is roughly **hours of battery, not months** — the standby figure on the box assumes the radio
 is asleep almost all the time.
 
-So do not leave `detect` on permanently. But you can switch it on for the moment that matters,
-which is what you actually want:
+So do not leave the camera enabled in Frigate permanently. But you can switch it on for the
+moment that matters, which is what you actually want:
 
 1. The doorbell or PIR event arrives in Home Assistant through the EZVIZ integration.
-2. An automation publishes `ON` to `frigate/<camera>/detect/set`, and to
-   `frigate/<camera>/recordings/set` if you want the clip.
+2. An automation publishes `ON` to `frigate/<camera>/enabled/set`.
 3. After a minute or so, the same automation publishes `OFF`.
+
+**Use `enabled`, not `detect`.** Verified against Frigate 0.16–0.18: `detect`, `recordings` and
+`snapshots` change what Frigate does with the frames it already has, not whether FFmpeg keeps
+pulling them — only `enabled` stops the consumer, and it does not exist before Frigate 0.16.
+Note too that go2rtc is a separate process which knows nothing about that flag: any live view
+— the Frigate UI, a dashboard card — opens a consumer of its own regardless.
 
 Two measured numbers to set expectations, taken through this add-on on a CP4:
 
@@ -139,11 +144,12 @@ go2rtc:
 
 This is the setting that decides whether the camera lasts months or days. **Every consumer that
 stays connected keeps a cloud session open and the camera encoding**, and the add-on faithfully
-serves whoever connects — it never generates traffic on its own. So a Frigate input with a
-`record` role, or `detect` left enabled, is a 24/7 consumer that never lets the camera sleep.
+serves whoever connects — it never generates traffic on its own. A camera left enabled in
+Frigate is exactly that consumer: its FFmpeg pulls the stream continuously for as long as the
+camera is enabled, whatever `detect` is set to. A `record` role adds a second one.
 
-For a battery doorbell, give the input **no always-on role**, and switch detection on only for
-the length of an event, driven by the camera's own motion sensor:
+For a battery doorbell, give the input a single `detect` role, no `record` role, and switch the
+whole camera on only for the length of an event, driven by the camera's own motion sensor:
 
 ```yaml
 cameras:
@@ -151,17 +157,24 @@ cameras:
     ffmpeg:
       inputs:
         - path: rtsp://127.0.0.1:8554/doorbell
-          roles: [detect]
+          roles: [detect]     # no record role: that would be a second permanent consumer
     detect:
-      enabled: false     # turned on via MQTT frigate/doorbell/detect/set on a motion event
+      enabled: true           # decides what Frigate does with the frames, not whether it pulls
     record:
-      enabled: false     # turned on via MQTT frigate/doorbell/recordings/set, if you want a clip
+      enabled: false
 ```
 
-An automation flips `detect`/`record` ON when `binary_sensor.<doorbell>_motion` fires and OFF a
-minute later. Note the numbers, measured through the add-on: ~4 s to the first byte, first
-keyframe ~1.5 s in, keyframes every 4 s — so an event-gated recording starts mid-scene, six-odd
-seconds after the trigger. That is a hardware limit, not a setting.
+Note what is *not* in that snippet: `enabled: false`. Frigate records the camera's configured
+value as `enabled_in_config` at start-up and **refuses `enabled/set = ON` over MQTT for a camera
+that is disabled in the config** — setting it there would leave the switch permanently dead.
+Leave `enabled` at its default and have the automation publish `OFF` once when Home Assistant
+starts, which is also what puts the camera back to sleep after a Frigate restart: up to 0.17
+Frigate does not remember the runtime state, so a restart brings the camera back enabled.
+
+An automation flips `frigate/doorbell/enabled/set` ON when `binary_sensor.<doorbell>_motion`
+fires and OFF a minute later. Note the numbers, measured through the add-on: ~4 s to the first
+byte, first keyframe ~1.5 s in, keyframes every 4 s — so an event-gated recording starts
+mid-scene, six-odd seconds after the trigger. That is a hardware limit, not a setting.
 
 ### Seeing who is connected
 
@@ -169,16 +182,29 @@ The add-on logs every HTTP connection with an id, its source address and User-Ag
 VTM session that opens and closes with it:
 
 ```
-[HTTP] conn=7 connected from=172.30.32.1:41682 ua=Lavf/62.3.100 active=1
-[VTM]  conn=7 session opening
-[VTM]  conn=7 session closed
-[HTTP] conn=7 closed after 63.0s reason='client disconnected' active=1
+2026-08-18T09:03:04.118+02:00 [INFO] [HTTP] conn=7 connected from=172.30.32.1:41682 ua=Lavf/62.3.100 active=1
+2026-08-18T09:03:04.119+02:00 [INFO] [VTM]  conn=7 session opening
+2026-08-18T09:03:04.530+02:00 [INFO] [VTM]  conn=7 session opened after=0.412s
+2026-08-18T09:03:10.298+02:00 [INFO] [VTM]  conn=7 first-video after=6.180s
+2026-08-18T09:03:10.812+02:00 [INFO] [HTTP] conn=7 first-byte after=6.694s
+2026-08-18T09:04:13.905+02:00 [INFO] [VTM]  conn=7 session closed
+2026-08-18T09:04:13.907+02:00 [INFO] [HTTP] conn=7 closed after=69.789s reason='client disconnected' bytes=41217536 video-packets=3187 active=0
 ```
 
 `active` is how many streams are live right now. If it never drops to 0 while nobody is watching,
 a consumer still has a permanent role — the source address and `Lavf/…` User-Agent (FFmpeg,
 i.e. go2rtc) tell you which one. With everything event-gated, `active` should sit at 0 between
 events.
+
+The two timings are the ones worth reading. **`first-video`** is when the camera actually started
+sending: it measures the wake-up, and its absence means the camera never woke (the session then
+closes itself, `reason='no video'`). **`first-byte`** is when the consumer started receiving; the
+gap between the two is FFmpeg's probe, not the camera. Both timestamps carry milliseconds and an
+explicit UTC offset, so they line up directly with Frigate's, go2rtc's and Home Assistant's logs.
+
+`reason` says how a session ended: `client disconnected` (the consumer went away — noticed within
+half a second, even when no video was flowing), `no video` (the camera never woke within the
+budget), `stream ended`, `camera timeout` or `error`.
 
 ## Credits
 
