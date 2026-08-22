@@ -1,0 +1,64 @@
+name: reel2recipe cross-repo CI
+# Reel2Recipe's add-on is a contract across two repositories (AGENTS.md §11): the start-up
+# line, the three env vars, the frontend's relative calls, and the symbols the Dockerfile
+# imports. Nothing here checks that contract except the main repo's own tests (one side). This
+# workflow is the other side's guard: it fails if the pinned tag is missing, if the add-on
+# version no longer matches the main's, or if the main repo's gate is red at that tag.
+on:
+  push:
+    branches: [master]
+    paths: ["reel2recipe/**", ".github/workflows/reel2recipe-ci.yml"]
+  pull_request:
+    paths: ["reel2recipe/**"]
+
+jobs:
+  cross-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve pinned Reel2Recipe ref and add-on version
+        id: meta
+        run: |
+          REF="$(grep -E '^ARG R2R_REF=' reel2recipe/Dockerfile | sed -E 's/.*="([^"]+)"/\1/')"
+          VER="$(grep -E '^version:' reel2recipe/config.yaml | sed -E 's/version: *"?([^" ]+).*/\1/')"
+          echo "ref=$REF"
+          echo "version=$VER"
+          echo "ref=$REF" >> "$GITHUB_OUTPUT"
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+
+      - name: Pinned Reel2Recipe tag must exist upstream
+        run: |
+          git ls-remote --tags https://github.com/Stinocon/Reel2Recipe.git "${{ steps.meta.outputs.ref }}" \
+            | grep -q . \
+            && echo "tag ${{ steps.meta.outputs.ref }} found"
+        shell: bash
+
+      - name: Add-on version must equal the pinned main version
+        run: |
+          MAINVER="$(
+            curl -fsSL "https://raw.githubusercontent.com/Stinocon/Reel2Recipe/${{ steps.meta.outputs.ref }}/pyproject.toml" \
+              | grep -E '^version = ' | sed -E 's/version = "([^"]+)"/\1/'
+          )"
+          echo "add-on version: ${{ steps.meta.outputs.version }} / main version: $MAINVER"
+          if [ "$MAINVER" != "${{ steps.meta.outputs.version }}" ]; then
+            echo "::error::add-on version (${{ steps.meta.outputs.version }}) diverged from the pinned main ($MAINVER)"
+            exit 1
+          fi
+        shell: bash
+
+      - name: Clone Reel2Recipe at the pinned ref and run its gate
+        run: |
+          git clone --depth 1 --branch "${{ steps.meta.outputs.ref }}" \
+            https://github.com/Stinocon/Reel2Recipe.git /tmp/r2r
+          cd /tmp/r2r
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          export PATH="$HOME/.local/bin:$PATH"
+          ./check.sh
+
+      - name: Re-assert the add-on's contract surface locally
+        run: |
+          grep -q -- '--ollama' "reel2recipe/rootfs/etc/services.d/reel2recipe/run"          || { echo "start-up line lost --ollama"; exit 1; }
+          grep -q '^ARG R2R_REF=' "reel2recipe/Dockerfile"                                    || { echo "R2R_REF arg missing"; exit 1; }
+          grep -qE 'reel2recipe\.paths|reel2recipe\.units' "reel2recipe/Dockerfile"          || { echo "Dockerfile sanity import missing"; exit 1; }
+          echo "contract surface ok"
