@@ -54,6 +54,9 @@ jobs:
           cd /tmp/r2r
           curl -LsSf https://astral.sh/uv/install.sh | sh
           export PATH="$HOME/.local/bin:$PATH"
+          # Extras needed by tests/test_web.py (api) and by check.sh's `r2r check` step
+          # (asr/api/doc). Base+dev alone is not enough for the gate.
+          uv sync --frozen --extra api --extra asr --extra doc
           ./check.sh
 
       - name: Re-assert the add-on's contract surface locally
