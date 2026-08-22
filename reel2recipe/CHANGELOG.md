@@ -4,6 +4,19 @@
      add-on, from any country. One language, and the one that reaches the most people. The
      add-on's README is the bilingual one. -->
 
+## 1.1.0
+
+**The add-on now ships a released Reel2Recipe, and the two versions stay in step.**
+
+The Dockerfile used to clone `main` (with a cache-bust so every commit rebuilt the image):
+it always shipped the latest, but it was not a release and there was no stated mapping between
+Reel2Recipe's version and the add-on's. It now clones the **v1.1.0 tag** and the add-on version
+is `1.1.0` — the same number the Python project declares. A CI workflow
+(`.github/workflows/reel2recipe-ci.yml`) now guards the cross-repo contract: it fails if the
+pinned tag is missing, if this version drifts from the pinned main, or if Reel2Recipe's own
+`check.sh` gate is red at that tag. Everything else is unchanged: all-local, no paid AI, the
+model still comes from Ollama inside the add-on.
+
 ## 1.0.6
 
 **Amounts are written the way your language writes them, and the unit tables are finally
