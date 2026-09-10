@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.1.4
+
+- **A camera timeout no longer wakes the camera straight back up.** When a session ended
+  because the camera went offline mid-stream, the consumer (FFmpeg through go2rtc) reconnected
+  instantly and the bridge served the new GET immediately — waking the camera again seconds
+  after it had just fallen asleep. On a battery doorbell that loop is what triples the drain:
+  the camera never gets a real sleep. The bridge now arms a cooldown when a session ends with
+  `camera timeout`: the next session is withheld for `--timeout-cooldown` (30 s by default, `0`
+  disables it) before a VTM session is opened, and the wait ends early if the consumer goes
+  away. The deadline is fixed in time, so a reconnect loop cannot wake the camera more often
+  than once per cooldown. "No client, no VTM" is unchanged: the cooldown is a pause between
+  inbound requests, never a request the bridge originates.
+- The closing connection now logs `camera went offline mid-stream; next wake delayed …` when the
+  cooldown arms, so the delay can be lined up with Frigate, go2rtc and Home Assistant logs.
+
 ## 0.1.3
 
 - **A stream session can no longer outlive the consumer that asked for it.** The bridge used to

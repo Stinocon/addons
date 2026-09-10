@@ -359,7 +359,11 @@ explicit UTC offset, so they line up directly with Frigate's, go2rtc's and Home 
 
 `reason` says how a session ended: `client disconnected` (the consumer went away — noticed within
 half a second, even when no video was flowing), `no video` (the camera never woke within the
-budget), `stream ended`, `camera timeout` or `error`.
+budget), `stream ended`, `camera timeout` or `error`. A `camera timeout` — the camera went
+offline mid-stream — also arms a 30 s cooldown before the next session may open, so a reconnect
+loop in the consumer cannot wake the camera straight back up; the log announces it with
+`next wake delayed …`, the wait ends early if the consumer leaves, and `--timeout-cooldown` tunes
+it (`0` disables it).
 
 ## Credits
 
