@@ -20,6 +20,12 @@ init: false
 # no NAT in between. See the SECURITY section in README.md.
 host_network: true
 
+# The bridge state (LG OAuth tokens) is a bearer credential for the whole account, so it stays
+# out of backups. The CA key/cert are KEPT in backups on purpose: they are the trust anchor the
+# appliance was provisioned with, and losing them would force a re-provisioning.
+backup_exclude:
+  - state/
+
 # The ports are OPTIONS, not network mappings. This add-on deliberately does not use the
 # Supervisor API (earlier rethink builds hit persistent "403 forbidden / no token" failures on
 # host_network installs), so run.sh reads /data/options.json directly with jq and the ports
