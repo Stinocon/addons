@@ -1,0 +1,75 @@
+name: "rethink-cloud — LG Dishwasher"
+slug: rethink_dishwasher
+version: "0.1.0"
+description: >-
+  Local LG ThinQ cloud emulator (a rethink fork) with LG dishwasher support, so
+  your LG appliances talk to Home Assistant instead of LG's servers — no cloud,
+  no LG app.
+url: https://github.com/Stinocon/addons/tree/master/rethink-dishwasher
+arch:
+  - aarch64
+  - amd64
+startup: services
+boot: auto
+init: false
+
+# host_network is REQUIRED for the port invariant. rethink uses each port value BOTH to bind a
+# listener AND to advertise it to the appliance during provisioning (the device is told
+# `ssl://<hostname>:<mqtts_port>` and `https://<hostname>:<https_port>`). On the host network
+# the port the add-on binds is the port reachable on the LAN is the port told to the device —
+# no NAT in between. See the SECURITY section in README.md.
+host_network: true
+
+# The ports are OPTIONS, not network mappings. This add-on deliberately does not use the
+# Supervisor API (earlier rethink builds hit persistent "403 forbidden / no token" failures on
+# host_network installs), so run.sh reads /data/options.json directly with jq and the ports
+# cannot be read back from the Network panel.
+options:
+  # The name rethink advertises to the appliance and uses for its own TLS certificate. It MUST
+  # be a real DNS name the appliance can resolve — NOT mDNS / `.local`, the appliance modem has
+  # no mDNS resolver. Add a static DNS entry on your router (e.g. `rethink.lan -> <HA host>`).
+  hostname: rethink.lan
+  # Where rethink publishes translated state for Home Assistant. `localhost:1883` is the
+  # Mosquitto add-on on the same host. Leave mqtt_user/mqtt_pass empty when Mosquitto has no
+  # auth (default on a local install).
+  mqtt_url: "mqtt://localhost:1883"
+  mqtt_user: ""
+  mqtt_pass: ""
+  discovery_prefix: homeassistant
+  rethink_prefix: rethink
+  # The appliance bootstraps against common.lgthinq.com:443. If 443 is free on your HA host,
+  # set https_port to 443 and point the DNS at the host directly; otherwise keep 4433 and add a
+  # one-time 443->4433 redirect (see README).
+  https_port: 4433
+  # 18884/1885 instead of rethink's upstream 8884/1884: those collide with the ports the
+  # Mosquitto add-on publishes on the host. The device is told these values, so nothing else
+  # changes.
+  mqtts_port: 18884
+  mqtt_port: 1885
+  thinq1_https_port: 46030
+  thinq1_port: 47878
+  management_port: 44401
+  log_level:
+    - status
+    - incoming
+    - HTTPS
+    - publish
+    - MGMT
+
+schema:
+  hostname: str
+  mqtt_url: str
+  mqtt_user: str?
+  mqtt_pass: password?
+  discovery_prefix: str
+  rethink_prefix: str
+  https_port: int(1,65535)
+  mqtts_port: int(1,65535)
+  mqtt_port: int(1,65535)
+  thinq1_https_port: int(1,65535)
+  thinq1_port: int(1,65535)
+  management_port: int(1,65535)
+  log_level:
+    - "list(status|incoming|HTTPS|publish|MGMT)"
+
+image: stfncntr/{arch}-addon-rethink-dishwasher
