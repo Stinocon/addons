@@ -37,8 +37,12 @@ fi
 
 # get <key> <default> — read a scalar option, falling back to <default> when the key is absent
 # or null. (Empty strings are preserved.)
+#
+# Uses `has($k) and .[$k] != null` instead of jq's `// $d`: the `//` operator also substitutes
+# `false`, which would silently turn an explicit boolean option into its default. No boolean
+# options exist today, but the trap is not worth leaving for the day one is added.
 get() {
-    jq -r --arg k "${1}" --arg d "${2}" '.[$k] // $d' "${OPTIONS}"
+    jq -r --arg k "${1}" --arg d "${2}" 'if has($k) and (.[$k] != null) then .[$k] else $d end' "${OPTIONS}"
 }
 
 HOSTNAME="$(get hostname rethink.lan)"
