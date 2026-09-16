@@ -6,6 +6,9 @@ contact_links:
   - name: Reel2Recipe — the application itself
     url: https://github.com/Stinocon/Reel2Recipe/issues
     about: Recipe extraction, transcription, conversions, the web interface, exports.
+  - name: rethink-cloud — the application itself
+    url: https://github.com/Stinocon/rethink-dishwasher/issues
+    about: Provisioning, the dishwasher definition, entity decoding — anything the server does.
   - name: EZVIZ Stream Bridge — the application itself
     url: https://github.com/Stinocon/ezviz-stream-bridge/issues
     about: Login and session handling, proxy restarts, stream contents, camera compatibility.
