@@ -1,0 +1,53 @@
+name: rethink-cloud — LG Dishwasher — add-on issue
+description: Installing, configuring or starting the add-on. For the server or the dishwasher behaviour, use the links below instead.
+labels: ["rethink-dishwasher"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this only if the problem is in the **add-on packaging**: it will not install or
+        start, an option is rejected, a port is not reachable. Anything about the server or the
+        dishwasher behaviour — provisioning, decoding, entities — belongs in
+        [Stinocon/rethink-dishwasher](https://github.com/Stinocon/rethink-dishwasher/issues).
+
+        The dishwasher definition is a **scaffold**: field decoding is not implemented yet.
+        Missing entities or wrong values are therefore expected at this stage, not bugs.
+  - type: textarea
+    id: issue
+    attributes:
+      label: Description of the issue
+      description: What you expected, what happened instead, and how to reproduce it.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Add-on version
+      description: As shown in the add-on page in Home Assistant.
+      placeholder: '0.1.0'
+    validations:
+      required: true
+  - type: input
+    id: appliance
+    attributes:
+      label: Appliance model
+      description: The LG dishwasher model (e.g. DB365TXS). Do not post the device ID, the MAC address or the LG account email.
+      placeholder: "DB365TXS"
+    validations:
+      required: false
+  - type: textarea
+    id: platform
+    attributes:
+      label: Home Assistant version
+      description: From Settings → System → Repairs → system information.
+      placeholder: "Core: core-2026.7.0\nSupervisor: supervisor-2026.06.2\nOperating System: HAOS 15.1"
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Add-on log
+      description: "From the add-on's Log tab. Redact any device identifier or account data before pasting."
+      render: shell
+    validations:
+      required: false

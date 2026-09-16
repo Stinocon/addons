@@ -16,6 +16,7 @@ No add-on here vendors the application it runs; each fetches it at build time.
 |---|---|---|
 | `ialarm-mqtt/` | [Stinocon/ialarm-mqtt](https://github.com/Stinocon/ialarm-mqtt), a fork of [maxill1/ialarm-mqtt](https://github.com/maxill1/ialarm-mqtt) | MIT, © 2019 Luca Mazzilli — the notice travels with every image that installs it |
 | `reel2recipe/` | [Stinocon/Reel2Recipe](https://github.com/Stinocon/Reel2Recipe) | MIT — dependency attributions in its [`NOTICE.md`](https://github.com/Stinocon/Reel2Recipe/blob/main/NOTICE.md) |
+| `rethink-dishwasher/` | [Stinocon/rethink-dishwasher](https://github.com/Stinocon/rethink-dishwasher), a fork of [anszom/rethink](https://github.com/anszom/rethink) | GPL-2.0 — the notice travels with every image that installs it |
 
 ## Artwork
 

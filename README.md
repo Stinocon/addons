@@ -26,6 +26,7 @@ Install whichever you need: they are independent, and none requires another.
 | **[iAlarm MQTT Bridge](ialarm-mqtt/)** | Bridges an iAlarm / Meian / Focus alarm panel to Home Assistant over MQTT, with clean entity naming and a working discovery | `amd64`, `aarch64` | see [`config.yaml`](ialarm-mqtt/config.yaml) |
 | **[Reel2Recipe](reel2recipe/)** | Extracts recipes from cooking reels and exports them to Mela; Whisper and the LLM run inside the add-on | `amd64` only | see [`config.yaml`](reel2recipe/config.yaml) |
 | **[EZVIZ Stream Bridge](ezviz-stream-bridge/)** | Serves EZVIZ camera video as MPEG-TS over HTTP, for go2rtc and Frigate, on cameras that expose no RTSP | `amd64`, `aarch64` | see [`config.yaml`](ezviz-stream-bridge/config.yaml) |
+| **[rethink-cloud — LG Dishwasher](rethink-dishwasher/)** | Local LG ThinQ cloud emulator (a rethink fork) with LG dishwasher support, so the appliance talks to Home Assistant without LG's cloud or app | `amd64`, `aarch64` | see [`config.yaml`](rethink-dishwasher/config.yaml) |
 
 ### iAlarm MQTT Bridge
 
@@ -76,6 +77,21 @@ Details and options: **[`ezviz-stream-bridge/README.md`](ezviz-stream-bridge/REA
 [application source](https://github.com/Stinocon/ezviz-stream-bridge) ·
 [why there is no local stream](https://github.com/Stinocon/ezviz-stream-bridge/blob/main/docs/investigation.md)
 
+### rethink-cloud — LG Dishwasher
+
+Runs a local reimplementation of LG's ThinQ cloud so an LG dishwasher talks to Home Assistant
+directly — no LG account, no LG app, the data stays on the LAN. Built from a
+[rethink](https://github.com/anszom/rethink) fork that adds the dishwasher definition.
+
+**Dishwasher support is a scaffold**: the model is registered and the target entities are
+exposed, but the field decoding is still being written against live captures. The rest of
+rethink (ACs, washers, dryers, fridges, …) works as upstream.
+
+Details, options, provisioning and the one-time Mikrotik bootstrap:
+**[`rethink-dishwasher/README.md`](rethink-dishwasher/README.md)** ·
+[changelog](rethink-dishwasher/CHANGELOG.md) ·
+[application source](https://github.com/Stinocon/rethink-dishwasher)
+
 ## Repository layout
 
 ```
@@ -104,6 +120,7 @@ multi-add-on repository would rebuild the one that had nothing to do with it.
 | `ialarm-mqtt` | `addon-v<version>` (e.g. `addon-v1.2.2`) | [`publish-ialarm-mqtt.yml`](.github/workflows/publish-ialarm-mqtt.yml) |
 | `reel2recipe` | `reel2recipe-<version>` (e.g. `reel2recipe-1.0.0`) | [`publish-reel2recipe.yml`](.github/workflows/publish-reel2recipe.yml) |
 | `ezviz-stream-bridge` | `ezviz-stream-bridge-<version>` (e.g. `ezviz-stream-bridge-0.1.0`) | [`publish-ezviz-stream-bridge.yml`](.github/workflows/publish-ezviz-stream-bridge.yml) |
+| `rethink-dishwasher` | `rethink-dishwasher-<version>` (e.g. `rethink-dishwasher-0.1.0`) | [`publish-rethink-dishwasher.yml`](.github/workflows/publish-rethink-dishwasher.yml) |
 
 The tag must be pushed **after** `config.yaml` carries the matching `version:` — the workflow
 reads the version from `config.yaml`, not from the tag name, and tags the image with it.
