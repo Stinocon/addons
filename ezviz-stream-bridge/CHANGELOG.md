@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.5
+
+- **A stream that produces nothing can now be diagnosed, not guessed at.** FFmpeg's stderr was
+  discarded, so when a camera sent video packets but no MPEG-TS came out (`bytes=0` in the
+  connection log) there was no way to see why. Set `log_ffmpeg_stderr: true` and FFmpeg runs at
+  `info` with its stderr logged, bounded to 20 lines and then a single suppression notice — the
+  pipe is still drained, so FFmpeg cannot block on a full buffer. The same flag logs the detected
+  payload transport (MPEG-PS, MPEG-TS, RTP or unknown) of the first video packets, which tells a
+  framing mismatch apart from an encrypted-stream problem. Off by default: nothing changes unless
+  it is turned on.
+
 ## 0.1.4
 
 - **A camera timeout no longer wakes the camera straight back up.** When a session ended

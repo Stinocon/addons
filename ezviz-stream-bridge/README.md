@@ -91,6 +91,7 @@ cameras:
   - serial: BB1234567             # the device serial — see "Finding the serial" below
     port: 8558
 log_level: info
+log_ffmpeg_stderr: false          # true = log FFmpeg's own stderr when a stream produces no output
 ```
 
 Up to five cameras, on ports 8558-8562, one port each.
@@ -364,6 +365,12 @@ offline mid-stream — also arms a 30 s cooldown before the next session may ope
 loop in the consumer cannot wake the camera straight back up; the log announces it with
 `next wake delayed …`, the wait ends early if the consumer leaves, and `--timeout-cooldown` tunes
 it (`0` disables it).
+
+If a camera sends video but the consumer receives nothing — `first-video` appears and `bytes`
+stays 0 — set `log_ffmpeg_stderr: true`. FFmpeg's own diagnostics are then logged, bounded to 20
+lines and then a single suppression notice, instead of being discarded, together with the
+detected payload transport (MPEG-PS, MPEG-TS, RTP or unknown) of the first video packets. That
+is what distinguishes a framing mismatch from an encrypted-stream problem.
 
 ## Credits
 

@@ -1,6 +1,6 @@
 name: "EZVIZ Stream Bridge"
 url: https://github.com/Stinocon/addons/tree/master/ezviz-stream-bridge
-version: "0.1.4"
+version: "0.1.5"
 slug: ezviz_stream_bridge
 description: "Serves EZVIZ camera video as MPEG-TS over HTTP, so go2rtc and Frigate can use cameras that expose no RTSP."
 
@@ -48,6 +48,7 @@ options:
     - serial: ""
       port: 8558
   log_level: info
+  log_ffmpeg_stderr: false
 
 schema:
   username: str
@@ -59,5 +60,6 @@ schema:
     - serial: str
       port: int(8558,8562)?
   log_level: list(trace|debug|info|notice|warning|error|fatal)
+  log_ffmpeg_stderr: bool
 
 image: stfncntr/{arch}-addon-ezviz-stream-bridge
