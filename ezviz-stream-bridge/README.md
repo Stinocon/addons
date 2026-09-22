@@ -3,6 +3,10 @@
 Serves the video from an EZVIZ camera as MPEG-TS over HTTP, so go2rtc, Frigate, or anything
 else that speaks FFmpeg can use a camera that offers no RTSP.
 
+> **Read this first.** A personal project, published as is and with no warranty: it is not a
+> finished product nor a commercial one, and it will not become either. It was written in large
+> part with an AI assistant, under human guidance and review.
+
 ## What this is for, and what it is not
 
 Some EZVIZ devices — the video door viewers and several battery models — have no local video
