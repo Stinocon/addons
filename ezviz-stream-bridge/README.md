@@ -373,8 +373,10 @@ it (`0` disables it).
 If a camera sends video but the consumer receives nothing — `first-video` appears and `bytes`
 stays 0 — set `log_ffmpeg_stderr: true`. FFmpeg's own diagnostics are then logged, bounded to 20
 lines and then a single suppression notice, instead of being discarded, together with the
-detected payload transport (MPEG-PS, MPEG-TS, RTP or unknown) of the first video packets. That
-is what distinguishes a framing mismatch from an encrypted-stream problem.
+detected payload transport (MPEG-PS, MPEG-TS, RTP or unknown) of the leading payload and the
+offset its signature sits at. The sniff buffers across VTM packets, so a packet boundary cannot
+hide an MPEG-PS or MPEG-TS signature. That is what distinguishes a framing mismatch from an
+encrypted stream.
 
 ## Credits
 

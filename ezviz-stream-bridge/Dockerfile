@@ -88,6 +88,7 @@ RUN \
     && python3 -c "import ezviz_stream_bridge; print(ezviz_stream_bridge.__version__)" \
     && python3 -m ezviz_stream_bridge.proxy --help > /dev/null \
     && python3 -m ezviz_stream_bridge.proxy --help | grep -q -- --first-video-timeout \
+    && python3 -m ezviz_stream_bridge.proxy --help | grep -q -- --log-ffmpeg-stderr \
     && ffmpeg -hide_banner -version > /dev/null \
     && python3 -c "from pyezvizapi.cloud_stream import open_cloud_stream" \
     && python3 -c "from pyezvizapi.stream import VtmChannel" \

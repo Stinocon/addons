@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.6
+
+- **The transport sniff no longer misreads a packet boundary as a fault.** The 0.1.5 diagnostic
+  classified each of the first video packets on its own first byte. VTM packets are arbitrary
+  chunks of the MPEG-PS byte stream, so a packet starting mid-pack handed the check a mid-stream
+  byte that read as `RTP` or `UNKNOWN` — which looks like a framing mismatch on a stream that is
+  perfectly fine. The sniff now buffers a bounded prefix and scans it for a real signature (the
+  MPEG-PS pack start code, the MPEG-TS sync grid), reporting the transport and the offset the
+  signature sits at. It logs once, and it no longer depends on where the packet boundaries fell.
+
 ## 0.1.5
 
 - **A stream that produces nothing can now be diagnosed, not guessed at.** FFmpeg's stderr was
