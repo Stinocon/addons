@@ -101,7 +101,8 @@ Details, options, provisioning and the one-time Mikrotik bootstrap:
                  and the two are updated together or one of them starts lying
 repository.json  what Home Assistant reads to list this repository
 docs/brand/      the banner at the top of this README
-.github/         one issue template and one publish workflow per add-on
+.github/         one issue template and one publish workflow per add-on, and the release
+                 guards (a config.yaml version without its tag is a broken release)
 ```
 
 Each add-on is self-contained: its version, supported architectures, published image and
@@ -124,6 +125,14 @@ multi-add-on repository would rebuild the one that had nothing to do with it.
 
 The tag must be pushed **after** `config.yaml` carries the matching `version:` — the workflow
 reads the version from `config.yaml`, not from the tag name, and tags the image with it.
+
+A version without its tag is a release that never happened: the repository advertises it and
+Home Assistant fails on a machine that cannot install the missing image. A guard workflow
+([`guard-ezviz-stream-bridge-release.yml`](.github/workflows/guard-ezviz-stream-bridge-release.yml))
+fails any push to `ezviz-stream-bridge/config.yaml` whose declared version has no matching tag,
+so the mistake surfaces in CI rather than in somebody's update dialog. Push the branch and the
+tag together to keep it green. The same guard can be copied for another add-on, with `addon=` and
+the tag pattern adjusted to that add-on's.
 
 Pull requests and pushes touching `ialarm-mqtt/` or `ezviz-stream-bridge/` also get a no-push
 test build ([`test-ialarm-mqtt.yml`](.github/workflows/test-ialarm-mqtt.yml),

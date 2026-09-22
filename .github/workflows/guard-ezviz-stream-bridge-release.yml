@@ -1,0 +1,53 @@
+name: "Guard ezviz-stream-bridge release"
+
+# Why this exists: config.yaml was bumped to a new version and pushed without the tag that
+# publishes the image. The repository then advertised a version whose image did not exist, and
+# Home Assistant refused the update with an unhelpful "unknown error" -- nothing failed in CI,
+# the failure only appeared on a user's machine. The tag is what publishes; a version without
+# its tag is an incomplete release, and this check says so.
+#
+# Push the branch and the tag in the same operation to keep it green:
+#   git push origin master ezviz-stream-bridge-<version>
+on:
+  push:
+    branches:
+      - master
+    paths:
+      # Only a version change can create the problem. A README or a Dockerfile edit cannot.
+      - 'ezviz-stream-bridge/config.yaml'
+      - '.github/workflows/guard-ezviz-stream-bridge-release.yml'
+    # Path filters are not evaluated for pushes of tags, so pushing the tag runs this too --
+    # the green confirmation that the tag has landed and the release is complete.
+    tags:
+      - 'ezviz-stream-bridge-*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  version-has-a-tag:
+    name: config.yaml version has its publish tag
+    runs-on: ubuntu-latest
+    steps:
+      # Full history and tags: the check reads the tag, which a shallow, tag-less checkout
+      # would not have, and would then report a false failure.
+      - name: Checkout with tags
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Fail if the declared version has no tag
+        run: |
+          set -euo pipefail
+          addon=ezviz-stream-bridge
+          version=$(yq e '.version' "${addon}/config.yaml")
+          tag="${addon}-${version}"
+          if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
+              echo "OK: ${tag} exists."
+              exit 0
+          fi
+          echo "::error::${addon}/config.yaml declares version ${version}, but tag '${tag}' does not exist. The tag publishes the image, so Home Assistant would advertise a version it cannot install."
+          echo "Push the branch and the tag together:"
+          echo "  git tag ${tag} && git push origin master ${tag}"
+          exit 1
