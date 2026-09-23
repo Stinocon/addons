@@ -44,7 +44,6 @@ sudo=()
 "${sudo[@]}" cp "${bin}"/*.sh "${installed}/"
 "${sudo[@]}" chmod a+x "${installed}"/*.sh
 [[ "${EUID}" -eq 0 ]] || sudo chown "$(id -u):$(id -g)" "${data}"
-[[ "${EUID}" -eq 0 ]] && touch "${data}/.writable" || true
 if [[ ! -w "${data}" ]]; then
     echo "cannot write ${data}" >&2
     exit 1
