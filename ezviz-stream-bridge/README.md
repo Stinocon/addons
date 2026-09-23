@@ -71,12 +71,14 @@ pulling them — only `enabled` stops the consumer, and it does not exist before
 Note too that go2rtc is a separate process which knows nothing about that flag: any live view
 — the Frigate UI, a dashboard card — opens a consumer of its own regardless.
 
-Two measured numbers to set expectations, taken through this add-on on a CP4:
+Two measured numbers to set expectations, taken through this add-on on a CP4 over ten sessions
+on 2026-09-23:
 
-- **~4.3 s to the first byte**, and the first keyframe 1.4 s into the stream: call it **six
-  seconds from the request to a decodable frame.** Whoever rang is still there, but the
-  approach that triggered the event is already over. Event-gated recording on this hardware
-  starts mid-scene; it cannot start before.
+- **6–10 s from the request to the first byte**, and it is worth knowing which half is which. The
+  wake-up — the camera starting to send — is the variable part: **0.8–4.8 s**, typically about
+  one. FFmpeg identifying the stream is the fixed part: **≈5.2 s**, within 60 ms across those ten
+  sessions. Whoever rang is still there, but the approach that triggered the event is already
+  over. Event-gated recording on this hardware starts mid-scene; it cannot start before.
 - **Keyframes every 4 s**, so Frigate's clips are cut on a 4-second grid.
 
 There is no substream: detection runs on the full 1728×1080 HEVC feed, which costs more CPU
@@ -178,9 +180,10 @@ starts, which is also what puts the camera back to sleep after a Frigate restart
 Frigate does not remember the runtime state, so a restart brings the camera back enabled.
 
 An automation flips `frigate/doorbell/enabled/set` ON when `binary_sensor.<doorbell>_motion`
-fires and OFF a minute later. Note the numbers, measured through the add-on: ~4 s to the first
-byte, first keyframe ~1.5 s in, keyframes every 4 s — so an event-gated recording starts
-mid-scene, six-odd seconds after the trigger. That is a hardware limit, not a setting.
+fires and OFF a minute later. Note the numbers, measured through the add-on: 6–10 s to the first
+byte, of which 0.8–4.8 s is the camera waking and ≈5.2 s is FFmpeg identifying the stream;
+keyframes every 4 s — so an event-gated recording starts mid-scene, six to ten seconds after the
+trigger. That is a hardware limit, not a setting.
 
 ### Event-gated in practice: two Home Assistant automations
 
@@ -362,6 +365,11 @@ sending: it measures the wake-up, and its absence means the camera never woke (t
 closes itself, `reason='no video'`). **`first-byte`** is when the consumer started receiving; the
 gap between the two is FFmpeg's probe, not the camera. Both timestamps carry milliseconds and an
 explicit UTC offset, so they line up directly with Frigate's, go2rtc's and Home Assistant's logs.
+
+The capture above is from 2026-08-18 and its numbers are not today's: the wake-up was slower then
+(6.2 s) and the gap much shorter (0.5 s, against the ≈5.2 s measured on 2026-09-23). The wake-up
+varies with the camera and the cloud; what made the gap differ between August and September is
+not known.
 
 `reason` says how a session ended: `client disconnected` (the consumer went away — noticed within
 half a second, even when no video was flowing), `no video` (the camera never woke within the
