@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.1.9
+
+- **What a discarded RTP payload type carried is now reported, not only counted.** One RTP
+  session can carry more than one payload type — a `CS-C8c` sends its metadata next to its video
+  — and the count of the packets skipped says how much was discarded and nothing about what it
+  was, because a second media stream and more of the camera's own metadata are the same number.
+  A session that carried a second type now logs, per type, how many packets it saw, how many of
+  them carried media at all, and the size range of those payloads. It is the difference between a
+  stream that is mute because the camera sent nothing and one that is mute because part of what
+  it sent was dropped on the floor.
+- **With `log_ffmpeg_stderr: true`, the diagnosis names the codec.** The first bytes of each
+  payload type's first media packet are printed, and the RTP header line now carries the SSRC:
+  two payload types can share one synchronisation source and still number their packets
+  separately, which is what a second sender on one RTP session looks like. Up to six payload
+  types are printed, with a count of any beyond that.
+- Nothing about the forwarded stream changes. The payload type the codec was named from is still
+  the only one depacketized, an MPEG-PS session is untouched, and the new lines appear only for a
+  session that carried a second payload type.
+
 ## 0.1.8
 
 - **A camera that sends its video as RTP now works.** Not every device on this cloud relay sends

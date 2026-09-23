@@ -402,6 +402,11 @@ computes. That last line is what says where the video actually starts and which 
 which the 24-byte head cannot: an RTP header alone is 12 bytes plus up to 60 bytes of CSRC list
 plus a variable-length extension.
 
+A session whose RTP stream carries a second payload type reports what each type carried: how
+many packets, how many of them held media at all, and the size range of those payloads. With the
+diagnostic on, the first bytes of each type's first media packet are printed too — which is what
+tells a second media stream apart from more of the camera's own metadata.
+
 ## Credits
 
 The whole EZVIZ protocol implementation is
