@@ -120,16 +120,20 @@ which is exactly what the dashboard requires.
 
 ## How it works
 
-- SBFspot is **compiled from source at image build time**, pinned to `V3.9.12` and never
-  vendored. The `nosql` build has no database: Home Assistant already records the states, and a
-  second database inside the container would be one more thing to back up and explain.
+- Two things are fetched at image build time, each pinned to a tag and never vendored: SBFspot,
+  compiled from source (`make nosql` — no database, because Home Assistant already records the
+  states and a second one inside the container would be one more thing to back up and explain),
+  and [`Stinocon/sbfspot-mqtt`](https://github.com/Stinocon/sbfspot-mqtt), the program that drives
+  it. The service scripts here do one thing the program cannot: ask the Supervisor where the MQTT
+  broker is.
 - Each poll runs `SBFspot -ad0 -am0 -finq -mqtt`: spot data only, no archive read, no CSV export,
-  no database. The values are handed to a small publisher script, which refuses anything that is
-  not a valid JSON object instead of publishing a truncated payload as a sensor that never updates
-  again — and repairs the one corruption upstream produces on its own, an empty string value such
-  as an inverter nobody named in Sunny Explorer has.
+  no database. The program receives the reading through SBFspot's own publisher hook, refuses
+  anything that is not a valid JSON object instead of publishing a truncated payload as a sensor
+  that never updates again, and repairs the one corruption upstream produces on its own — an empty
+  string value, which is what an inverter nobody named in Sunny Explorer has.
 - The broker's address and credentials come from the Supervisor's MQTT service when the options
-  leave them empty.
+  leave them empty, and reach the publisher from a mode-600 file rather than through the shell
+  string SBFspot builds.
 - Discovery is published once, retained, from the first successful reading, and republished when
   the set of keys changes — a second string waking up, a firmware update. It is also re-published
   at every start, so a changed sensor definition takes effect.
@@ -168,17 +172,17 @@ quiet flag and passes `-v5`, which is upstream's full configuration and data dum
 
 ## Credits and licence
 
-The inverter protocol is [SBFspot](https://github.com/SBFspot/SBFspot)'s work, licensed
-**CC BY-NC-SA 3.0** — attribution, non-commercial, share-alike. It is fetched and compiled at
-image build time and is not vendored here; [`NOTICE.md`](../NOTICE.md) records the attribution.
-The packaging, scripts and documentation in this directory are MIT, like the rest of this
-repository.
+What does the work is [`Stinocon/sbfspot-mqtt`](https://github.com/Stinocon/sbfspot-mqtt), pinned to
+a tag in the `Dockerfile`; it is MIT, and this directory is the packaging around it. The two are
+checked against each other in
+[`sbfspot-mqtt-ci.yml`](../.github/workflows/sbfspot-mqtt-ci.yml), which clones the pinned tag, runs
+that repository's own gate, and re-asserts the subcommands and the option names the service scripts
+call — a rename on either side fails there instead of on your machine.
 
-Everything in this directory is packaging, and this is the add-on with no application repository
-of its own: SBFspot is a third-party project, taken as released and never forked. The scripts are
-therefore tested here, in [`tests/glue.sh`](tests/glue.sh) — shellcheck plus the behaviour of the
-publisher and the discovery against a throwaway broker — and the tests run in CI on every change
-to this directory.
+The inverter protocol is [SBFspot](https://github.com/SBFspot/SBFspot)'s work, licensed
+**CC BY-NC-SA 3.0** — attribution, non-commercial, share-alike — and compiled from source at image
+build time, never forked. [`NOTICE.md`](../NOTICE.md) records what that means for anyone reusing
+this.
 
 SMA, Sunny Boy, Sunny Beam, Sunny Explorer and Webbox are registered trademarks of SMA Solar
 Technology AG. This add-on is not affiliated with or endorsed by SMA.

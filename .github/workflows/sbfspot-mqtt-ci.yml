@@ -1,0 +1,98 @@
+name: sbfspot-mqtt cross-repo CI
+
+# This add-on is a contract across two repositories: the tag the program is pinned to, the
+# subcommands the service scripts call, and the option names they hand it. The program's own
+# repository checks one side of that contract (its tests and its gate); this is the other side, and
+# it is the only place where a rename on either side is visible before a Raspberry Pi finds out.
+on:
+  push:
+    branches: [master]
+    paths: ["sbfspot-mqtt/**", ".github/workflows/sbfspot-mqtt-ci.yml"]
+  pull_request:
+    paths: ["sbfspot-mqtt/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cross-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Resolve the pinned program ref
+        id: meta
+        run: |
+          ref="$(grep -E '^ARG SBFSPOT_MQTT_REF=' sbfspot-mqtt/Dockerfile | sed -E 's/.*="([^"]+)".*/\1/')"
+          if [ -z "${ref}" ]; then echo "SBFSPOT_MQTT_REF not found in the Dockerfile" >&2; exit 1; fi
+          echo "ref=${ref}"
+          echo "ref=${ref}" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: The pin must be a tag
+        # A branch would make the image's contents depend on when it was built, which is the one
+        # thing a pinned add-on must not do.
+        run: |
+          case "${{ steps.meta.outputs.ref }}" in
+            v*) ;;
+            *) echo "::error::SBFSPOT_MQTT_REF is '${{ steps.meta.outputs.ref }}', not a tag" ; exit 1 ;;
+          esac
+        shell: bash
+
+      - name: The pinned tag must exist upstream
+        run: |
+          git ls-remote --tags https://github.com/Stinocon/sbfspot-mqtt.git "${{ steps.meta.outputs.ref }}" \
+            | grep -q . \
+            && echo "tag ${{ steps.meta.outputs.ref }} found"
+        shell: bash
+
+      - name: Clone the program at the pinned ref and run its gate
+        run: |
+          git clone --depth 1 --branch "${{ steps.meta.outputs.ref }}" \
+            https://github.com/Stinocon/sbfspot-mqtt.git /tmp/sbfspot-mqtt
+          # The broker is the package's, reconfigured to accept anonymous connections: the gate
+          # starts its own only if there is none, and the packaged unit would already hold 1883
+          # while refusing them.
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends jq mosquitto mosquitto-clients shellcheck
+          sudo mkdir -p /etc/mosquitto/conf.d
+          printf 'listener 1883 127.0.0.1\nallow_anonymous true\n' | sudo tee /etc/mosquitto/conf.d/zz-ci.conf > /dev/null
+          sudo systemctl restart mosquitto || sudo mosquitto -c /etc/mosquitto/mosquitto.conf -d
+          for _ in $(seq 1 20); do
+            if mosquitto_pub -h localhost -t smoke -m ok 2> /dev/null; then break; fi
+            sleep 1
+          done
+          cd /tmp/sbfspot-mqtt
+          ./check.sh
+
+      - name: Re-assert the contract surface
+        run: |
+          set -euo pipefail
+          run=sbfspot-mqtt/rootfs/etc/services.d/sbfspot-mqtt/run
+          finish=sbfspot-mqtt/rootfs/etc/services.d/sbfspot-mqtt/finish
+          app=/tmp/sbfspot-mqtt/bin/sbfspot-mqtt
+
+          grep -q 'exec "${APP}" watch --options "${OPTIONS}" --mqtt "${MQTT}" --sbfspot "${SBFSPOT}"' "${run}" \
+            || { echo "::error::the service no longer starts the program in watch mode"; exit 1; }
+          grep -q '/usr/bin/sbfspot-mqtt offline --mqtt /data/mqtt.json' "${finish}" \
+            || { echo "::error::the stop path no longer marks the inverter offline"; exit 1; }
+          grep -q '^ARG SBFSPOT_MQTT_REF=' sbfspot-mqtt/Dockerfile \
+            || { echo "::error::SBFSPOT_MQTT_REF is missing from the Dockerfile"; exit 1; }
+
+          for command in watch poll discover publish offline generate-config version; do
+            # The branch for a command is `name)` or `name|alias)`, so the terminator is what is
+            # matched rather than the whole line.
+            grep -qE "^ +${command}[)|]" "${app}" \
+              || { echo "::error::the program no longer has a '${command}' subcommand"; exit 1; }
+          done
+          # The read-only guarantee lives in the generated configuration, and it is the one
+          # regression here that would be invisible until somebody noticed their inverter's clock
+          # moving.
+          grep -q 'SynchTime=0' "${app}" \
+            || { echo "::error::the generated configuration no longer disables the clock write"; exit 1; }
+          echo "contract surface ok"
+        shell: bash

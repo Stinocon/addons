@@ -10,10 +10,9 @@ with it.
 
 ## What the add-ons run at runtime
 
-No add-on here vendors the application it runs; each fetches it at build time. Four of them fetch
-it from a repository of ours; `sbfspot-mqtt` fetches SBFspot from its own project, because that is
-not code to fork — which also means it is the one add-on whose packaging has no application
-repository behind it, and carries its own tests for that reason.
+No add-on here vendors the application it runs; each fetches it at build time — four from a
+repository of ours, and `sbfspot-mqtt` from SBFspot's own project, because that is not code to
+fork.
 
 | Add-on | Application | Licence |
 |---|---|---|
@@ -21,7 +20,7 @@ repository behind it, and carries its own tests for that reason.
 | `reel2recipe/` | [Stinocon/Reel2Recipe](https://github.com/Stinocon/Reel2Recipe) | MIT — dependency attributions in its [`NOTICE.md`](https://github.com/Stinocon/Reel2Recipe/blob/main/NOTICE.md) |
 | `rethink-dishwasher/` | [Stinocon/rethink-dishwasher](https://github.com/Stinocon/rethink-dishwasher), a fork of [anszom/rethink](https://github.com/anszom/rethink) | GPL-2.0 — the notice travels with every image that installs it |
 | `ezviz-stream-bridge/` | [RenierM26/pyEzvizApi](https://github.com/RenierM26/pyEzvizApi) (the EZVIZ cloud API and stream protocol) | Apache-2.0, © Renier Moorcroft |
-| `sbfspot-mqtt/` | [SBFspot/SBFspot](https://github.com/SBFspot/SBFspot) (compiled from source at image build time, pinned to a tag) | CC BY-NC-SA 3.0, © 2012-2025 SBF — the notice travels with every image that installs it |
+| `sbfspot-mqtt/` | [Stinocon/sbfspot-mqtt](https://github.com/Stinocon/sbfspot-mqtt), which in turn drives [SBFspot/SBFspot](https://github.com/SBFspot/SBFspot) | MIT for the program — and CC BY-NC-SA 3.0, © 2012-2025 SBF for SBFspot, compiled from source at image build time: the notice travels with every image that installs it |
 
 SBFspot's licence is worth a second look before reusing this add-on for anything commercial: it is
 Creative Commons, not an open source licence, and the **NonCommercial** clause forbids commercial

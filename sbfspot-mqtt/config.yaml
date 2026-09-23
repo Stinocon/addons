@@ -1,6 +1,6 @@
 name: "SBFspot MQTT bridge"
 url: https://github.com/Stinocon/addons/tree/master/sbfspot-mqtt
-version: "0.1.0"
+version: "0.2.0"
 slug: sbfspot_mqtt
 description: "Reads an SMA Sunny Boy inverter over Bluetooth with SBFspot and publishes it to Home Assistant over MQTT."
 
@@ -30,11 +30,12 @@ host_network: true
 services:
   - mqtt:want
 
-# Neither file is restored from a backup: both are rewritten at every start from the options,
-# and one of them holds the MQTT password while the other holds the inverter's.
+# The MQTT credentials are written to /data/mqtt.json at startup (mode 600) and excluded from
+# backups: a backup is a file that travels, and this one holds a password. Nothing else survives a
+# restart -- the SBFspot configuration is generated in a temporary file on every poll, because the
+# only thing it is needed for is that poll.
 backup_exclude:
   - mqtt.json
-  - SBFspot.cfg
 
 options:
   bt_address: ""

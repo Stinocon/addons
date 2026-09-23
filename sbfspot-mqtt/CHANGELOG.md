@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.2.0 - THE PROGRAM MOVES OUT
+
+- **WHAT CHANGED**: the poll loop, the configuration generator, the publisher hook and the MQTT
+  discovery are now [Stinocon/sbfspot-mqtt](https://github.com/Stinocon/sbfspot-mqtt), pinned to
+  `v0.1.1` in the Dockerfile and installed as a single executable. What stays here is the packaging:
+  the add-on options, the Supervisor's MQTT service, and two s6 scripts that start the program and
+  mark the inverter offline when it stops.
+- **WHY**: that code is not add-on-specific. It takes files and paths and needs no Home Assistant,
+  so it can be run, tested and forked on its own — which four files inside a packaging directory
+  could not be. Its tests live with it now, against a real broker, on every change.
+- **THE CONTRACT IS CHECKED FROM BOTH SIDES**: `sbfspot-mqtt-ci.yml` clones the pinned tag, runs the
+  program's own gate, and re-asserts the subcommands and the option names the service scripts call,
+  so a rename on either side fails in CI rather than on somebody's Raspberry Pi.
+- **PATHS**: SBFspot now sits in `/usr/bin/sbfspot/` with its timezone database and tag list beside
+  it, and the program at `/usr/bin/sbfspot-mqtt`. The SBFspot configuration is a temporary file per
+  poll rather than a file in `/data`, so the inverter's password no longer outlives the poll that
+  needed it.
+- **NOTHING ELSE MOVED**: the entities, the MQTT topics and the add-on options are unchanged, so an
+  update from 0.1.x keeps every entity and its history.
+
 ## 0.1.0 - FIRST RELEASE
 
 - **WHAT IT DOES**: polls an SMA Sunny Boy over Bluetooth with SBFspot and publishes the reading

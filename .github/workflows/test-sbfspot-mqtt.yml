@@ -24,7 +24,7 @@ permissions:
 
 jobs:
   scripts:
-    name: Script tests
+    name: shellcheck the service scripts
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -34,43 +34,13 @@ jobs:
         with:
           persist-credentials: false
 
-      # jq and shellcheck are already on the runner. The broker is the one the package ships,
-      # reconfigured to accept anonymous connections instead of being replaced: whichever way the
-      # runner starts services, the broker on 1883 ends up being this one. The loop is what makes
-      # a red run say "broker" rather than send a later assertion looking for the cause.
-      - name: Install jq, shellcheck and a broker
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends jq mosquitto mosquitto-clients shellcheck
-          sudo mkdir -p /etc/mosquitto/conf.d
-          printf 'listener 1883 127.0.0.1\nallow_anonymous true\n' | sudo tee /etc/mosquitto/conf.d/zz-test.conf > /dev/null
-          sudo systemctl restart mosquitto || sudo mosquitto -c /etc/mosquitto/mosquitto.conf -d
-          for _ in $(seq 1 20); do
-            if mosquitto_pub -h localhost -t smoke -m ok 2> /dev/null; then
-              echo "broker accepting anonymous connections on 1883"
-              exit 0
-            fi
-            sleep 1
-          done
-          echo "no broker on 1883 after 20 seconds; what is there:"
-          ss -lntp | grep 1883 || true
-          ps aux | grep -i '[m]osquitto' || true
-          sudo tail -30 /var/log/mosquitto/mosquitto.log || true
-          exit 1
+      # The two s6 scripts are all the shell left in this add-on, and they cannot be run outside the
+      # image. The behaviour tests moved with the program, to its own repository.
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends shellcheck
 
-      # Static, and it covers the two s6 scripts too, which cannot be run outside the image.
       - name: shellcheck
-        run: |
-          shellcheck \
-            "${ADDON_PATH}"/rootfs/etc/services.d/sbfspot-mqtt/* \
-            "${ADDON_PATH}"/rootfs/usr/bin/sbfspot-mqtt/*.sh \
-            "${ADDON_PATH}"/tests/*.sh
-
-      # Behaviour, against the broker above. This is the half that the image build cannot check:
-      # the image is built and never run, and this add-on has no application repository whose CI
-      # would otherwise exercise its scripts.
-      - name: Add-on script tests
-        run: "${ADDON_PATH}/tests/glue.sh"
+        run: shellcheck "${ADDON_PATH}"/rootfs/etc/services.d/sbfspot-mqtt/*
 
   prepare:
     name: Prepare build matrix
