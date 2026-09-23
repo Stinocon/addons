@@ -91,7 +91,7 @@ RUN \
     && python3 -m ezviz_stream_bridge.proxy --help | grep -q -- --log-ffmpeg-stderr \
     && ffmpeg -hide_banner -version > /dev/null \
     && python3 -c "from pyezvizapi.cloud_stream import open_cloud_stream" \
-    && python3 -c "from pyezvizapi.stream import VtmChannel" \
+    && python3 -c "from pyezvizapi.stream import VtmChannel, rtp_payload" \
     && python3 -c "\
 import inspect; \
 from pyezvizapi.cloud_stream import open_cloud_stream; \

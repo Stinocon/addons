@@ -95,7 +95,8 @@ cameras:
   - serial: BB1234567             # the device serial — see "Finding the serial" below
     port: 8558
 log_level: info
-log_ffmpeg_stderr: false          # true = log FFmpeg's own stderr when a stream produces no output
+log_ffmpeg_stderr: false          # true = log FFmpeg's own stderr, and the leading packets, when a
+                                  # stream produces no output
 ```
 
 Up to five cameras, on ports 8558-8562, one port each.
@@ -377,6 +378,13 @@ detected payload transport (MPEG-PS, MPEG-TS, RTP or unknown) of the leading pay
 offset its signature sits at. The sniff buffers across VTM packets, so a packet boundary cannot
 hide an MPEG-PS or MPEG-TS signature. That is what distinguishes a framing mismatch from an
 encrypted stream.
+
+When the transport is anything other than MPEG-PS, the first eight packets of the session are
+also printed — or all of them, if the session ends first: length, decoded RTP header fields,
+the leading 64 bytes, and the payload sliced out at the offset `pyezvizapi`'s own unwrap
+computes. That last line is what says where the video actually starts and which codec it is,
+which the 24-byte head cannot: an RTP header alone is 12 bytes plus up to 60 bytes of CSRC list
+plus a variable-length extension.
 
 ## Credits
 
