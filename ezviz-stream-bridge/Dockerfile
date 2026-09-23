@@ -98,7 +98,8 @@ from pyezvizapi.cloud_stream import open_cloud_stream; \
 from pyezvizapi.stream import VtmStreamClient; \
 assert 'socket_factory' in inspect.signature(open_cloud_stream).parameters; \
 assert 'include_control' in inspect.signature(VtmStreamClient.iter_packets).parameters" \
-    && python3 -c "from pyezvizapi.client import EzvizClient"
+    && python3 -c "from pyezvizapi.client import EzvizClient" \
+    && python3 -c "from ezviz_stream_bridge.rtp import RtpDepacketizer, detect_codec"
 
 COPY rootfs /
 

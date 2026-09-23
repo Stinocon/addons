@@ -371,13 +371,21 @@ loop in the consumer cannot wake the camera straight back up; the log announces 
 `next wake delayed …`, the wait ends early if the consumer leaves, and `--timeout-cooldown` tunes
 it (`0` disables it).
 
+A camera does not always send MPEG-PS. This family sends both that and RTP carrying H.264 or
+HEVC, and no single FFmpeg input format reads both — so the add-on reads the leading video
+packets of every session, decides the transport from them, and depacketizes an RTP payload into
+an elementary stream before starting FFmpeg with the codec as its input format. An MPEG-PS
+stream is unaffected: same demuxer, same bytes. The cost is up to eight packets of added
+latency per session, because the decision has to be made before FFmpeg exists.
+
 If a camera sends video but the consumer receives nothing — `first-video` appears and `bytes`
 stays 0 — set `log_ffmpeg_stderr: true`. FFmpeg's own diagnostics are then logged, bounded to 20
 lines and then a single suppression notice, instead of being discarded, together with the
 detected payload transport (MPEG-PS, MPEG-TS, RTP or unknown) of the leading payload and the
-offset its signature sits at. The sniff buffers across VTM packets, so a packet boundary cannot
-hide an MPEG-PS or MPEG-TS signature. That is what distinguishes a framing mismatch from an
-encrypted stream.
+offset its signature sits at — the same reading the demuxer was chosen from, so a diagnostic
+that disagrees with the demuxer is itself the bug. The sniff buffers across VTM packets, so a
+packet boundary cannot hide an MPEG-PS or MPEG-TS signature. That is what distinguishes a
+framing mismatch from an encrypted stream.
 
 When the transport is anything other than MPEG-PS, the first eight packets of the session are
 also printed — or all of them, if the session ends first: length, decoded RTP header fields,
@@ -390,7 +398,7 @@ plus a variable-length extension.
 
 The whole EZVIZ protocol implementation is
 [pyezvizapi](https://github.com/RenierM26/pyEzvizApi) by RenierM26 — the reverse engineering
-of the cloud API, the stream framing and the remux all live there. This add-on only keeps a
-session alive and a proxy running per camera.
+of the cloud API and the stream framing all live there. This add-on keeps a session alive, a
+proxy running per camera, and the demux that turns RTP into what FFmpeg can read.
 
 Source: [Stinocon/ezviz-stream-bridge](https://github.com/Stinocon/ezviz-stream-bridge).

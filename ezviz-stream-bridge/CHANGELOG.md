@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.1.8
+
+- **A camera that sends its video as RTP now works.** Not every device on this cloud relay sends
+  MPEG-PS. A `CS-C8c` sends RTP carrying RFC 6184 H.264 — SPS, PPS and a fragmented IDR split
+  across FU-A packets — and FFmpeg's `mpeg` demuxer produces nothing from it: `could not find
+  codec parameters`, `bytes=0` in the connection log, on a stream that was arriving perfectly
+  intact. Every session now reads its leading video packets, classifies the transport from them,
+  and when the payload is RTP depacketizes it into an Annex-B elementary stream (single NAL
+  units, STAP-A and AP aggregates, FU-A and FU fragments, RFC 6184 H.264 and RFC 7798 HEVC)
+  before starting FFmpeg with the codec as its input format and `-use_wallclock_as_timestamps`,
+  without which the MPEG-TS muxer refuses a stream whose container carries no timestamp.
+  Verified end to end against the ffmpeg this image installs, for both codecs. An MPEG-PS
+  stream — the case that already worked — is unchanged, byte for byte. The price is up to eight
+  packets of added latency on every session, because the decision has to be made before FFmpeg
+  exists.
+- **A stream that produces nothing now says why.** A payload that is RTP with no H.264 or HEVC
+  parameter set to name its codec is logged as such and left on the demuxer it has always used,
+  rather than refused on a transport the bridge may simply have read wrong; and the packets the
+  depacketizer could not read are counted and reported when the session ends. A bare `bytes=0`
+  with nothing to act on was the failure this whole line of work started from.
+- The `log_ffmpeg_stderr` diagnostic prints the same leading packets as in 0.1.7. Its transport
+  line is now the reading the demuxer is chosen from, not only a diagnosis.
+
 ## 0.1.7
 
 - **The diagnostic prints the leading packets, not just their first 24 bytes.** With
