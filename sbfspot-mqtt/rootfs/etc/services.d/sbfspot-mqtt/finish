@@ -1,0 +1,33 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# s6 runs this whenever the bridge exits, with the exit code as the first argument.
+#
+# Two codes are not failures: 0 is a clean stop, and 256 means "killed by a signal", which is
+# what stopping or updating the add-on looks like from here. Everything else is a fault that
+# will not fix itself -- an unreadable option, no broker, SBFspot unable to run -- and the
+# add-on is halted rather than restarted: a bridge that is down is a fact the user can see in
+# the add-on page, while a bridge restarting every few seconds is a log nobody reads.
+#
+# A failed *poll* is not this: that is routine (the inverter sleeps, another Bluetooth master
+# took the connection) and the run script handles it by marking the entities unavailable
+# instead of exiting.
+
+# Best effort, and before the halting decision, so it runs on every kind of stop. Without it a
+# stopped or updated add-on leaves the retained `online` and the last reading in place, and the
+# entities go on showing an hour-old value as if it were current. A failure is not worth
+# blocking the stop for: the broker may be going down with us.
+if [[ -r /data/mqtt.json ]]; then
+    topic="$(jq -r '.availability_topic // empty' /data/mqtt.json 2> /dev/null || true)"
+    if [[ -n "${topic}" ]]; then
+        /usr/bin/sbfspot-mqtt/mqtt-pub.sh "${topic}" offline || true
+    fi
+fi
+
+if [[ "${1}" -ne 0 ]] && [[ "${1}" -ne 256 ]]; then
+    bashio::log.warning "SBFspot MQTT bridge exited with code ${1}. Halting the add-on."
+    # exec, so nothing is logged after this: a log line claiming the add-on is restarting while
+    # it is stopping is worse than no line at all.
+    exec /run/s6/basedir/bin/halt
+fi
+
+bashio::log.info "SBFspot MQTT bridge stopped (code ${1})."

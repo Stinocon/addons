@@ -1,0 +1,219 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# SBFspot MQTT bridge: reads an SMA inverter over Bluetooth and publishes it to MQTT.
+#
+# The options are read from /data/options.json rather than through `bashio::config`. bashio
+# does not read that file -- it asks the Supervisor API -- so a check written with it fails
+# whenever the API is unreachable and blames the wrong thing. The Supervisor validates the
+# same options from the file, and its messages name the field, so validating twice would only
+# add a second, less reliable copy of a check that already ran. The MQTT *service* is the one
+# thing that genuinely only exists in the API, and it is the one thing read from bashio here.
+set -e
+
+readonly OPTIONS=/data/options.json
+readonly CONFIG=/data/SBFspot.cfg
+readonly CREDENTIALS=/data/mqtt.json
+readonly SBFSPOT=/usr/bin/sbfspot-mqtt/SBFspot
+readonly DISCOVERY=/usr/bin/sbfspot-mqtt/discovery.sh
+
+# One topic for the state, whatever the plant is called, so that the discovery payloads can be
+# written before the inverter has ever answered. More than one inverter on the same Bluetooth
+# network is not supported by this version, and a topic per serial would only pretend otherwise.
+readonly STATE_TOPIC=sbfspot_mqtt/state
+readonly AVAILABILITY_TOPIC=sbfspot_mqtt/availability
+readonly ZONESPEC=/usr/bin/sbfspot-mqtt/date_time_zonespec.csv
+
+bt_address="$(jq -r '.bt_address // ""' "${OPTIONS}")"
+if [[ -z "${bt_address}" ]]; then
+    bashio::log.error "bt_address is empty. Set the inverter's Bluetooth address in the add-on"
+    bashio::log.error "configuration: Sunny Explorer shows it under the device information, and"
+    bashio::log.error "the Sunny Beam shows it in its plant menu."
+    exit 1
+fi
+
+password="$(jq -r '.password // ""' "${OPTIONS}")"
+plantname="$(jq -r '.plantname // "MyPlant"' "${OPTIONS}")"
+interval="$(jq -r '.interval // 60' "${OPTIONS}")"
+log_level="$(jq -r '.log_level // "info"' "${OPTIONS}")"
+
+# SBFspot builds the MQTT command line as a shell string and quotes the message with single
+# quotes. A single quote in these values would truncate the JSON before it is published, and
+# the symptom would be a sensor that silently stops updating, so they are refused here.
+case "${plantname}" in
+    *"'"*|*'"'*)
+        bashio::log.error "plantname contains a quote character (' or \"), which SBFspot's MQTT"
+        bashio::log.error "command line cannot carry. Use a name without quotes."
+        exit 1
+        ;;
+esac
+
+if ! [[ "${interval}" =~ ^[0-9]+$ ]]; then
+    bashio::log.error "interval is not a number: '${interval}'"
+    exit 1
+fi
+
+# The broker: the Supervisor's, unless the options name another one.
+mqtt_host="$(jq -r '.mqtt_host // ""' "${OPTIONS}")"
+mqtt_port="$(jq -r '.mqtt_port // 1883' "${OPTIONS}")"
+mqtt_username="$(jq -r '.mqtt_username // ""' "${OPTIONS}")"
+mqtt_password="$(jq -r '.mqtt_password // ""' "${OPTIONS}")"
+
+if [[ -z "${mqtt_host}" ]]; then
+    if ! bashio::services.available "mqtt"; then
+        bashio::log.error "No MQTT broker is available. Install and start the Mosquitto add-on,"
+        bashio::log.error "or set mqtt_host, mqtt_port and the credentials in this add-on's"
+        bashio::log.error "configuration to point at a broker elsewhere."
+        exit 1
+    fi
+    mqtt_host="$(bashio::services "mqtt" "host")"
+    mqtt_port="$(bashio::services "mqtt" "port")"
+    mqtt_username="$(bashio::services "mqtt" "username")"
+    mqtt_password="$(bashio::services "mqtt" "password")"
+fi
+
+# The port arrives as a string from either the options or the Supervisor, and it is passed to
+# jq as a number: an empty or non-numeric value would fail the whole start over punctuation.
+if ! [[ "${mqtt_port}" =~ ^[0-9]+$ ]]; then
+    bashio::log.warning "Broker port '${mqtt_port}' is not a number; using 1883."
+    mqtt_port=1883
+fi
+
+# Written to /data, mode 600, and excluded from backups: it is a password on its way to
+# mosquitto_pub, not configuration worth restoring.
+jq -n \
+    --arg host "${mqtt_host}" \
+    --argjson port "${mqtt_port}" \
+    --arg username "${mqtt_username}" \
+    --arg password "${mqtt_password}" \
+    --arg topic "${STATE_TOPIC}" \
+    --arg availability_topic "${AVAILABILITY_TOPIC}" \
+    --arg discovery_prefix "homeassistant" \
+    '{host: $host, port: $port, username: $username, password: $password,
+      topic: $topic, availability_topic: $availability_topic, discovery_prefix: $discovery_prefix}' \
+    > "${CREDENTIALS}"
+chmod 600 "${CREDENTIALS}"
+
+# SBFspot validates the timezone against the boost database shipped next to it and refuses to
+# start on a value it cannot find there -- `UTC` included, which is not one of its region
+# names: the file starts at Africa/Abidjan. The Supervisor sets TZ in every add-on container,
+# so this is a fallback for the case where it did not, and it is checked rather than assumed
+# because a rejected timezone is a failed start with a message about timezones.
+timezone="${TZ:-}"
+if [[ -z "${timezone}" ]] || ! grep -q "^\"${timezone}\"," "${ZONESPEC}"; then
+    bashio::log.warning "Timezone '${timezone:-<unset>}' is not one of the zones SBFspot knows."
+    bashio::log.warning "Using Europe/Brussels, the default upstream ships."
+    timezone="Europe/Brussels"
+fi
+
+BT_ADDRESS="${bt_address}" \
+INVERTER_PASSWORD="${password}" \
+PLANT_NAME="${plantname}" \
+MQTT_TOPIC="${STATE_TOPIC}" \
+TIMEZONE="${timezone}" \
+    /usr/bin/sbfspot-mqtt/generate-config.sh "${CONFIG}"
+
+# SBFspot writes nothing, but it still resolves these paths, and a missing directory is the
+# kind of failure that surfaces as an unexplained non-zero exit.
+mkdir -p /data/smadata
+
+# A password with no user name is odd but permitted by the schema, and dropping it silently would
+# be an authentication failure nobody can explain.
+if [[ -n "${mqtt_password}" && -z "${mqtt_username}" ]]; then
+    bashio::log.warning "mqtt_password is set and mqtt_username is empty: the password is sent with"
+    bashio::log.warning "an empty user name, which most brokers reject. Fill in one, or both."
+fi
+
+subscriber=( -h "${mqtt_host}" -p "${mqtt_port}" )
+if [[ -n "${mqtt_username}" || -n "${mqtt_password}" ]]; then
+    subscriber+=( -u "${mqtt_username}" -P "${mqtt_password}" )
+fi
+
+# Two things about this command line are easy to get wrong and neither says so.
+#
+# `-cfg` takes its path attached, with no space: SBFspot reads it as `argv[i] + 4`, and
+# `-cfg /data/SBFspot.cfg` is answered with "Invalid argument: -cfg" and nothing else.
+#
+# `-q` keeps the version banner and the argument dump out of the log, where they would
+# otherwise appear on every poll. It is deliberately not combined with a verbosity level:
+# upstream applies quiet *after* the verbosity, so `-q -v1` is exactly `-q` and the level would
+# be decoration. What the log keeps is this add-on's own lines and SBFspot's errors, which are
+# printed whatever the verbosity. Debug is upstream's full dump, and no quiet at all.
+poll=( "${SBFSPOT}" -q -ad0 -am0 -finq -mqtt "-cfg${CONFIG}" )
+if [[ "${log_level}" == "debug" ]]; then
+    poll=( "${SBFSPOT}" -ad0 -am0 -finq -mqtt "-cfg${CONFIG}" -v5 )
+fi
+
+bashio::log.info "SBFspot $("${SBFSPOT}" -version 2> /dev/null || true)"
+bashio::log.info "Inverter ${bt_address} at ${plantname}, polled every ${interval}s"
+bashio::log.info "Broker ${mqtt_host}:${mqtt_port}, state on ${STATE_TOPIC}"
+
+# The inverter answers one Bluetooth master at a time. If the Sunny Beam (or Sunny Explorer,
+# or a Webbox) is still connected to it, every poll here fails -- SBFspot's own documentation
+# says so, and the fix is to switch the other master off.
+set_availability() {
+    local state="$1"
+    [[ "${state}" != "${availability:-}" ]] || return 0
+    if ! /usr/bin/sbfspot-mqtt/mqtt-pub.sh "${AVAILABILITY_TOPIC}" "${state}"; then
+        # An unreachable broker is not a reason to stop polling, and under `set -e` an
+        # unguarded publish would be exactly that: the loop would end, the add-on would halt,
+        # and a Mosquitto restart would take a working bridge down with it. The last state is
+        # not recorded, so the next cycle tries again.
+        bashio::log.warning "Could not publish '${state}' to ${AVAILABILITY_TOPIC}; will retry."
+        return 0
+    fi
+    bashio::log.info "Marked the inverter ${state} on ${AVAILABILITY_TOPIC}"
+    availability="${state}"
+}
+
+# Discovery is published from a real payload, and republished when the set of keys in it changes.
+# For one inverter that set is stable, and that is the point of comparing instead of republishing
+# every cycle: what does change is the number of DC strings the inverter reports, which is what
+# the PDC/IDC/UDC expansion in the discovery script follows, and a channel that starts reporting
+# after a firmware update.
+publish_discovery_if_changed() {
+    local payload keys
+    # `timeout` as well as `-W`: -W bounds the wait for a message, not the connection, and an
+    # unreachable broker would otherwise hold the poll for the kernel's TCP timeout.
+    payload="$(timeout 20 mosquitto_sub "${subscriber[@]}" -t "${STATE_TOPIC}" -C 1 -W 10 2> /dev/null || true)"
+    if [[ -z "${payload}" ]]; then
+        bashio::log.warning "No payload on ${STATE_TOPIC} to publish discovery from"
+        return 0
+    fi
+    keys="$(jq -r 'keys | sort | join(",")' <<< "${payload}" 2> /dev/null || true)"
+    if [[ -z "${keys}" || "${keys}" == "${published_keys:-}" ]]; then
+        return 0
+    fi
+    if printf '%s' "${payload}" | "${DISCOVERY}"; then
+        published_keys="${keys}"
+    fi
+}
+
+failures=0
+availability=""
+
+while :; do
+    if "${poll[@]}"; then
+        if (( failures > 0 )); then
+            bashio::log.info "Poll succeeded again after ${failures} failed attempt(s)."
+        fi
+        failures=0
+        set_availability "online"
+        publish_discovery_if_changed
+    else
+        failures=$((failures + 1))
+        # The explanation on the first failure, and a counter after that: a bridge that cannot
+        # reach the inverter fails every interval, and three lines of prose every minute is how
+        # a log becomes something nobody reads.
+        if (( failures == 1 )); then
+            bashio::log.warning "Poll failed. The inverter is asleep, out of range, or another"
+            bashio::log.warning "Bluetooth master (Sunny Beam, Sunny Explorer, Webbox) is"
+            bashio::log.warning "connected to it -- it answers one at a time."
+        else
+            bashio::log.warning "Poll failed again (${failures} in a row)."
+        fi
+        if (( failures >= 3 )); then
+            set_availability "offline"
+        fi
+    fi
+    sleep "${interval}"
+done

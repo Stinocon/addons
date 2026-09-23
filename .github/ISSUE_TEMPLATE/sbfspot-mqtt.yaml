@@ -1,0 +1,71 @@
+name: SBFspot MQTT bridge — add-on issue
+description: Installing, configuring or starting the add-on. For the inverter exchange itself, read the troubleshooting section first, and use the links below.
+labels: ["sbfspot-mqtt"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this only if the problem is in the **add-on packaging**: it will not install or start,
+        an option is rejected, the image is wrong for the architecture. Anything about SBFspot's
+        own behaviour — the Bluetooth exchange, the values it reads, the channels your inverter
+        reports — belongs in [SBFspot/SBFspot](https://github.com/SBFspot/SBFspot/issues).
+
+        **Two things that are expected, and not bugs:**
+
+        - **The inverter answers one Bluetooth master at a time.** If the Sunny Beam is still on,
+          or Sunny Explorer is still connected, or a Webbox is polling it, this add-on gets
+          nothing but failed connections. That is the single most common cause of "no data".
+        - **Only the channels your inverter reports get sensors.** The discovery payloads are
+          generated from the first real reading, not from a fixed list; an old model reporting few
+          channels is not a fault.
+
+        The [README](https://github.com/Stinocon/addons/tree/master/sbfspot-mqtt) has the
+        troubleshooting section, including how to get SBFspot's own error into the log with
+        `log_level: debug`.
+  - type: textarea
+    id: issue
+    attributes:
+      label: Description of the issue
+      description: What you expected, what happened instead, and how to reproduce it.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Add-on version
+      description: As shown in the add-on page in Home Assistant.
+      placeholder: '0.1.0'
+    validations:
+      required: true
+  - type: input
+    id: inverter
+    attributes:
+      label: Inverter model, and how it has Bluetooth
+      description: "The model from the type label, and whether Bluetooth is integrated or comes from an SMA Bluetooth Piggy-Back. Do not post the serial number."
+      placeholder: "SB 3000TL-20, integrated Bluetooth"
+    validations:
+      required: true
+  - type: input
+    id: other_masters
+    attributes:
+      label: Other Bluetooth masters
+      description: "A Sunny Beam, Sunny Explorer, a Webbox, anything else that talks to the inverter. Say 'none' if there are none."
+      placeholder: "Sunny Beam BEAM-BT-11.GR1, switched off"
+    validations:
+      required: true
+  - type: textarea
+    id: platform
+    attributes:
+      label: Home Assistant version and hardware
+      description: From Settings → System → Repairs → system information, plus the board Home Assistant OS runs on — the Bluetooth radio belongs to it.
+      placeholder: "Core: core-2026.9.3\nSupervisor: supervisor-2026.09.2\nOperating System: HAOS 18.2\nBoard: rpi4-64"
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Add-on log
+      description: "From the add-on's Log tab, with `log_level` set to `debug`. Redact the Bluetooth address and the serial number before pasting."
+      render: shell
+    validations:
+      required: false

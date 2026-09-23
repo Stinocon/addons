@@ -27,6 +27,7 @@ Install whichever you need: they are independent, and none requires another.
 | **[Reel2Recipe](reel2recipe/)** | Extracts recipes from cooking reels and exports them to Mela; Whisper and the LLM run inside the add-on | `amd64` only | see [`config.yaml`](reel2recipe/config.yaml) |
 | **[EZVIZ Stream Bridge](ezviz-stream-bridge/)** | Serves EZVIZ camera video as MPEG-TS over HTTP, for go2rtc and Frigate, on cameras that expose no RTSP | `amd64`, `aarch64` | see [`config.yaml`](ezviz-stream-bridge/config.yaml) |
 | **[rethink-cloud — LG Dishwasher](rethink-dishwasher/)** | Local LG ThinQ cloud emulator (a rethink fork) with LG dishwasher support, so the appliance talks to Home Assistant without LG's cloud or app | `amd64`, `aarch64` | see [`config.yaml`](rethink-dishwasher/config.yaml) |
+| **[SBFspot MQTT Bridge](sbfspot-mqtt/)** | Reads an SMA Sunny Boy inverter's production over Bluetooth and publishes it to Home Assistant with MQTT discovery | `amd64`, `aarch64` | see [`config.yaml`](sbfspot-mqtt/config.yaml) |
 
 ### iAlarm MQTT Bridge
 
@@ -92,6 +93,23 @@ Details, options, provisioning and the one-time Mikrotik bootstrap:
 [changelog](rethink-dishwasher/CHANGELOG.md) ·
 [application source](https://github.com/Stinocon/rethink-dishwasher)
 
+### SBFspot MQTT Bridge
+
+Old SMA inverters — a Sunny Boy with a Bluetooth Piggy-Back, or one with integrated Bluetooth —
+have no network interface at all. They answer over Bluetooth, to **one master at a time**. This
+add-on is that master: it polls the inverter with [SBFspot](https://github.com/SBFspot/SBFspot) at a
+configurable interval and publishes power, energy today and total, status, temperature and the DC
+values per string as Home Assistant entities.
+
+**It is read-only**, and it has to replace the other master rather than join it: a Sunny Beam or a
+running Sunny Explorer holding the connection means this add-on gets failed connections and
+nothing else. That trade-off is the whole design — the inverter has one Bluetooth slot, and this
+fills it.
+
+Details and options: **[`sbfspot-mqtt/README.md`](sbfspot-mqtt/README.md)** ·
+[changelog](sbfspot-mqtt/CHANGELOG.md) ·
+[application source](https://github.com/SBFspot/SBFspot)
+
 ## Repository layout
 
 ```
@@ -122,24 +140,29 @@ multi-add-on repository would rebuild the one that had nothing to do with it.
 | `reel2recipe` | `reel2recipe-<version>` (e.g. `reel2recipe-1.0.0`) | [`publish-reel2recipe.yml`](.github/workflows/publish-reel2recipe.yml) |
 | `ezviz-stream-bridge` | `ezviz-stream-bridge-<version>` (e.g. `ezviz-stream-bridge-0.1.0`) | [`publish-ezviz-stream-bridge.yml`](.github/workflows/publish-ezviz-stream-bridge.yml) |
 | `rethink-dishwasher` | `rethink-dishwasher-<version>` (e.g. `rethink-dishwasher-0.1.0`) | [`publish-rethink-dishwasher.yml`](.github/workflows/publish-rethink-dishwasher.yml) |
+| `sbfspot-mqtt` | `sbfspot-mqtt-<version>` (e.g. `sbfspot-mqtt-0.1.0`) | [`publish-sbfspot-mqtt.yml`](.github/workflows/publish-sbfspot-mqtt.yml) |
 
 The tag must be pushed **after** `config.yaml` carries the matching `version:` — the workflow
 reads the version from `config.yaml`, not from the tag name, and tags the image with it.
 
 A version without its tag is a release that never happened: the repository advertises it and
 Home Assistant fails on a machine that cannot install the missing image. A guard workflow
-([`guard-ezviz-stream-bridge-release.yml`](.github/workflows/guard-ezviz-stream-bridge-release.yml))
-fails any push to `ezviz-stream-bridge/config.yaml` whose declared version has no matching tag,
-so the mistake surfaces in CI rather than in somebody's update dialog. Push the branch and the
-tag together to keep it green. The same guard can be copied for another add-on, with `addon=` and
-the tag pattern adjusted to that add-on's.
+([`guard-ezviz-stream-bridge-release.yml`](.github/workflows/guard-ezviz-stream-bridge-release.yml),
+and [`guard-sbfspot-mqtt-release.yml`](.github/workflows/guard-sbfspot-mqtt-release.yml) for the
+same check on `sbfspot-mqtt`) fails any push to that add-on's `config.yaml` whose declared version
+has no matching tag, so the mistake surfaces in CI rather than in somebody's update dialog. Push
+the branch and the tag together to keep it green. The same guard can be copied for another add-on,
+with `addon=` and the tag pattern adjusted to that add-on's.
 
-Pull requests and pushes touching `ialarm-mqtt/` or `ezviz-stream-bridge/` also get a no-push
-test build ([`test-ialarm-mqtt.yml`](.github/workflows/test-ialarm-mqtt.yml),
-[`test-ezviz-stream-bridge.yml`](.github/workflows/test-ezviz-stream-bridge.yml)), filtered by
-path so a change to another add-on does not trigger it. `reel2recipe` has no equivalent: its
-image bundles Ollama and pulls multi-gigabyte wheels, and building it on every push would spend
-far more CI time than the check is worth.
+Pull requests and pushes touching `ialarm-mqtt/`, `ezviz-stream-bridge/`, `rethink-dishwasher/` or
+`sbfspot-mqtt/` also get a no-push test build
+([`test-ialarm-mqtt.yml`](.github/workflows/test-ialarm-mqtt.yml),
+[`test-ezviz-stream-bridge.yml`](.github/workflows/test-ezviz-stream-bridge.yml),
+[`test-rethink-dishwasher.yml`](.github/workflows/test-rethink-dishwasher.yml),
+[`test-sbfspot-mqtt.yml`](.github/workflows/test-sbfspot-mqtt.yml)), filtered by path so a change
+to another add-on does not trigger it. `reel2recipe` has no equivalent: its image bundles Ollama
+and pulls multi-gigabyte wheels, and building it on every push would spend far more CI time than
+the check is worth.
 
 ## Adding another add-on
 

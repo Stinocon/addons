@@ -21,6 +21,12 @@ contact_links:
   - name: ialarm-mqtt — the application itself
     url: https://github.com/Stinocon/ialarm-mqtt/issues
     about: Entities, MQTT discovery, panel communication (this fork's enhancements).
+  - name: SBFspot — the application itself
+    url: https://github.com/SBFspot/SBFspot/issues
+    about: The Bluetooth exchange with the inverter, the values it reads, the channels a model reports.
+  - name: SBFspot — documentation and wiki
+    url: https://github.com/SBFspot/SBFspot/wiki
+    about: Installation notes, MQTT keywords, the NetID and single-master rules. Read this before asking why no data arrives.
   - name: ialarm-mqtt — the original project
     url: https://github.com/maxill1/ialarm-mqtt/issues
     about: Behaviour inherited from upstream, not specific to this fork.

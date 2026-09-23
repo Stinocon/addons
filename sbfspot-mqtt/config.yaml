@@ -1,0 +1,69 @@
+name: "SBFspot MQTT bridge"
+url: https://github.com/Stinocon/addons/tree/master/sbfspot-mqtt
+version: "0.1.0"
+slug: sbfspot_mqtt
+description: "Reads an SMA Sunny Boy inverter over Bluetooth with SBFspot and publishes it to Home Assistant over MQTT."
+
+# aarch64 and amd64 only: SBFspot is compiled from source against boost and libbluetooth, and
+# both are built per architecture. Nothing here would forbid armv7 in principle, but a 32-bit
+# build nobody tests is a build that breaks silently.
+arch:
+  - aarch64
+  - amd64
+
+init: false
+startup: application
+boot: auto
+
+# Bluetooth sockets are bound to the network namespace: a container with its own namespace
+# finds no adapter at all and fails with an EPERM that names neither Bluetooth nor the
+# namespace. Sharing the host's is what makes `socket(AF_BLUETOOTH)` work, and it is the same
+# reason the other SBFspot add-on for Home Assistant declares it. Nothing here listens on a
+# port, so the sharing is not a listening surface.
+host_network: true
+
+# The broker comes from the Supervisor (the Mosquitto add-on publishes it as a service), so
+# there is no second copy of its address and no MQTT password in this file. `mqtt:want` means
+# "start me even if no broker is there" -- the add-on then says so in its log rather than
+# refusing to start at all. The options below can still override the broker by hand, for a
+# broker that is not under Supervisor.
+services:
+  - mqtt:want
+
+# Neither file is restored from a backup: both are rewritten at every start from the options,
+# and one of them holds the MQTT password while the other holds the inverter's.
+backup_exclude:
+  - mqtt.json
+  - SBFspot.cfg
+
+options:
+  bt_address: ""
+  password: "0000"
+  plantname: "MyPlant"
+  interval: 60
+  mqtt_host: ""
+  mqtt_port: 1883
+  mqtt_username: ""
+  mqtt_password: ""
+  log_level: info
+
+schema:
+  # Bluetooth address of the inverter, as shown in Sunny Explorer or in the Sunny Beam's menu
+  # under the plant information. Leave it empty and the add-on stops at startup with a message
+  # saying so: guessing here would mean talking to a neighbour's inverter, or to none.
+  bt_address: str
+  # The inverter's *user* password, not the installer one. SBFspot reads and never writes, so
+  # the installer level is neither needed nor wanted.
+  password: password
+  plantname: str
+  # Seconds between two polls. The floor is 10 rather than 0 because every poll is a Bluetooth
+  # connection to a device that sleeps between them, and hammering it buys nothing: the values
+  # behind it change on the scale of a minute.
+  interval: int(10,3600)
+  mqtt_host: str?
+  mqtt_port: port?
+  mqtt_username: str?
+  mqtt_password: password?
+  log_level: list(debug|info|notice|warning|error|fatal)
+
+image: stfncntr/{arch}-addon-sbfspot-mqtt
