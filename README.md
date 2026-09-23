@@ -97,9 +97,9 @@ Details, options, provisioning and the one-time Mikrotik bootstrap:
 
 Old SMA inverters — a Sunny Boy with a Bluetooth Piggy-Back, or one with integrated Bluetooth —
 have no network interface at all. They answer over Bluetooth, to **one master at a time**. This
-add-on is that master: it polls the inverter with [SBFspot](https://github.com/SBFspot/SBFspot) at a
-configurable interval and publishes power, energy today and total, status, temperature and the DC
-values per string as Home Assistant entities.
+add-on is that master: it runs [sbfspot-mqtt](https://github.com/Stinocon/sbfspot-mqtt), which
+polls the inverter with SBFspot at a configurable interval, and publishes power, energy today and
+total, status, temperature and the DC values per string as Home Assistant entities.
 
 **It is read-only**, and it has to replace the other master rather than join it: a Sunny Beam or a
 running Sunny Explorer holding the connection means this add-on gets failed connections and

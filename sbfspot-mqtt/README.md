@@ -10,10 +10,11 @@ integrated Bluetooth — have no network interface at all. They answer over Blue
 **one master at a time**: Sunny Explorer, a Sunny Beam, a Webbox, or this add-on, never two of
 them at once.
 
-This add-on polls such an inverter with [SBFspot](https://github.com/SBFspot/SBFspot) — every 60
-seconds by default, at whatever interval you set — and publishes what comes back as Home Assistant
-entities: current power, energy today and total, status, temperature, DC voltage/current per
-string, grid frequency, operating hours.
+This add-on runs [sbfspot-mqtt](https://github.com/Stinocon/sbfspot-mqtt), which polls such an
+inverter with [SBFspot](https://github.com/SBFspot/SBFspot) — every 60 seconds by default, at
+whatever interval you set — and publishes what comes back as Home Assistant entities: current
+power, energy today and total, status, temperature, DC voltage/current per string, grid frequency,
+operating hours.
 
 It is **read-only**. Nothing here writes to the inverter — not a setting, not a command, and not
 the clock: `-settime` is never passed, and the generated configuration sets `SynchTime=0`, because
