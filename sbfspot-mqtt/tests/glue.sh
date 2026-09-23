@@ -31,13 +31,15 @@ check() {
     if [[ "$2" == "$3" ]]; then ok "$1"; else ko "$1" "$2" "$3"; fi
 }
 
-mkdir -p "${data}"
 if ! command -v mosquitto_pub > /dev/null; then
     echo "mosquitto_pub is not installed: this test needs a broker and its clients" >&2
     exit 1
 fi
 
-# The layout the image has, with the working tree's scripts in it.
+# The layout the image has, with the working tree's scripts in it. Both directories are created
+# here and not earlier: /data does not exist on a bare machine, and on CI it is created with
+# sudo, so a plain `mkdir` before this point is a permission error -- which is how this test
+# failed the first time it ran on a runner rather than in a container as root.
 sudo=()
 [[ "${EUID}" -eq 0 ]] || sudo=(sudo)
 "${sudo[@]}" mkdir -p "${installed}" "${data}"

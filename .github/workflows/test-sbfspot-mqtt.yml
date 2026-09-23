@@ -34,18 +34,29 @@ jobs:
         with:
           persist-credentials: false
 
-      # jq and shellcheck are already on the runner. The broker is what the publisher and the
-      # discovery scripts talk to, and it is started by hand rather than through the packaged
-      # unit: the unit would take port 1883 with a configuration that refuses the anonymous
-      # connections these tests make.
+      # jq and shellcheck are already on the runner. The broker is the one the package ships,
+      # reconfigured to accept anonymous connections instead of being replaced: whichever way the
+      # runner starts services, the broker on 1883 ends up being this one. The loop is what makes
+      # a red run say "broker" rather than send a later assertion looking for the cause.
       - name: Install jq, shellcheck and a broker
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends jq mosquitto mosquitto-clients shellcheck
-          sudo systemctl stop mosquitto || true
-          printf 'listener 1883\nallow_anonymous true\n' > /tmp/mosquitto-test.conf
-          mosquitto -c /tmp/mosquitto-test.conf -d
-          sleep 2
+          sudo mkdir -p /etc/mosquitto/conf.d
+          printf 'listener 1883 127.0.0.1\nallow_anonymous true\n' | sudo tee /etc/mosquitto/conf.d/zz-test.conf > /dev/null
+          sudo systemctl restart mosquitto || sudo mosquitto -c /etc/mosquitto/mosquitto.conf -d
+          for _ in $(seq 1 20); do
+            if mosquitto_pub -h localhost -t smoke -m ok 2> /dev/null; then
+              echo "broker accepting anonymous connections on 1883"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "no broker on 1883 after 20 seconds; what is there:"
+          ss -lntp | grep 1883 || true
+          ps aux | grep -i '[m]osquitto' || true
+          sudo tail -30 /var/log/mosquitto/mosquitto.log || true
+          exit 1
 
       # Static, and it covers the two s6 scripts too, which cannot be run outside the image.
       - name: shellcheck
