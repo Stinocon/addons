@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.1.7
+
+- **The diagnostic prints the leading packets, not just their first 24 bytes.** With
+  `log_ffmpeg_stderr: true`, a payload whose transport is anything other than MPEG-PS (RTP,
+  MPEG-TS or unknown) is now printed packet by packet for the first eight packets of the
+  session — or all of them, if the session ends first: the length, the decoded RTP header
+  fields, the leading 64 bytes, and the payload sliced out at the offset `pyezvizapi`'s own
+  unwrap computes. The 24-byte head could not answer the question the flag exists to answer —
+  where the video starts and which codec it is — because an RTP header alone is 12 bytes plus up
+  to 60 bytes of CSRC list plus a variable-length extension: a camera reported as `transport=RTP`
+  with the extension bit set puts its media 40 bytes past the end of what the line printed.
+- An MPEG-PS stream, the working case, is unchanged: no packet dump, no retained bytes, and
+  nothing different is written to FFmpeg. The flag stays off by default.
+
 ## 0.1.6
 
 - **The transport sniff no longer misreads a packet boundary as a fault.** The 0.1.5 diagnostic
