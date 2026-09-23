@@ -174,5 +174,11 @@ image build time and is not vendored here; [`NOTICE.md`](../NOTICE.md) records t
 The packaging, scripts and documentation in this directory are MIT, like the rest of this
 repository.
 
+Everything in this directory is packaging, and this is the add-on with no application repository
+of its own: SBFspot is a third-party project, taken as released and never forked. The scripts are
+therefore tested here, in [`tests/glue.sh`](tests/glue.sh) — shellcheck plus the behaviour of the
+publisher and the discovery against a throwaway broker — and the tests run in CI on every change
+to this directory.
+
 SMA, Sunny Boy, Sunny Beam, Sunny Explorer and Webbox are registered trademarks of SMA Solar
 Technology AG. This add-on is not affiliated with or endorsed by SMA.

@@ -106,6 +106,13 @@ running Sunny Explorer holding the connection means this add-on gets failed conn
 nothing else. That trade-off is the whole design — the inverter has one Bluetooth slot, and this
 fills it.
 
+**This is the one add-on here with no application repository behind it**, and the difference is
+meant: it writes no application. SBFspot is a third-party project, taken as released and compiled
+at image build time; what lives in this repository is the packaging around it — the poll loop, the
+publisher, the MQTT discovery — and that exists only inside the container. Its tests live beside
+it, in [`sbfspot-mqtt/tests/glue.sh`](sbfspot-mqtt/tests/glue.sh), and run in CI on every change
+to the directory.
+
 Details and options: **[`sbfspot-mqtt/README.md`](sbfspot-mqtt/README.md)** ·
 [changelog](sbfspot-mqtt/CHANGELOG.md) ·
 [application source](https://github.com/SBFspot/SBFspot)
@@ -160,9 +167,11 @@ Pull requests and pushes touching `ialarm-mqtt/`, `ezviz-stream-bridge/`, `rethi
 [`test-ezviz-stream-bridge.yml`](.github/workflows/test-ezviz-stream-bridge.yml),
 [`test-rethink-dishwasher.yml`](.github/workflows/test-rethink-dishwasher.yml),
 [`test-sbfspot-mqtt.yml`](.github/workflows/test-sbfspot-mqtt.yml)), filtered by path so a change
-to another add-on does not trigger it. `reel2recipe` has no equivalent: its image bundles Ollama
-and pulls multi-gigabyte wheels, and building it on every push would spend far more CI time than
-the check is worth.
+to another add-on does not trigger it. The `sbfspot-mqtt` one also runs that add-on's own script
+tests — shellcheck plus behaviour against a throwaway broker — because its logic lives here rather
+than in an application repository of its own. `reel2recipe` has no equivalent: its image bundles
+Ollama and pulls multi-gigabyte wheels, and building it on every push would spend far more CI time
+than the check is worth.
 
 ## Adding another add-on
 

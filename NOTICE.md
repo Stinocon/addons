@@ -10,7 +10,10 @@ with it.
 
 ## What the add-ons run at runtime
 
-No add-on here vendors the application it runs; each fetches it at build time.
+No add-on here vendors the application it runs; each fetches it at build time. Four of them fetch
+it from a repository of ours; `sbfspot-mqtt` fetches SBFspot from its own project, because that is
+not code to fork — which also means it is the one add-on whose packaging has no application
+repository behind it, and carries its own tests for that reason.
 
 | Add-on | Application | Licence |
 |---|---|---|

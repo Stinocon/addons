@@ -23,6 +23,44 @@ permissions:
   contents: read
 
 jobs:
+  scripts:
+    name: Script tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      # jq and shellcheck are already on the runner. The broker is what the publisher and the
+      # discovery scripts talk to, and it is started by hand rather than through the packaged
+      # unit: the unit would take port 1883 with a configuration that refuses the anonymous
+      # connections these tests make.
+      - name: Install jq, shellcheck and a broker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends jq mosquitto mosquitto-clients shellcheck
+          sudo systemctl stop mosquitto || true
+          printf 'listener 1883\nallow_anonymous true\n' > /tmp/mosquitto-test.conf
+          mosquitto -c /tmp/mosquitto-test.conf -d
+          sleep 2
+
+      # Static, and it covers the two s6 scripts too, which cannot be run outside the image.
+      - name: shellcheck
+        run: |
+          shellcheck \
+            "${ADDON_PATH}"/rootfs/etc/services.d/sbfspot-mqtt/* \
+            "${ADDON_PATH}"/rootfs/usr/bin/sbfspot-mqtt/*.sh \
+            "${ADDON_PATH}"/tests/*.sh
+
+      # Behaviour, against the broker above. This is the half that the image build cannot check:
+      # the image is built and never run, and this add-on has no application repository whose CI
+      # would otherwise exercise its scripts.
+      - name: Add-on script tests
+        run: "${ADDON_PATH}/tests/glue.sh"
+
   prepare:
     name: Prepare build matrix
     runs-on: ubuntu-latest
