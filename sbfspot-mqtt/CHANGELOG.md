@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.2 - RETIREMENT ON REQUEST
+
+- **WHAT CHANGED**: `sbfspot-mqtt` moves to `v0.1.3`. Deleting the configuration of a channel a
+  reading no longer carries now happens only in the poll loop, which knows the reading is complete:
+  the `discover` subcommand needs `--retire`, so a payload somebody typed can no longer empty a
+  device by accident. A serial carrying an MQTT wildcard is refused before it can reach a topic. And
+  the pages no longer say that an inverter nobody named reports an empty name — it reports its
+  serial, which is why the device is named after its model instead.
+- **WHY**: retiring is a claim about the payload — that it is a whole reading — and only the poll
+  loop is in a position to make it. With the claim implied by default, a payload carrying a single
+  known key deleted the rest of that inverter's entities.
+- **UPDATING**: nothing to configure. The add-on restarts on the new program.
+
 ## 0.2.1 - A NAME, AND DISCOVERY THAT CAN SHRINK
 
 - **WHAT CHANGED**: `sbfspot-mqtt` moves to `v0.1.2`. An inverter nobody named in Sunny Explorer is
@@ -8,10 +21,10 @@
   the loop actually keeps; and the documentation no longer sends you to the Sunny Beam's menu for a
   Bluetooth address that is not there.
 - **WHY**: the first two came out of the first run against a real inverter, from the log rather than
-  from a test. SBFspot does not leave `InvName` empty for an unnamed inverter — it writes the serial
-  in its place, which the device page already carries as the serial number — and the entity set of a
-  discovery-driven integration has to be able to shrink, or a firmware that drops a channel leaves
-  behind an entity nobody can get rid of.
+  from a test. An inverter nobody named in Sunny Explorer reports its own serial as its device name,
+  which the page already carries as the serial number — and the entity set of a discovery-driven
+  integration has to be able to shrink, or a firmware that drops a channel leaves behind an entity
+  nobody can get rid of.
 - **UPDATING**: nothing to configure. The add-on restarts on the new program. The three
   permanently-zero DC-string entities of an inverter whose array uses one string input stay where
   they are, and can be disabled in Home Assistant if they are in the way.
@@ -52,7 +65,7 @@
 - **AN EMPTY VALUE NO LONGER COSTS EVERY SENSOR**: upstream's `to_keyvalue()` ends with
   `boost::replace_all(key_value, "\"\"", "\"")`, which turns an empty string value into an
   unterminated string: `"InvName": ""` arrives as `"InvName": "` and the whole payload fails to
-  parse. `InvName` is empty on an inverter nobody named. The publisher repairs exactly that case
+  parse. The publisher repairs exactly that case
   and republishes it, rather than turning one missing name into an add-on that looks like it cannot
   reach the inverter. A payload truncated by a `'` in a name is still refused, with the raw text in
   the log: that one cannot be repaired, and a half-payload is worse than a failed poll.

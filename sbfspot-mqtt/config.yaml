@@ -1,6 +1,6 @@
 name: "SBFspot MQTT bridge"
 url: https://github.com/Stinocon/addons/tree/master/sbfspot-mqtt
-version: "0.2.1"
+version: "0.2.2"
 slug: sbfspot_mqtt
 description: "Reads an SMA Sunny Boy inverter over Bluetooth with SBFspot and publishes it to Home Assistant over MQTT."
 

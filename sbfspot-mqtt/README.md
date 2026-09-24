@@ -134,7 +134,7 @@ which is exactly what the dashboard requires.
   no database. The program receives the reading through SBFspot's own publisher hook, refuses
   anything that is not a valid JSON object instead of publishing a truncated payload as a sensor
   that never updates again, and repairs the one corruption upstream produces on its own — an empty
-  string value, which is what an inverter nobody named in Sunny Explorer has.
+  string value, which is what a field the inverter leaves empty arrives as.
 - The broker's address and credentials come from the Supervisor's MQTT service when the options
   leave them empty, and reach the publisher from a mode-600 file rather than through the shell
   string SBFspot builds.

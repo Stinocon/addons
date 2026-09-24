@@ -9,7 +9,7 @@ ARG BUILD_FROM
 # and a stage that redeclares it without a default inherits the global one -- which is how the check
 # at the bottom of this file knows what was pinned.
 ARG SBFSPOT_REF="V3.9.12"
-ARG SBFSPOT_MQTT_REF="v0.1.2"
+ARG SBFSPOT_MQTT_REF="v0.1.3"
 
 FROM ${BUILD_FROM} AS build
 
