@@ -1,6 +1,6 @@
 name: "SBFspot MQTT bridge"
 url: https://github.com/Stinocon/addons/tree/master/sbfspot-mqtt
-version: "0.2.0"
+version: "0.2.1"
 slug: sbfspot_mqtt
 description: "Reads an SMA Sunny Boy inverter over Bluetooth with SBFspot and publishes it to Home Assistant over MQTT."
 
@@ -49,9 +49,11 @@ options:
   log_level: info
 
 schema:
-  # Bluetooth address of the inverter, as shown in Sunny Explorer or in the Sunny Beam's menu
-  # under the plant information. Leave it empty and the add-on stops at startup with a message
-  # saying so: guessing here would mean talking to a neighbour's inverter, or to none.
+  # Bluetooth address of the inverter, as shown in Sunny Explorer. On a Linux machine in range,
+  # `bluetoothctl scan on` finds it too: the inverter appears as a device named after its serial.
+  # The Sunny Beam shows the plant's NetID, not this address. Leave this empty and the add-on stops
+  # at startup with a message saying so: guessing here would mean talking to a neighbour's inverter,
+  # or to none.
   bt_address: str
   # The inverter's *user* password, not the installer one. SBFspot reads and never writes, so
   # the installer level is neither needed nor wanted.

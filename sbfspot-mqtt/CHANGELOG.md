@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.2.1 - A NAME, AND DISCOVERY THAT CAN SHRINK
+
+- **WHAT CHANGED**: `sbfspot-mqtt` moves to `v0.1.2`. An inverter nobody named in Sunny Explorer is
+  named after its model instead of `SN: <serial>`; a discovery channel that stops appearing in a
+  reading is deleted from the broker instead of left behind; the start-up line states the interval
+  the loop actually keeps; and the documentation no longer sends you to the Sunny Beam's menu for a
+  Bluetooth address that is not there.
+- **WHY**: the first two came out of the first run against a real inverter, from the log rather than
+  from a test. SBFspot does not leave `InvName` empty for an unnamed inverter — it writes the serial
+  in its place, which the device page already carries as the serial number — and the entity set of a
+  discovery-driven integration has to be able to shrink, or a firmware that drops a channel leaves
+  behind an entity nobody can get rid of.
+- **UPDATING**: nothing to configure. The add-on restarts on the new program. The three
+  permanently-zero DC-string entities of an inverter whose array uses one string input stay where
+  they are, and can be disabled in Home Assistant if they are in the way.
+
 ## 0.2.0 - THE PROGRAM MOVES OUT
 
 - **WHAT CHANGED**: the poll loop, the configuration generator, the publisher hook and the MQTT

@@ -11,8 +11,8 @@ integrated Bluetooth — have no network interface at all. They answer over Blue
 them at once.
 
 This add-on runs [sbfspot-mqtt](https://github.com/Stinocon/sbfspot-mqtt), which polls such an
-inverter with [SBFspot](https://github.com/SBFspot/SBFspot) — every 60 seconds by default, at
-whatever interval you set — and publishes what comes back as Home Assistant entities: current
+inverter with [SBFspot](https://github.com/SBFspot/SBFspot) — on a 60-second interval by default,
+timed from the end of one reading to the start of the next — and publishes what comes back as Home Assistant entities: current
 power, energy today and total, status, temperature, DC voltage/current per string, grid frequency,
 operating hours.
 
@@ -48,9 +48,10 @@ Then install **SBFspot MQTT bridge**, fill in `bt_address` and `password`, and s
 Any of these work, in order of convenience:
 
 - **Sunny Explorer**, connected to the inverter: the address is in the device information.
-- The **Sunny Beam**'s plant menu, while it is still running — before it is switched off.
 - On a Linux machine in range: `bluetoothctl scan on` (the inverter appears as a device named
   after its serial).
+
+The Sunny Beam shows the plant's NetID and its own Bluetooth version, not this address.
 
 ## Configuration
 
@@ -78,8 +79,8 @@ different MQTT client; this version states it instead of implying otherwise.
 
 ## The entities
 
-One device in Home Assistant, named after the inverter, with the sensors the inverter actually
-reports:
+One device in Home Assistant — named after the inverter, or after its model when nobody named it —
+with the sensors the inverter actually reports:
 
 | Sensor | Unit | Notes |
 |--------|------|-------|
@@ -88,7 +89,7 @@ reports:
 | Energy total | kWh | Lifetime yield — this is the one for the Energy dashboard. |
 | Status | — | `Ok`, `Derating`, `Fault`, … as the inverter reports it. Useful as an automation trigger. |
 | Temperature | °C | Inverter temperature. |
-| DC voltage / current / power, string N | V / A / W | Upstream always reports two strings, so both exist; a single-string inverter reports the second as 0. |
+| DC voltage / current / power, string N | V / A / W | One set per string the inverter reports; an input nobody wired reads zero. |
 | Grid frequency | Hz | |
 | Operating time, Feed-in time | h | Lifetime counters. |
 | Grid relay | — | `Closed` when the inverter is feeding the grid. |
@@ -105,10 +106,12 @@ invented.
 
 That is also the limit of it, and it is worth saying plainly. The channels *asked for* are a fixed
 list in the generated configuration, and SBFspot answers every one of them — with `0` or `?` when
-the model has no such channel, and with **two DC strings always**, because upstream seeds both MPPT
-slots before every reading. On a single-string inverter `DC voltage string 2` therefore exists and
-reads 0. A constant zero or a `?` on the device page means the inverter does not have that
-channel; it is not a fault, and the first reading is what says which ones they are.
+the model has no such channel, and with **every MPPT slot the protocol has**, because upstream
+seeds them all before every reading. An inverter that uses one string input therefore reports the
+other as 0 V, 0 A and 0 W, on every reading, for as long as the installation exists: that is what an
+unused input looks like, not a fault. Naming one slot instead would read a model that reports in the
+other one as zeros, so the list stays as wide as the protocol — and the three entities can be
+**disabled** in Home Assistant if they are noise on the device page.
 
 If the inverter stops answering, all of them go **unavailable** after three failed polls, rather
 than showing a value from an hour ago as if it were current.
@@ -137,7 +140,9 @@ which is exactly what the dashboard requires.
   string SBFspot builds.
 - Discovery is published once, retained, from the first successful reading, and republished when
   the set of keys changes — a second string waking up, a firmware update. It is also re-published
-  at every start, so a changed sensor definition takes effect.
+  at every start, so a changed sensor definition takes effect. A channel that stops appearing is
+  **retired**: its configuration is deleted from the broker rather than left describing an entity
+  whose value template resolves to nothing.
 
 ## Known limitations
 
