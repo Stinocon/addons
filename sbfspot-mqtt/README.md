@@ -12,9 +12,9 @@ them at once.
 
 This add-on runs [sbfspot-mqtt](https://github.com/Stinocon/sbfspot-mqtt), which polls such an
 inverter with [SBFspot](https://github.com/SBFspot/SBFspot) — on a 60-second interval by default,
-timed from the end of one reading to the start of the next — and publishes what comes back as Home Assistant entities: current
-power, energy today and total, status, temperature, DC voltage/current per string, grid frequency,
-operating hours.
+timed from the end of one reading to the start of the next — and publishes what comes back as Home
+Assistant entities: current power, energy today and total, status, temperature, DC
+voltage/current per string, grid frequency, operating hours.
 
 It is **read-only**. Nothing here writes to the inverter — not a setting, not a command, and not
 the clock: `-settime` is never passed, and the generated configuration sets `SynchTime=0`, because
@@ -41,7 +41,10 @@ In Home Assistant: **Settings → Add-ons → Add-on Store**, top-right menu, **
 https://github.com/Stinocon/addons
 ```
 
-Then install **SBFspot MQTT bridge**, fill in `bt_address` and `password`, and start it.
+Then install **SBFspot MQTT bridge**, fill in `bt_address` and `password`, and start it. Nothing
+else has to be typed in anywhere: the broker's address and credentials come from the Supervisor,
+and Home Assistant creates the entities by itself out of what this add-on publishes — there is no
+configuration for them, and nothing to declare per sensor.
 
 ### Finding the Bluetooth address
 
@@ -121,6 +124,29 @@ than showing a value from an hour ago as if it were current.
 **Settings → Dashboards → Energy → Solar production → Add solar production**, and pick
 **Energy total**. It carries `device_class: energy`, `state_class: total_increasing` and `kWh`,
 which is exactly what the dashboard requires.
+
+### History and statistics
+
+Nothing has to be enabled for this. Every sensor that measures something is published with a
+`state_class`, and Home Assistant turns that into **long-term statistics** on its own: these are
+what the Energy dashboard reads, and they are kept indefinitely. The recorder's own retention
+setting (`purge_keep_days`, ten days by default) trims the *state history* only — statistics are
+not purged with it.
+
+The three diagnostics — **Grid relay**, **Inverter time**, **Data timestamp** — carry no
+`state_class`: they describe the reading rather than the plant, so they get state history and no
+statistics.
+
+Renaming a sensor keeps its history; changing its `entity_id` by hand starts a new statistic, and
+the Energy dashboard would go on pointing at the old one. That is why these entity IDs keep the
+serial they were created with, even after the device is named after its model.
+
+One consequence of polling, worth knowing before it surprises anybody doing a backup: a reading
+updates seventeen entities, and at the default interval there are about 1,180 readings a day (60
+seconds plus the time a poll takes). The ceiling is therefore on the order of twenty thousand rows
+a day in the recorder's database, if every update earned one — the same order of magnitude as the
+rest of a Home Assistant installation, lower with a longer `interval`, and the lever if it ever
+matters is excluding a sensor from the recorder.
 
 ## How it works
 
