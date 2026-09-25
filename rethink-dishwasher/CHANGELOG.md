@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.2
+
+- Builds the fork's `v0.1.0-d0211.2` tag: it drops the comments that pointed at a non-public
+  repository. Nothing about the dishwasher decode changes.
+
 ## 0.2.1
 
 - Builds the fork's `v0.1.0-d0211.1` tag: the dishwasher handler no longer treats record state

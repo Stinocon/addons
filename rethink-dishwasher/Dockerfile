@@ -18,10 +18,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Pinned to the fork's own tag, not to a branch: the dishwasher work lives on the branch rebased
-# onto rethink v0.1.0 (`v0.1.0-d0211.1` = rethink v0.1.0 plus the D0211 handler and the 0x01-state
-# fix), while the fork's `master` is an older development line whose handler predates the adopted
-# option mapping. A tag also means a given add-on version always builds the same source.
-ARG RETHINK_REF=v0.1.0-d0211.1
+# onto rethink v0.1.0 (`v0.1.0-d0211.2` = rethink v0.1.0 plus the D0211 handler, the 0x01-state fix
+# and the removal of the references to a non-public repository), while the fork's `master` is an
+# older development line whose handler predates the adopted option mapping. A tag also means a
+# given add-on version always builds the same source.
+ARG RETHINK_REF=v0.1.0-d0211.2
 
 # Cache-bust: changing the ref above invalidates the clone layer below, so a rebuild picks up the
 # new source instead of reusing the stale cloned layer.

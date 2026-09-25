@@ -156,6 +156,6 @@ the raw frames.
 The add-on packaging in this repository is MIT. The server it builds is
 [rethink](https://github.com/anszom/rethink) (GPL), vendored at build time from
 [Stinocon/rethink-dishwasher](https://github.com/Stinocon/rethink-dishwasher), a GPL fork that
-adds the dishwasher definition. The Dockerfile pins that fork's tag `v0.1.0-d0211.1` (rethink
-`v0.1.0` plus two commits) rather than a branch, so a build is reproducible and a later fork
-commit cannot slip in unreviewed.
+adds the dishwasher definition. The Dockerfile pins that fork's tag `v0.1.0-d0211.2` (rethink
+`v0.1.0` plus the dishwasher work) rather than a branch, so a build is reproducible and a later
+fork commit cannot slip in unreviewed.
