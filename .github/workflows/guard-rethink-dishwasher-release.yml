@@ -6,6 +6,10 @@ name: "Guard rethink-dishwasher release"
 # failure only appeared on the machine running it. The tag is what publishes; a version without
 # its tag is an incomplete release, and this check says so.
 #
+# The release has a second half that nothing checked: the Dockerfile pins the fork at a tag of
+# its own. A ref that does not exist fails the build, but a ref that exists on a side branch
+# builds a line the fork does not keep -- and that half failed silently here once too.
+#
 # Push the branch and the tag in the same operation to keep it green:
 #   git push origin master rethink-dishwasher-<version>
 on:
@@ -13,8 +17,9 @@ on:
     branches:
       - master
     paths:
-      # Only a version change can create the problem. A README or a Dockerfile edit cannot.
+      # A version change and a re-pin can both create the problem. A README edit cannot.
       - 'rethink-dishwasher/config.yaml'
+      - 'rethink-dishwasher/Dockerfile'
       - '.github/workflows/guard-rethink-dishwasher-release.yml'
     # Path filters are not evaluated for pushes of tags, so pushing the tag runs this too -- the
     # green confirmation that the tag has landed and the release is complete.
@@ -51,3 +56,41 @@ jobs:
           echo "Push the branch and the tag together:"
           echo "  git tag ${tag} && git push origin master ${tag}"
           exit 1
+
+  fork-ref-is-real:
+    name: the pinned fork tag exists and is on the fork's default branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Fail if the pinned ref is missing, or not on the live line
+        run: |
+          set -euo pipefail
+          addon=rethink-dishwasher
+          ref=$(sed -n 's/^ARG RETHINK_REF=//p' "${addon}/Dockerfile")
+          if [ -z "${ref}" ]; then
+              echo "::error::${addon}/Dockerfile has no 'ARG RETHINK_REF=', so there is no pinned source to check."
+              exit 1
+          fi
+          fork=https://github.com/Stinocon/rethink-dishwasher.git
+
+          # The peeled ref: on an annotated tag `refs/tags/X` is the tag object and `X^{}` the commit.
+          sha=$(git ls-remote "${fork}" "refs/tags/${ref}^{}" | cut -f1)
+          if [ -z "${sha}" ]; then
+              echo "::error::${addon}/Dockerfile pins '${ref}', which does not exist in ${fork}. The image build would fail on the clone."
+              exit 1
+          fi
+          echo "OK: ${ref} resolves to ${sha}."
+
+          # A tag on a side branch is a release nobody builds from: `git clone --branch` resolves it
+          # all the same, so the add-on can quietly build a line the fork stopped keeping.
+          git clone --quiet --filter=blob:none --no-checkout "${fork}" fork
+          git -C fork fetch --quiet origin "refs/tags/${ref}:refs/tags/${ref}"
+          default=$(git -C fork symbolic-ref --short refs/remotes/origin/HEAD | sed 's#^origin/##')
+          if git -C fork merge-base --is-ancestor "${sha}" "origin/${default}"; then
+              echo "OK: ${ref} is on ${default}."
+          else
+              echo "::error::${ref} is not an ancestor of ${fork}'s ${default}: the add-on would build a branch the fork does not keep."
+              exit 1
+          fi

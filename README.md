@@ -149,15 +149,23 @@ multi-add-on repository would rebuild the one that had nothing to do with it.
 The tag must be pushed **after** `config.yaml` carries the matching `version:` — the workflow
 reads the version from `config.yaml`, not from the tag name, and tags the image with it.
 
+An add-on that builds another repository at a pinned ref adds a step before that: tag the source,
+pin that tag in the Dockerfile, then bump `version:` and push the branch and the add-on tag
+together. The ref in the Dockerfile is what the image is built from, so the version, the tag and
+the pin are one release and move together.
+
 A version without its tag is a release that never happened: the repository advertises it and
 Home Assistant fails on a machine that cannot install the missing image. A guard workflow
 ([`guard-ezviz-stream-bridge-release.yml`](.github/workflows/guard-ezviz-stream-bridge-release.yml),
 [`guard-rethink-dishwasher-release.yml`](.github/workflows/guard-rethink-dishwasher-release.yml)
 and [`guard-sbfspot-mqtt-release.yml`](.github/workflows/guard-sbfspot-mqtt-release.yml)) fails
 any push to that add-on's `config.yaml` whose declared version has no matching tag, so the
-mistake surfaces in CI rather than in somebody's update dialog. Push the branch and the tag
-together to keep it green. The same guard can be copied for another add-on, with `addon=` and the
-tag pattern adjusted to that add-on's.
+mistake surfaces in CI rather than in somebody's update dialog. For `rethink-dishwasher` the same
+workflow checks the other half of the release as well: the ref its Dockerfile pins must exist in
+the fork **and** sit on the fork's default branch, because a tag on a side branch is a release
+nobody builds from. Push the branch and the tag together to keep both green. The same guards can
+be copied for another add-on, with `addon=`, the tag pattern and — where the add-on builds another
+repository — the ref it pins adjusted to that add-on's.
 
 Pull requests and pushes touching `ialarm-mqtt/`, `ezviz-stream-bridge/`, `rethink-dishwasher/` or
 `sbfspot-mqtt/` also get a no-push test build
