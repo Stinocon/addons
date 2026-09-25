@@ -152,11 +152,12 @@ reads the version from `config.yaml`, not from the tag name, and tags the image 
 A version without its tag is a release that never happened: the repository advertises it and
 Home Assistant fails on a machine that cannot install the missing image. A guard workflow
 ([`guard-ezviz-stream-bridge-release.yml`](.github/workflows/guard-ezviz-stream-bridge-release.yml),
-and [`guard-sbfspot-mqtt-release.yml`](.github/workflows/guard-sbfspot-mqtt-release.yml) for the
-same check on `sbfspot-mqtt`) fails any push to that add-on's `config.yaml` whose declared version
-has no matching tag, so the mistake surfaces in CI rather than in somebody's update dialog. Push
-the branch and the tag together to keep it green. The same guard can be copied for another add-on,
-with `addon=` and the tag pattern adjusted to that add-on's.
+[`guard-rethink-dishwasher-release.yml`](.github/workflows/guard-rethink-dishwasher-release.yml)
+and [`guard-sbfspot-mqtt-release.yml`](.github/workflows/guard-sbfspot-mqtt-release.yml)) fails
+any push to that add-on's `config.yaml` whose declared version has no matching tag, so the
+mistake surfaces in CI rather than in somebody's update dialog. Push the branch and the tag
+together to keep it green. The same guard can be copied for another add-on, with `addon=` and the
+tag pattern adjusted to that add-on's.
 
 Pull requests and pushes touching `ialarm-mqtt/`, `ezviz-stream-bridge/`, `rethink-dishwasher/` or
 `sbfspot-mqtt/` also get a no-push test build
