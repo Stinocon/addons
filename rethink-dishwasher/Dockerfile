@@ -17,9 +17,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         openssl \
     && rm -rf /var/lib/apt/lists/*
 
-# Cache-bust: this file changes on every fork commit, invalidating the clone layer below so a
-# rebuild after a source change does not reuse the stale cloned layer.
-ARG RETHINK_REF=master
+# Pinned to the fork's own tag, not to a branch: the dishwasher work lives on the branch rebased
+# onto rethink v0.1.0 (`v0.1.0-d0211`), while the fork's `master` is the older pre-rebase tree and
+# would build without it. A tag also means a given add-on version always builds the same source.
+ARG RETHINK_REF=v0.1.0-d0211
+
+# Cache-bust: changing the ref above invalidates the clone layer below, so a rebuild picks up the
+# new source instead of reusing the stale cloned layer.
 ADD https://api.github.com/repos/Stinocon/rethink-dishwasher/commits/${RETHINK_REF} /tmp/rethink-source.json
 
 RUN git clone --depth 1 --branch "${RETHINK_REF}" \

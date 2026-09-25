@@ -8,9 +8,12 @@ With this add-on your LG dishwasher talks to Home Assistant **directly**, with n
 no LG app. State, program, remaining time, cycle end, errors and the salt / rinse-aid refill
 indicators all land on MQTT, from which Home Assistant auto-discovers them.
 
-> **Status — dishwasher support is a scaffold.** The dishwasher model is registered and the
-> target entities are exposed, but the field decoding is still being written against live
-> captures. The rest of rethink (ACs, washers, dryers, fridges, hoods, …) works as upstream.
+> **Status — dishwasher support is beta.** The model is registered and the decode is written
+> against live captures of a real unit: run state, process phase, initial and remaining time, the
+> course byte, the cycle counter, and the option and status bits measured on the appliance. Six
+> further bit positions come from an independent handler for the same record layout and are marked
+> in the source as predictions until a wash confirms each. The rest of rethink (ACs, washers,
+> dryers, fridges, hoods, …) works as upstream.
 
 ## How it works
 
@@ -153,4 +156,6 @@ the raw frames.
 The add-on packaging in this repository is MIT. The server it builds is
 [rethink](https://github.com/anszom/rethink) (GPL), vendored at build time from
 [Stinocon/rethink-dishwasher](https://github.com/Stinocon/rethink-dishwasher), a GPL fork that
-adds the dishwasher definition.
+adds the dishwasher definition. The Dockerfile pins that fork's tag `v0.1.0-d0211` (rethink
+`v0.1.0` plus one commit) rather than a branch, so a build is reproducible and a later fork
+commit cannot slip in unreviewed.
