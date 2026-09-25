@@ -3,8 +3,8 @@
 ## 0.2.0
 
 - Builds the fork's `v0.1.0-d0211` tag instead of its `master` branch. The dishwasher work lives
-  on the branch rebased onto rethink `v0.1.0`; the fork's `master` is the older pre-rebase tree
-  and would build without it.
+  on the branch rebased onto rethink `v0.1.0`; the fork's `master` is an older development line
+  whose handler predates the adopted option mapping.
 - The dishwasher decode now covers the whole published entity set rather than a scaffold: run
   state, process phase, initial and remaining time, the course byte, the cycle counter, and the
   option and status bits. State labels are English, and the time sensors publish whole minutes,
