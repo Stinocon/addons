@@ -1,6 +1,6 @@
 name: "rethink-cloud — LG Dishwasher"
 slug: rethink_dishwasher
-version: "0.2.0"
+version: "0.2.1"
 description: >-
   Local LG ThinQ cloud emulator (a rethink fork) with LG dishwasher support, so
   your LG appliances talk to Home Assistant instead of LG's servers — no cloud,
