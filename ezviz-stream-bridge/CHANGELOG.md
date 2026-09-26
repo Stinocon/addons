@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.1.13
+
+- **The audio input can no longer park the session.** FFmpeg opens its inputs in order and probes
+  the video one before it opens the audio input at all, so a session that wrote its buffered audio
+  first could park on a full audio pipe while FFmpeg waited for video that the same thread had not
+  written yet, with no way out: closing that pipe does not wake a thread already inside `write`.
+  The audio descriptor is now non-blocking, and what it will not take is held and offered again on
+  every later packet. Reproduced with a long `audio_window` before the fix, and pinned by a test
+  that parks without it.
+- **Audio that never reaches FFmpeg is counted, and said out loud.** Past the buffer bound the
+  oldest whole chunks are dropped, whole chunks because a loss has to be a gap in the sound and not
+  a corrupted frame, and the session warns with the byte count instead of losing audio quietly. The
+  stall behaviour is unchanged: five seconds of silence ends that input so the video keeps flowing.
+- **The line for an unserved payload type now says when, not why.** It reports whether that payload
+  started before or after the moment the session stopped looking, which is the fact that decides
+  whether raising `audio_window` is the fix at all. The previous wording blamed the window for
+  payloads that had arrived while it was open.
+
 ## 0.1.12
 
 - **The channel count is read from the camera instead of assumed.** An AAC Access Unit opens with

@@ -398,7 +398,8 @@ blocks it for good — the session keeps reading for up to `audio_window` second
 payload; a camera whose audio starts with its video pays nothing for that, and `audio_window: 0`
 turns the audio path off. If the camera's audio then stops mid-session, that input is ended after
 five seconds of silence so the video keeps flowing, which leaves that session without sound —
-FFmpeg stops muxing altogether on an input with no data in it.
+FFmpeg stops muxing altogether on an input with no data in it. Audio the sink cannot hand over is
+counted, and the session warns with the byte count rather than losing sound quietly.
 
 If a camera sends video but the consumer receives nothing — `first-video` appears and `bytes`
 stays 0 — set `log_ffmpeg_stderr: true`. FFmpeg's own diagnostics are then logged, bounded to 20
