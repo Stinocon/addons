@@ -388,16 +388,21 @@ an elementary stream before starting FFmpeg with the codec as its input format. 
 stream is unaffected: same demuxer, same bytes. The cost is up to eight packets of added
 latency per session, because the decision has to be made before FFmpeg exists.
 
-A camera that sends its video as RTP sends its sound there too, under a second payload type,
-and the add-on reads that the same way: the AAC Access Units an `MPEG4-GENERIC` payload carries
-are unwrapped and reframed as ADTS, and FFmpeg gets a second input for them. The sample rate
-comes from the family's convention — nothing in the payload names one — while the channel count
-is read from the Access Units themselves and the session logs which of the two it used. Because FFmpeg has
-to be told about that input before it starts — an input it opens and never gets a frame from
-blocks it for good — the session keeps reading for up to `audio_window` seconds to find the
-payload; a camera whose audio starts with its video pays nothing for that, and `audio_window: 0`
-turns the audio path off. If the camera's audio then stops mid-session, that input is ended after
-five seconds of silence so the video keeps flowing, which leaves that session without sound —
+A camera that sends its video as RTP sends its sound there too, under a second payload type:
+RFC 3640 `MPEG4-GENERIC` in `AAC-hbr` mode. The AAC Access Units those payloads carry are unwrapped
+and reframed as ADTS, and FFmpeg gets a second input for them. Of the configuration that framing
+needs, the sample rate comes from the family's convention, since nothing in the payload names one,
+while the channel count is read from the Access Units themselves. The session logs the
+configuration it used, whether that count was read from the stream or fell back to the default, how
+many payloads it could not read at all, and the measured interval between the packets beside the
+sample rate that interval implies, which is the only cross-check the rate can have.
+
+It costs a short read-ahead, and only a camera with no audio pays it. FFmpeg has to be told about
+that input before it starts, because an input it opens and never gets a frame from blocks it for
+good, so the session keeps reading for up to `audio_window` seconds to find the payload. A camera
+whose audio starts with its video pays nothing; one that never sends audio pays the window, once per
+session, and `audio_window: 0` turns the audio path off. If the camera's audio then stops
+mid-session, that input is ended after five seconds of silence so the video keeps flowing, because
 FFmpeg stops muxing altogether on an input with no data in it. Audio the sink cannot hand over is
 counted, and the session warns with the byte count rather than losing sound quietly.
 
