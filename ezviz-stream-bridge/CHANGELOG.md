@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.1.12
+
+- **The channel count is read from the camera instead of assumed.** An AAC Access Unit opens with
+  its element id, and a single channel element is one channel where a channel pair element is
+  two — so a stereo camera is no longer framed with the family's mono default and muxed as a
+  broken pair. The reading skips the Access Units that name no channel, which is what an
+  encoder's primer frame is (measured on FFmpeg's own AAC encoder), and the session logs whether
+  the count was read from the stream or fell back to the default.
+- **The log carries the measured cadence.** The sample rate is the one part of the configuration
+  no field in the payload holds, so it stays the family's 16 kHz — and the session now prints the
+  interval between the packets it actually received beside the rate that interval implies, which
+  is the only cross-check that assumption can have.
+- **`--first-video-timeout` and `--timeout-cooldown` refuse `nan` and `inf`,** as `--audio-window`
+  already did. Every comparison against them is false, so a no-video budget of `nan` never fires.
+- **The stall recovery is covered by the gate.** It was measured on one ffmpeg and shipped with
+  the measurement written down; a leg of `tools/verify_rtp_against_addon.sh` now paces a stream
+  whose audio stops mid-session and asserts that video arrives after the input was given up, on
+  the ffmpeg this image installs.
+
 ## 0.1.11
 
 - **The audio watchdog could end the session it was there to save.** When the camera's audio had

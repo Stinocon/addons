@@ -390,7 +390,9 @@ latency per session, because the decision has to be made before FFmpeg exists.
 
 A camera that sends its video as RTP sends its sound there too, under a second payload type,
 and the add-on reads that the same way: the AAC Access Units an `MPEG4-GENERIC` payload carries
-are unwrapped and reframed as ADTS, and FFmpeg gets a second input for them. Because FFmpeg has
+are unwrapped and reframed as ADTS, and FFmpeg gets a second input for them. The sample rate
+comes from the family's convention — nothing in the payload names one — while the channel count
+is read from the Access Units themselves and the session logs which of the two it used. Because FFmpeg has
 to be told about that input before it starts — an input it opens and never gets a frame from
 blocks it for good — the session keeps reading for up to `audio_window` seconds to find the
 payload; a camera whose audio starts with its video pays nothing for that, and `audio_window: 0`
