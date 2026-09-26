@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.11
+
+- **The audio watchdog could end the session it was there to save.** When the camera's audio had
+  been quiet long enough for that input to be given up, a packet being written at that moment
+  could take the whole session down with it — video included — instead of costing a frame. A
+  microsecond race against a five-second threshold, and the fix is a bound reference, but the
+  failure was exactly the one the guard exists to prevent.
+- **`--audio-window` on the command line now refuses `nan` and `inf`.** The add-on options
+  already did; the flag did not, and `nan` disarms every comparison it is used in, including the
+  deadline it was meant to set.
+
 ## 0.1.10
 
 - **A camera that sends its video as RTP now carries its sound too.** Not every device on this
