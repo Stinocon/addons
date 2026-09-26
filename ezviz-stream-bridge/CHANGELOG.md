@@ -1,5 +1,36 @@
 # Changelog
 
+## 0.1.10
+
+- **A camera that sends its video as RTP now carries its sound too.** Not every device on this
+  cloud relay sends MPEG-PS, and the ones that do not put their audio on the same RTP session as
+  their video, under a second payload type: RFC 3640 `MPEG4-GENERIC` in `AAC-hbr` mode. Those
+  payloads carry Access Units with no ADTS header — the header belongs in the camera's SDP, which
+  this bridge never sees — so the session unwraps them, rebuilds the header from the standard
+  `AudioSpecificConfig` of the family (AAC-LC, 16000 Hz, mono), and gives FFmpeg a second input
+  for the result. An MPEG-PS session is untouched: it carries its own audio inside the container
+  and waits for nothing. Verified end to end against the ffmpeg this image installs, for both
+  video codecs, with the ADTS rebuilt from the camera's Access Units checked against the ADTS
+  FFmpeg wrote in the first place, byte for byte.
+- **Finding the audio costs a little latency, and one option controls it.** FFmpeg has to be told
+  about that second input before it starts, because an input it opens and never receives a frame
+  from blocks it for good — so a session reads its leading packets for up to `audio_window`
+  seconds (2 by default) looking for the camera's audio. A camera whose audio starts with its
+  video pays only until that first packet arrives; one that sends no audio at all pays the whole
+  window, once per session. `audio_window: 0` turns the audio path off and serves video only.
+- **An audio stream that stops does not take the video with it.** FFmpeg stops muxing altogether
+  when one of its inputs has no data in it, so an audio input that has been silent for five
+  seconds is ended: that session keeps the video and loses its sound, which is the better half of
+  the trade. Every session that handles audio logs the config it assumed and how much of it was
+  unreadable, so a camera that differs can be seen rather than heard.
+- **A second payload type that turns out not to be audio now says when its media started.** The
+  session records that time for every payload type against the window it was willing to wait for
+  it, so a camera whose audio begins later than the window is corrected from a log line instead
+  of guessed at again.
+- Nothing about the forwarded stream changes for a camera that was already working. The video path
+  is the same, an MPEG-PS session is byte for byte what it was, and the new lines appear only for
+  a session that carries a second media payload type.
+
 ## 0.1.9
 
 - **What a discarded RTP payload type carried is now reported, not only counted.** One RTP

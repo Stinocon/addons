@@ -1,7 +1,7 @@
 # EZVIZ Stream Bridge
 
-Serves the video from an EZVIZ camera as MPEG-TS over HTTP, so go2rtc, Frigate, or anything
-else that speaks FFmpeg can use a camera that offers no RTSP.
+Serves the video and audio from an EZVIZ camera as MPEG-TS over HTTP, so go2rtc, Frigate, or
+anything else that speaks FFmpeg can use a camera that offers no RTSP.
 
 > **Read this first.** A personal project, published as is and with no warranty: it is not a
 > finished product nor a commercial one, and it will not become either. It was written in large
@@ -99,6 +99,8 @@ cameras:
 log_level: info
 log_ffmpeg_stderr: false          # true = log FFmpeg's own stderr, and the leading packets, when a
                                   # stream produces no output
+audio_window: 2                   # seconds to read ahead for the camera's audio before starting
+                                  # FFmpeg; 0 serves video only
 ```
 
 Up to five cameras, on ports 8558-8562, one port each.
@@ -385,6 +387,16 @@ packets of every session, decides the transport from them, and depacketizes an R
 an elementary stream before starting FFmpeg with the codec as its input format. An MPEG-PS
 stream is unaffected: same demuxer, same bytes. The cost is up to eight packets of added
 latency per session, because the decision has to be made before FFmpeg exists.
+
+A camera that sends its video as RTP sends its sound there too, under a second payload type,
+and the add-on reads that the same way: the AAC Access Units an `MPEG4-GENERIC` payload carries
+are unwrapped and reframed as ADTS, and FFmpeg gets a second input for them. Because FFmpeg has
+to be told about that input before it starts — an input it opens and never gets a frame from
+blocks it for good — the session keeps reading for up to `audio_window` seconds to find the
+payload; a camera whose audio starts with its video pays nothing for that, and `audio_window: 0`
+turns the audio path off. If the camera's audio then stops mid-session, that input is ended after
+five seconds of silence so the video keeps flowing, which leaves that session without sound —
+FFmpeg stops muxing altogether on an input with no data in it.
 
 If a camera sends video but the consumer receives nothing — `first-video` appears and `bytes`
 stays 0 — set `log_ffmpeg_stderr: true`. FFmpeg's own diagnostics are then logged, bounded to 20

@@ -1,8 +1,8 @@
 name: "EZVIZ Stream Bridge"
 url: https://github.com/Stinocon/addons/tree/master/ezviz-stream-bridge
-version: "0.1.9"
+version: "0.1.10"
 slug: ezviz_stream_bridge
-description: "Serves EZVIZ camera video as MPEG-TS over HTTP, so go2rtc and Frigate can use cameras that expose no RTSP."
+description: "Serves EZVIZ camera video and audio as MPEG-TS over HTTP, so go2rtc and Frigate can use cameras that expose no RTSP."
 
 # aarch64 and amd64 only. pyezvizapi needs `cryptography`, which publishes no wheels for
 # 32-bit ARM: on armv7/armhf the build would compile it from Rust source on every image,
@@ -49,6 +49,7 @@ options:
       port: 8558
   log_level: info
   log_ffmpeg_stderr: false
+  audio_window: 2
 
 schema:
   username: str
@@ -61,5 +62,8 @@ schema:
       port: int(8558,8562)?
   log_level: list(trace|debug|info|notice|warning|error|fatal)
   log_ffmpeg_stderr: bool
+  # Seconds the bridge reads ahead for the camera's audio before it starts FFmpeg, which is what
+  # lets a stream carry its sound. 0 serves video only.
+  audio_window: float(0,10)
 
 image: stfncntr/{arch}-addon-ezviz-stream-bridge
