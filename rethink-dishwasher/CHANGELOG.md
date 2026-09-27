@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.3
+
+- Builds the fork's `v0.1.0-d0211.3` tag: the delay-start countdown runs at state `0x02` with
+  process `0x01`, so it no longer raises `running` and its phase is published as `Delay` instead
+  of firing the live-activity automation an hour before the wash.
+- `delay_start`, `child_lock` and `rinse_refill` become entities, and the published option and
+  status bits are the ones measured on the appliance rather than positions predicted from a
+  sibling model.
+
 ## 0.2.2
 
 - Builds the fork's `v0.1.0-d0211.2` tag: it drops the comments that pointed at a non-public
