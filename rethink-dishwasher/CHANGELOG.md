@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.4
+
+- Builds the fork's `v0.1.0-d0211.4` tag: `extra_dry`, `high_temp` and `half_load` become
+  entities. The three options were measured on the idle panel first, and the option entities
+  report only while a cycle runs, so each waited for a running cycle to show its bit — extra
+  dry through a whole Eco wash, high temp + half load on a short Auto run later cancelled.
+  The published set is 18 components.
+
 ## 0.2.3
 
 - Builds the fork's `v0.1.0-d0211.3` tag: the delay-start countdown runs at state `0x02` with

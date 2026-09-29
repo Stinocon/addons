@@ -18,11 +18,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Pinned to the fork's own tag, not to a branch: the selected reference is the fork's
-# `v0.1.0-d0211` line, rebased onto rethink v0.1.0 (`v0.1.0-d0211.3` = rethink v0.1.0 plus the
-# D0211 handler, the delay-start countdown fix, the measured option and status bits, and the
-# removal of the references to a non-public repository). A tag means a given add-on version always
-# builds the same source.
-ARG RETHINK_REF=v0.1.0-d0211.3
+# `v0.1.0-d0211` line, rebased onto rethink v0.1.0 (`v0.1.0-d0211.4` = rethink v0.1.0 plus the
+# D0211 handler, the delay-start countdown fix, the measured option and status bits, the three
+# option bits confirmed in running cycles, and the removal of the references to a non-public
+# repository). A tag means a given add-on version always builds the same source.
+ARG RETHINK_REF=v0.1.0-d0211.4
 
 # Cache-bust: changing the ref above invalidates the clone layer below, so a rebuild picks up the
 # new source instead of reusing the stale cloned layer.
