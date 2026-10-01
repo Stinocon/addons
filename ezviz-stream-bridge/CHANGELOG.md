@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.15
+
+- Fixed the connections that stayed black: a camera keeps one encoder timeline across
+  sessions, so a second connection joins the stream mid-GOP and receives slices only, with
+  no H.264/HEVC parameter set of its own. Such a join opened FFmpeg's `mpeg` demuxer and
+  produced nothing at all (`bytes=0`) until the client gave up. The session that opens the
+  stream now leaves its parameter sets in a per-camera cache, and a join whose leading
+  packets carry none is served from it: the stream opens as the codec it is, and the
+  picture is clean from the next keyframe on.
+
 ## 0.1.14
 
 - Fixed the muted audio on the RTP path: with two inputs FFmpeg does not drain the video
