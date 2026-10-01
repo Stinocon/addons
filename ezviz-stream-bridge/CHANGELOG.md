@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.16
+
+- The bridge's log now says its version in the first line, read from the installed
+  package: a log that cannot name the build it came from invites a guess, and a wrong
+  one sends the diagnosis of a report down the wrong path.
+
 ## 0.1.15
 
 - Fixed the connections that stayed black: a camera keeps one encoder timeline across
