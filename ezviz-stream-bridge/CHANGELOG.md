@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.1.14
+
+- Fixed the muted audio on the RTP path: with two inputs FFmpeg does not drain the video
+  while it waits for the audio, so the bridge's single pump parked writing a full stdin
+  and the audio pipe went dry behind it -- a deadlock only the stall watchdog could
+  break, by ending the audio (issue #1, audio for ~2s then silence). The video to FFmpeg
+  now waits in a bounded non-blocking queue, like the audio already did; a stdin jammed
+  past the bound drops the oldest chunks and says so instead of muting the session.
+- The audio input keeps its demuxer's own clock (a frame per 1024 samples) placed by the
+  arrival gap the session measures between its first audio packet and its first video
+  one, instead of the read time: the queue makes reads bursty, and read-time stamps
+  folded seconds of audio into one instant.
+
 ## 0.1.13
 
 - **The audio input can no longer park the session.** FFmpeg opens its inputs in order and probes
